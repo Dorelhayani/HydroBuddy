@@ -1,6 +1,10 @@
 const express = require('express');
-const port = 5050;
+const morgan = require('morgan');
+const cors = require('cors');
+const dotenv = require('dotenv');
+
 const app = express();
+const port = 5050;
 app.use(express.json());
 
 app.set("view engine", "ejs");
