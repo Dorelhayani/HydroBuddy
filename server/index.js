@@ -4,7 +4,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const bodyParser = require('body-parser');
-
+const path = require('path');
+const esp = require('./Routs/esp')
 const app = express();
 const port = 5050;
 
@@ -13,9 +14,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
-
 app.set("view engine", "ejs");
-const path = require('path');
+app.use('/esp', esp);
+
 app.use(express.static(path.join(__dirname, "css")));
 app.use(express.static(path.join(__dirname, "js")));
 
