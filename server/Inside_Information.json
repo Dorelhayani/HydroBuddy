@@ -1,0 +1,19 @@
+{
+  "state": "64",
+  "TEMP_MODE": {
+    "temp": 23,
+    "minTime": 1,
+    "maxTime": 3
+  },
+  "SOIL_MOISTURE_MODE": {
+    "moisture": 60,
+    "minMoisture": 40,
+    "maxMoisture": 70
+  },
+  "SATURDAY_MODE": {
+    "hour": 20.46,
+    "minute": 52,
+    "duration": 2
+  },
+  "MANUAL_MODE": false
+}
