@@ -1,0 +1,93 @@
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <HTTPClient.h>
+
+const char* ssid = "Dor_EL";
+const char* password = "1a2b3c4d5e";
+
+WiFiClient client;
+
+void WiFi_Setup() {
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("IP Address: ");
+  Serial.println("WiFi Connected");
+}
+
+void SendData(float temp, int light, int moisture) {
+  HTTPClient http;
+  String dataURL = "Temp=" + String(temp);
+  dataURL += "&Light=" + String(light);
+  dataURL += "&Moisture=" + String(moisture);
+  http.begin(client, "http://10.0.0.14:5050/esp?" + dataURL);  // home ip
+  int httpCode = http.GET();
+  if (httpCode == HTTP_CODE_OK) {
+    Serial.print("HTTP response code");
+    Serial.println(httpCode);
+  }
+  http.end();
+}
+
+void SendToDatasensors(float temp, int light, int moisture, bool isPumpON) {
+  HTTPClient http;
+  http.begin(client, "http://10.0.0.14:5050/PlantRout/StoreToDatasensors");
+  http.addHeader("Content-Type", "application/json");
+  String dataToJson = "{\"temp\":" + String(temp) + ",\"light\":" + String(light) + ",\"moisture\":" + String(moisture) + ",\"isPumpON\":" + String(isPumpON ? 1 : 0) + "}";
+  int httpCode = http.POST(dataToJson);
+  if (httpCode > 0) {
+    Serial.print("HTTP response code");
+    Serial.println(httpCode);
+  }
+  http.end();
+}
+
+int GetState() {
+  int ret = -1;
+  HTTPClient http;
+  http.begin(client, "http://10.0.0.14:5050/esp/state");  // home ip
+  int httpCode = http.GET();
+  Serial.print(httpCode);
+  if (httpCode == HTTP_CODE_OK) {
+    Serial.print("HTTP response code");
+    Serial.println(httpCode);
+    String Res = http.getString();
+    int start = Res.indexOf("\"CurrentStatus\":\"") + 17;  // מצא את המיקום של "CurrentStatus"
+    int end = Res.indexOf("\"", start);                    // מצא את הסוף של הערך
+    String stateStr = Res.substring(start, end);           // קח את הערך של הסטייט
+    ret = stateStr.toInt();
+  }
+  http.end();
+  return ret;
+}
+
+void dataMode(int CurrentStatus) {
+  HTTPClient http;
+  String dataURL = "&MCurrentStatus=" + String(CurrentStatus);
+  http.begin(client, "http://10.0.0.14:5050/esp/state?" + CurrentStatus);  // home ip
+  int httpCode = http.GET();
+  if (httpCode == HTTP_CODE_OK) {
+    Serial.print("HTTP response code");
+    Serial.println(httpCode);
+  }
+  http.end();
+}
+
+String getJsonData(String state) {
+  String Json = "";
+  HTTPClient http;
+  http.begin(client, "http://10.0.0.14:5050/esp/dataMode?state=" + state);
+  int httpCode = http.GET();
+  Serial.print(httpCode);
+  if (httpCode == HTTP_CODE_OK) {
+    Serial.print("HTTP response code");
+    Serial.println(httpCode);
+    String Res = http.getString();
+    Serial.print(Res);
+  }
+  http.end();
+  return Json;
+}
