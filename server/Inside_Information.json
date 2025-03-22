@@ -15,5 +15,11 @@
     "minute": 52,
     "duration": 2
   },
-  "MANUAL_MODE": false
+  "MANUAL_MODE": {
+    "enabled": false,
+    "manualActions": [
+      "Activate pump",
+      "Turn on irrigation system"
+    ]
+  }
 }

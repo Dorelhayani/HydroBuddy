@@ -32,11 +32,9 @@ class PlantData{
             if (sql.length > 0) {  plantTypeID = sql[0].ID; }
             else {
                 let [newPlantType] = await this.DB.execute(`INSERT INTO planttype(name) VALUES(?)`, [plantName]);
-                plantTypeID = newPlantType.insertId; }
-
-            let [newPlant] = await this.DB.execute(`INSERT INTO plant(PlantTypeID, Date) 
-               VALUES(?, ?)`, [plantTypeID, formattedDate]);
-
+                plantTypeID = newPlantType.insertId;
+            }
+            let [newPlant] = await this.DB.execute(`INSERT INTO plant(PlantTypeID, Date) VALUES(?, ?)`, [plantTypeID, formattedDate]);
             return newPlant.insertId;
         } catch (error) { throw error; }
     }
@@ -50,7 +48,7 @@ class PlantData{
             // let [sql]= await this.DB.execute(`SELECT * FROM planttype`);
 
             let [sql,t] = await this.DB.execute(`SELECT plant.*, planttype.* FROM plant 
-JOIN planttype ON plant.PlantTypeID = planttype.ID` );
+                JOIN planttype ON plant.PlantTypeID = planttype.ID` );
             return sql;
         } catch (error){ console.log(error); }
     }
