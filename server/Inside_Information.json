@@ -1,5 +1,5 @@
 {
-  "state": "64",
+  "state": "63",
   "TEMP_MODE": {
     "temp": 23,
     "minTime": 1,
@@ -11,9 +11,9 @@
     "maxMoisture": 70
   },
   "SATURDAY_MODE": {
-    "hour": 20.46,
-    "minute": 52,
-    "duration": 2
+    "hour": 18,
+    "minute": 53,
+    "duration": 1
   },
   "MANUAL_MODE": {
     "enabled": false,
