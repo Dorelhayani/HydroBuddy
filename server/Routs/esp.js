@@ -46,37 +46,28 @@ router.patch('/manual', (req,res)=>{
     }
     catch (error){ res.status(500).json({ error: "Error handling manual mode" }); }
 })
-// router.get('/Saturday/:hour?/:minute?/:duration?', (req,res)=>{
-//     try{
-//         let data = JSON.parse(fs.readFileSync("Inside_Information.json", 'utf8'));
-//         if(req.params.hour && req.params.minute && req.params.duration){
-//             data.SATURDAY_MODE={
-//                 hour: parseInt(req.params.hour),
-//                 minute: parseInt(req.params.minute),
-//                 duration: parseInt(req.params.duration)
-//             }
-//             fs.writeFileSync("Inside_Information.json", JSON.stringify(data, null, 2), "utf8");
-//             console.log(`Saturday mode set to: ${data.SATURDAY_MODE.hour} : ${data.SATURDAY_MODE.minute} for ${data.SATURDAY_MODE.duration} `)
-//             return res.json({ message: "Saturday mode updated", SATURDAY_MODE: data.SATURDAY_MODE });
-//         }
-//         res.json({SATURDAY_MODE: data.SATURDAY_MODE});
-//     }catch (error){ res.status(500).json({ error: "Error handling Saturday mode" }); }
-// });
-
 router.patch('/Saturday', (req,res)=>{
     try{
+        let hour = parseInt(req.body.hour);
+        let minute = parseInt(req.body.minute);
+        let duration = parseInt(req.body.duration);
+        let ValidTime = (Number.isInteger(hour) && Number.isInteger(minute) && Number.isInteger(duration)
+            &&  hour >= 0 && hour <= 23 &&
+            minute >= 0 && minute <= 59 &&
+            duration > 0);
+
         let data = JSON.parse(fs.readFileSync("Inside_Information.json", 'utf8'));
-        if(req.body.hour && req.body.minute && req.body.duration){
+        if(ValidTime){
             data.SATURDAY_MODE={
-                hour: parseInt(req.body.hour),
-                minute: parseInt(req.body.minute),
-                duration: parseInt(req.body.duration)
+                hour,
+                minute,
+                duration
             }
             fs.writeFileSync("Inside_Information.json", JSON.stringify(data, null, 2), "utf8");
             console.log(`Saturday mode set to: ${data.SATURDAY_MODE.hour} : ${data.SATURDAY_MODE.minute} for ${data.SATURDAY_MODE.duration} `)
             return res.json({ message: "Saturday mode updated", SATURDAY_MODE: data.SATURDAY_MODE });
         }
-        res.json({SATURDAY_MODE: data.SATURDAY_MODE});
+        return res.status(400).json({ error: "Please Insert a Valid Time Signature"});
     }catch (error){ res.status(500).json({ error: "Error handling Saturday mode" }); }
 });
 module.exports = router;
