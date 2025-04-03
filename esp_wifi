@@ -1,15 +1,20 @@
-
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 
-const char* ssid = "Dor_EL";
-const char* password = "1a2b3c4d5e";
+// const char* ssid = "Dor_EL";
+const char* ssid = "Kinneret College";
+// const char* password = "1a2b3c4d5e";
+
+String Port = "5050";
+// String IPadress = "http://10.0.0.16"; // home IP
+String IPadress = "http://10.9.3.95"; // kinneret IP
 
 WiFiClient client;
 
 void WiFi_Setup() {
-  WiFi.begin(ssid, password);
+  // WiFi.begin(ssid, password);
+  WiFi.begin(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -23,7 +28,7 @@ void SendData(float temp, int light, int moisture) {
   String dataURL = "Temp=" + String(temp);
   dataURL += "&Light=" + String(light);
   dataURL += "&Moisture=" + String(moisture);
-  http.begin(client, "http://10.0.0.14:5050/esp?" + dataURL);  // home ip
+  http.begin(client, IPadress + ":" + Port + "/esp?" + dataURL);
   int httpCode = http.GET();
   if (httpCode == HTTP_CODE_OK) {
     Serial.print("HTTP response code");
@@ -34,7 +39,7 @@ void SendData(float temp, int light, int moisture) {
 
 void SendToDatasensors(float temp, int light, int moisture, bool isPumpON) {
   HTTPClient http;
-  http.begin(client, "http://10.0.0.14:5050/PlantRout/StoreToDatasensors");
+  http.begin(client, IPadress + ":"  + Port + "/PlantRout/StoreToDatasensors");
   http.addHeader("Content-Type", "application/json");
   String dataToJson = "{\"temp\":" + String(temp) + ",\"light\":" + String(light) + ",\"moisture\":" + String(moisture) + ",\"isPumpON\":" + String(isPumpON ? 1 : 0) + "}";
   int httpCode = http.POST(dataToJson);
@@ -48,8 +53,9 @@ void SendToDatasensors(float temp, int light, int moisture, bool isPumpON) {
 int GetState() {
   int ret = -1;
   HTTPClient http;
-  http.begin(client, "http://10.0.0.14:5050/esp/state");  // home ip
-  int httpCode = http.GET();
+  http.begin(client, IPadress + ":" + Port + "/esp/state");
+  String STTS = String(CurrentStatus);
+  int httpCode = http.PATCH(STTS);
   Serial.print(httpCode);
   if (httpCode == HTTP_CODE_OK) {
     Serial.print("HTTP response code");
@@ -67,8 +73,8 @@ int GetState() {
 void dataMode(int CurrentStatus) {
   HTTPClient http;
   String dataURL = "&MCurrentStatus=" + String(CurrentStatus);
-  http.begin(client, "http://10.0.0.14:5050/esp/state?" + CurrentStatus);  // home ip
-  int httpCode = http.GET();
+  http.begin(client, IPadress + ":" + Port + "/esp/state?" + CurrentStatus);
+  int httpCode = http.PATCH(String(CurrentStatus));
   if (httpCode == HTTP_CODE_OK) {
     Serial.print("HTTP response code");
     Serial.println(httpCode);
@@ -79,10 +85,11 @@ void dataMode(int CurrentStatus) {
 String getJsonData(String state) {
   String Json = "";
   HTTPClient http;
-  http.begin(client, "http://10.0.0.14:5050/esp/dataMode?state=" + state);
+  http.begin(client, IPadress + ":" + Port + "/esp/dataMode?state=" + state);
   int httpCode = http.GET();
   Serial.print(httpCode);
   if (httpCode == HTTP_CODE_OK) {
+    Json = http.getString();
     Serial.print("HTTP response code");
     Serial.println(httpCode);
     String Res = http.getString();
