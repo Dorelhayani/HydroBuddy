@@ -1,11 +1,9 @@
 #include <DHT.h>
 #include <ArduinoJson.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+#include <time.h>
 
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 7200, 60000);
-
+const char* ntpServer = "il.pool.ntp.org";
+const char* timeZone = "IST-2IDT,M3.4.4/26,M10.5.0";  // שעון קיץ ישראל
 
 // pins
 // -------------------------------------
@@ -26,19 +24,29 @@ JsonDocument doc;
 float CurrentTemp;
 float temp;
 int light;
+
 int moisture;
+int minMoisture, maxMoisture;
 int relevantMoist = 30;
+
 int minutes = (1000 * 60);
 int minTime, maxTime;
-int minMoisture, maxMoisture;
+
 bool isPumpON;
 bool manual;
 int countON = 0;
 unsigned long last_time_ON;
-unsigned long lastSentTime = 0;
-unsigned long setSendToDatasensors = (1 * minutes);
+
+unsigned long lastSentDataTime;
+
 int currentHour;
 int currentMinute;
+bool matchTime;
+
+int scheduledHour;
+int scheduledMinute;
+int duration;
+
 
 // State Machine
 // -------------------------------------
@@ -51,7 +59,7 @@ unsigned long statusCheckTime;  // בודק כל זמן מסוים מה המצב
 unsigned long DataPullTime;     // בודק כל זמן מסוים יש עדכנוים מהלקוח
 unsigned long activationTime;
 unsigned long dealyTime;
-int trigerTime = 3000;
+int trigerTime = 300;
 // -------------------------------------
 
 void setup() {
@@ -59,9 +67,11 @@ void setup() {
   Serial.begin(115200);
   WiFi_Setup();
   dht.begin();
-  timeClient.begin();
   isPumpON = true;
   statusCheckTime = millis();
+
+  configTzTime(timeZone, ntpServer);
+  waitForTimeSync();
 }
 
 void loop() {
@@ -70,143 +80,31 @@ void loop() {
     statusCheckTime = millis();
   }
 
-  SendData(CurrentTemp, light, moisture);
+  // שליחת נתונים ברצף
+  // SendData(CurrentTemp, light, moisture);
+  // SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0));
+  // dataMode(CurrentStatus);
+
   dataMode(CurrentStatus);
-  if(millis() - lastSentTime >= setSendToDatasensors ) { SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0)); }
+
+  if ((millis() - lastSentDataTime) > (1 * minutes)) {
+    Serial.println("📤 Sending Data...");
+    SendData(CurrentTemp, light, moisture);
+    // if(CurrentTemp > 0 && light > 0 ) { SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0)); }   // לבידקה אחר כך
+    SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0));
+
+    lastSentDataTime = millis();
+  }
+
   SM();
-
-  Serial.println("🕒 Time: " + String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()));
-  Serial.println("light = " + String(light));
-  Serial.println("CurrentTemp = " + String(CurrentTemp));
-  Serial.println("moisture = " + String(moisture));
-  Serial.println("CurrentStatus = " + String(CurrentStatus));
-
-  timeClient.update();
+  StateMachinePrint();
 }
 
-void SM() {
-  switch (CurrentStatus) {
-    default:
-      CurrentStatus = GetState();
-      break;
-
-    case TEMP_MODE:
-      CurrentTemp = dht.readTemperature();
-      light = map(analogRead(lightSensor), 0, 4095, 0, 100);
-
-      if ((millis() - DataPullTime) > (1 * minutes)) {
-        deserializeJson(doc, getJsonData("temp"));
-        temp = (float)doc["temp"];
-        minTime = doc["minTime"];
-        maxTime = doc["maxTime"];
-        DataPullTime = millis();
-      }
-
-      if (light > 70) {
-        isPumpON = true;
-      } else if (light < 10 && countON == 2) {
-        isPumpON = true;
-        countON = 0;
-      }
-
-      if (isPumpON && temp < CurrentTemp && countON < 2 && light < 40) {
-        digitalWrite(pump, LOW);
-        if (millis() - activationTime > (maxTime * minutes)) {
-          digitalWrite(pump, HIGH);
-          Serial.println("pump ON");
-          isPumpON = false;
-          countON++;
-          activationTime = millis();
-        }
-      } else if (isPumpON && countON < 2) {
-        digitalWrite(pump, LOW);
-        if (millis() - activationTime > (minTime * minutes)) {
-          digitalWrite(pump, HIGH);
-          isPumpON = false;
-          countON++;
-          activationTime = millis();
-        }
-      }
-      Serial.println("");
-      Serial.println("countON = " + String(countON));
-      Serial.println("isPumpON = " + String(isPumpON));
-      break;
-
-
-    case SOIL_MOISTURE_MODE:
-      moisture = map(analogRead(MoistureSensore), 0, 4095, 0, 100);
-
-      if ((millis() - DataPullTime) > (1 * minutes)) {
-        deserializeJson(doc, getJsonData("moisture"));
-        moisture = (int)doc["moisture"];
-        minMoisture = doc["minTime"];
-        maxMoisture = doc["maxTime"];
-        DataPullTime = millis();
-      }
-
-      if (moisture > minMoisture) {
-        isPumpON = true;
-      } else if (moisture < maxMoisture) {
-        isPumpON = true;
-      }
-
-      if (isPumpON) {
-        digitalWrite(pump, LOW);
-        if (millis() - activationTime > (maxTime * minutes)) {
-          digitalWrite(pump, HIGH);
-          isPumpON = false;
-          activationTime = millis();
-        }
-      }
-      break;
-
-    case SATURDAY_MODE:
-      Serial.println("🕍 SATURDAY_MODE ");
-
-      // עדכון השעה הנוכחית מ-NTP
-      timeClient.update();
-      currentHour = timeClient.getHours();
-      currentMinute = timeClient.getMinutes();
-
-      // בדיקה אם צריך למשוך נתונים מהשרת (כל 2 דקות)
-      if ((millis() - DataPullTime) > (0 * minutes)) {
-        deserializeJson(doc, getJsonData("SATURDAY_MODE"));
-
-        int scheduledHour = doc["hour"];      // שעה להפעלת המשאבה
-        int scheduledMinute = doc["minute"];  // דקה להפעלת המשאבה
-        int duration = doc["duration"];       // משך הפעלת המשאבה בדקות
-
-        DataPullTime = millis();
-        activationTime = duration * minutes;
-
-        Serial.println("🕒 SATURDAY_MODE Starts At: " + String(scheduledHour) + ":" + String(scheduledMinute));
-
-        // שמירת הנתונים למשך ההשוואה עם הזמן הנוכחי
-        if (currentHour == scheduledHour && currentMinute == scheduledMinute) {
-          Serial.println("🚰 מפעיל משאבה במצב שבת");
-          digitalWrite(pump, LOW);  // הפעלת המשאבה
-
-          // המתנה לפי הזמן שהוגדר ואז כיבוי המשאבה
-          delay(activationTime);
-          digitalWrite(pump, HIGH);  // כיבוי המשאבה
-
-          Serial.println("🚱 המשאבה כובתה לאחר הזמן שהוגדר");
-        }
-      }
-      break;
-
-    case MANUAL_MODE:
-
-      if ((millis() - DataPullTime) > (0 * minutes)) {
-        deserializeJson(doc, getJsonData("MANUAL_MODE"));
-        manual = doc["enabled"];
-
-        // if (manual) {
-        //   if((millis() - dealyTime) > (trigerTime)) digitalWrite(pump, LOW);
-        // }
-        if (manual) digitalWrite(pump, LOW);
-        else if (!manual) digitalWrite(pump, HIGH);
-      }
-      break;
+void waitForTimeSync() {
+  struct tm timeinfo;
+  while (!getLocalTime(&timeinfo)) {
+    Serial.println("⏳ Waiting for NTP time...");
+    // delay(1000);
   }
+  Serial.println("✅ Time synchronized!");
 }
