@@ -33,6 +33,29 @@ router.get('/dataMode', (req, res) => {
     } catch (error) { res.status(500).json({ error: "Failed to read current state" }); }
 });
 
+router.patch('/moisture', (req,res)=>{
+    try{
+        let minMoisture = parseInt(req.body.minMoisture);
+        let maxMoisture = parseInt(req.body.maxMoisture);
+        let moistureLVL = parseInt(req.body.moistureLVL);
+
+        let data = JSON.parse(fs.readFileSync("Inside_Information.json", 'utf8'));
+        let validMoist = ( Number.isInteger(minMoisture) && Number.isInteger(maxMoisture)  && minMoisture > 0 && maxMoisture > 0);
+        if(validMoist){
+            data.SOIL_MOISTURE_MODE = {
+                minMoisture,
+                maxMoisture,
+                moistureLVL
+            }
+        }
+        fs.writeFileSync("Inside_Information.json", JSON.stringify(data, null, 2), "utf8");
+        console.log(`Moisture Level is ${data.SOIL_MOISTURE_MODE.moistureLVL} 
+        Minimum Moisture Level is: ${data.SOIL_MOISTURE_MODE.minMoisture} 
+        Minimum Moisture Level is:${data.SOIL_MOISTURE_MODE.maxMoisture}`)
+
+        return res.json({message: "Moisture Mode Updated", })
+    }catch (error){ res.status(500).json({ error: "Error handling moisture mode" }); }
+})
 router.patch('/manual', (req,res)=>{
     try{
         let data = JSON.parse(fs.readFileSync("Inside_Information.json", 'utf8'));
