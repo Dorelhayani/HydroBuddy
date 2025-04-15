@@ -1,5 +1,5 @@
 {
-  "state": "62",
+  "state": "63",
   "TEMP_MODE": {
     "temp": 23,
     "minTime": 1,
@@ -11,12 +11,11 @@
     "moistureLVL": 5
   },
   "SATURDAY_MODE": {
-    "hour": 20,
-    "minute": 54,
+    "timeAct": "23:40",
     "duration": 1
   },
   "MANUAL_MODE": {
-    "enabled": false,
+    "enabled": true,
     "manualActions": [
       "Activate pump",
       "Turn on irrigation system"
