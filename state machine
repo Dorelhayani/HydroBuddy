@@ -4,8 +4,8 @@ void SM() {
       CurrentStatus = GetState();
       break;
 
-// Temperatue Mode 
-// ==============================================================================================
+      // Temperatue Mode
+      // ==============================================================================================
     case TEMP_MODE:
       CurrentTemp = dht.readTemperature();
       light = map(analogRead(lightSensor), 0, 4095, 0, 100);
@@ -18,8 +18,8 @@ void SM() {
         DataPullTime = millis();
       }
 
-      if (light > 70) { isPumpON = true; } 
-      else if (light < 10 && countON == 2) {
+      if (light > 70) isPumpON = true;
+        else if (light < 10 && countON == 2) {
         isPumpON = true;
         countON = 0;
       }
@@ -46,38 +46,39 @@ void SM() {
       Serial.println("countON = " + String(countON));
       Serial.println("isPumpON = " + String(isPumpON));
       break;
-// ==============================================================================================
+      // ==============================================================================================
 
-// Soil Moisture Mode
-// ==============================================================================================
+      // Soil Moisture Mode
+      // ==============================================================================================
     case SOIL_MOISTURE_MODE:
       CurrentTemp = dht.readTemperature();
       moisture = map(analogRead(MoistureSensore), 0, 4095, 0, 100);
 
       if ((millis() - DataPullTime) > (1 * minutes)) {
-        deserializeJson(doc, getJsonData("moisture"));
-        moisture = (int)doc["moisture"];
-        minMoisture = doc["minTime"];
-        maxMoisture = doc["maxTime"];
+
+        deserializeJson(doc, getJsonData("SOIL_MOISTURE_MODE"));
+        // moisture = (int)doc["SOIL_MOISTURE_MODE"]["moisture"];
+        moistureLVL = doc["SOIL_MOISTURE_MODE"]["moistureLVL"];
+        minMoisture = doc["SOIL_MOISTURE_MODE"]["minMoisture"];
+        maxMoisture = doc["SOIL_MOISTURE_MODE"]["maxMoisture"];
+
+        isValidMoisture = ((moisture - moistureLVL) < minMoisture);
         DataPullTime = millis();
       }
-
-      if (moisture > minMoisture) { isPumpON = true; } 
-      else if (moisture < maxMoisture) { isPumpON = true; }
- 
-      if (isPumpON) {
-        digitalWrite(pump, LOW);
-        if (millis() - activationTime > (maxTime * minutes)) {
+      if (!isValidMoisture || ((moisture + moistureLVL) > maxMoisture)) {
+        if (millis() - activationTime > (duration * minutes)) {
           digitalWrite(pump, HIGH);
-          isPumpON = false;
           activationTime = millis();
         }
-      }
-      break;
-// ==============================================================================================
+      } else digitalWrite(pump, LOW);
+        
+      
 
-// Saturday Mode
-// ==============================================================================================
+      break;
+      // ==============================================================================================
+
+      // Saturday Mode
+      // ==============================================================================================
     case SATURDAY_MODE:
       struct tm timeinfo;
       if (getLocalTime(&timeinfo)) {
@@ -85,39 +86,38 @@ void SM() {
         currentMinute = timeinfo.tm_min;
       }
 
-      if ((millis() - DataPullTime) > (0 * minutes)) {
+      if ((millis() - DataPullTime) > (1 * minutes)) {
         deserializeJson(doc, getJsonData("SATURDAY_MODE"));
+        TimeActivate = doc["SATURDAY_MODE"]["timeAct"];
 
-        scheduledHour = doc["SATURDAY_MODE"]["hour"];
-        scheduledMinute = doc["SATURDAY_MODE"]["minute"];
+        parseTimeString(TimeActivate, scheduledHour, scheduledMinute);
         duration = doc["SATURDAY_MODE"]["duration"];
-
-        DataPullTime = millis();
         matchTime = ((scheduledHour == currentHour) && (scheduledMinute == currentMinute));
-
-        if (!matchTime) {
-          if (millis() - activationTime > (duration * minutes)) {
-            digitalWrite(pump, HIGH);
-            activationTime = millis();
-          }
-        } else digitalWrite(pump, LOW);
+        DataPullTime = millis();
       }
+
+      if (!matchTime) {
+        if (millis() - activationTime > (duration * minutes)) {
+          digitalWrite(pump, HIGH);
+          activationTime = millis();
+        }
+      } else digitalWrite(pump, LOW);
       break;
-// ==============================================================================================
+      // ==============================================================================================
 
-// Manual Mode
-// ==============================================================================================
+      // Manual Mode
+      // ==============================================================================================
     case MANUAL_MODE:
-      if ((millis() - DataPullTime) > (0 * minutes)) {
+      if ((millis() - DataPullTime) > (1 * minutes)) {
         String Res = getJsonData("MANUAL_MODE");
-
         deserializeJson(doc, Res);
         manual = doc["MANUAL_MODE"]["enabled"];
         DataPullTime = millis();
-        if (manual) {
-          if ((millis() - dealyTime) > (trigerTime)) digitalWrite(pump, LOW);
-        } else { digitalWrite(pump, HIGH); }
       }
+
+      if (manual) {
+        if ((millis() - dealyTime) > (trigerTime)) digitalWrite(pump, LOW);
+      } else digitalWrite(pump, HIGH);
       break;
   }
 }

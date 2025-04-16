@@ -2,19 +2,20 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 
-// const char* ssid = "Dor_EL";
-const char* ssid = "Kinneret College";
-// const char* password = "1a2b3c4d5e";
+const char* ssid = "Dor_EL";
+// const char* ssid = "Kinneret College";
+const char* password = "1a2b3c4d5e";
 
 String Port = "5050";
-// String IPadress = "http://10.0.0.16"; // home IP
-String IPadress = "http://10.9.3.95"; // kinneret IP
+String IPadress = "http://10.0.0.19"; // home IP
+// String IPadress = "http://10.9.0.241"; // kinneret IP
 
 WiFiClient client;
-
+// WiFi_Setup
+// ===================================================================================================================
 void WiFi_Setup() {
-  // WiFi.begin(ssid, password);
-  WiFi.begin(ssid);
+  WiFi.begin(ssid, password);
+  // WiFi.begin(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -22,7 +23,10 @@ void WiFi_Setup() {
   Serial.print("IP Address: ");
   Serial.println("WiFi Connected");
 }
+// ===================================================================================================================
 
+// SendData
+// ===================================================================================================================
 void SendData(float temp, int light, int moisture) {
   HTTPClient http;
   String dataURL = "Temp=" + String(temp);
@@ -31,12 +35,15 @@ void SendData(float temp, int light, int moisture) {
   http.begin(client, IPadress + ":" + Port + "/esp?" + dataURL);
   int httpCode = http.GET();
   if (httpCode == HTTP_CODE_OK) {
-    Serial.print("HTTP response code");
+    Serial.print("SendData HTTP response code");
     Serial.println(httpCode);
   }
   http.end();
 }
+// ===================================================================================================================
 
+// SendToDatasensors
+// ===================================================================================================================
 void SendToDatasensors(float temp, int light, int moisture, bool isPumpON) {
   HTTPClient http;
   http.begin(client, IPadress + ":"  + Port + "/PlantRout/StoreToDatasensors");
@@ -49,7 +56,10 @@ void SendToDatasensors(float temp, int light, int moisture, bool isPumpON) {
   }
   http.end();
 }
+// ===================================================================================================================
 
+// GetState
+// ===================================================================================================================
 int GetState() {
   int ret = -1;
   HTTPClient http;
@@ -69,7 +79,10 @@ int GetState() {
   http.end();
   return ret;
 }
+// ===================================================================================================================
 
+// dataMode
+// ===================================================================================================================
 void dataMode(int CurrentStatus) {
   HTTPClient http;
   String dataURL = "&MCurrentStatus=" + String(CurrentStatus);
@@ -81,7 +94,10 @@ void dataMode(int CurrentStatus) {
   }
   http.end();
 }
+// ===================================================================================================================
 
+// getJsonData
+// ===================================================================================================================
 String getJsonData(String state) {
   String Json = "";
   HTTPClient http;
@@ -90,7 +106,7 @@ String getJsonData(String state) {
   Serial.print(httpCode);
   if (httpCode == HTTP_CODE_OK) {
     Json = http.getString();
-    Serial.print("HTTP response code");
+    Serial.print("getJsonData HTTP response code");
     Serial.println(httpCode);
     String Res = http.getString();
     Serial.print(Res);
@@ -98,3 +114,4 @@ String getJsonData(String state) {
   http.end();
   return Json;
 }
+// ===================================================================================================================

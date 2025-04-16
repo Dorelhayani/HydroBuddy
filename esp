@@ -16,7 +16,8 @@ const char* timeZone = "IST-2IDT,M3.4.4/26,M10.5.0";  // שעון קיץ ישר�
 
 // General data
 // -------------------------------------
-#define DHTTYPE DHT11
+// #define DHTTYPE DHT11
+#define DHTTYPE DHT22
 DHT dht(dhtPin, DHTTYPE);
 
 JsonDocument doc;
@@ -27,7 +28,8 @@ int light;
 
 int moisture;
 int minMoisture, maxMoisture;
-int relevantMoist = 30;
+int moistureLVL;
+bool isValidMoisture;
 
 int minutes = (1000 * 60);
 int minTime, maxTime;
@@ -35,18 +37,16 @@ int minTime, maxTime;
 bool isPumpON;
 bool manual;
 int countON = 0;
-unsigned long last_time_ON;
 
 unsigned long lastSentDataTime;
 
+const char* TimeActivate;
 int currentHour;
 int currentMinute;
 bool matchTime;
-
 int scheduledHour;
 int scheduledMinute;
 int duration;
-
 
 // State Machine
 // -------------------------------------
@@ -55,8 +55,8 @@ int duration;
 #define SATURDAY_MODE 63
 #define MANUAL_MODE 64
 int CurrentStatus;
-unsigned long statusCheckTime;  // בודק כל זמן מסוים מה המצב העדכני של של הסטייט
-unsigned long DataPullTime;     // בודק כל זמן מסוים יש עדכנוים מהלקוח
+unsigned long statusCheckTime;
+unsigned long DataPullTime;  // בודק כל זמן מסוים יש עדכנוים מהלקוח
 unsigned long activationTime;
 unsigned long dealyTime;
 int trigerTime = 300;
@@ -80,11 +80,6 @@ void loop() {
     statusCheckTime = millis();
   }
 
-  // שליחת נתונים ברצף
-  // SendData(CurrentTemp, light, moisture);
-  // SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0));
-  // dataMode(CurrentStatus);
-
   dataMode(CurrentStatus);
 
   if ((millis() - lastSentDataTime) > (1 * minutes)) {
@@ -92,19 +87,28 @@ void loop() {
     SendData(CurrentTemp, light, moisture);
     // if(CurrentTemp > 0 && light > 0 ) { SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0)); }   // לבידקה אחר כך
     SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0));
-
     lastSentDataTime = millis();
   }
 
   SM();
   StateMachinePrint();
+  delay(2000);
+}
+
+void parseTimeString(const char* timeStr, int& hour, int& minute) {
+  char timeCopy[6];
+  strncpy(timeCopy, timeStr, sizeof(timeCopy));
+  timeCopy[5] = '\0';
+
+  char* token = strtok(timeCopy, ":");
+  if (token) hour = atoi(token);
+
+  token = strtok(NULL, ":");
+  if (token) minute = atoi(token);
 }
 
 void waitForTimeSync() {
   struct tm timeinfo;
-  while (!getLocalTime(&timeinfo)) {
-    Serial.println("⏳ Waiting for NTP time...");
-    // delay(1000);
-  }
+  while (!getLocalTime(&timeinfo)) { Serial.println("⏳ Waiting for NTP time..."); }
   Serial.println("✅ Time synchronized!");
 }
