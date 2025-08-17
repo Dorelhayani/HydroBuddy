@@ -1,32 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const PlantData = require('../models/PlantMode');
+const UserData = require('../models/UserMode');
 const db = require('../models/database');
 
-const NewPlant = new PlantData(db);
-
-// Store Sensors Value To Datasensors
-// ---------------------------------------------------------------------------------------------------------------------
-router.post("/StoreToDatasensors", async (req, res) => {
-    try {
-        const { temp, light, moisture, isPumpON } = req.body;
-        await NewPlant.storeESPData(temp, light, moisture, Number(isPumpON));
-
-        res.status(200).json({ message: "Data inserted successfully" });
-    } catch (error) { res.status(500).json({ error: error.message }); }
-});
-// ---------------------------------------------------------------------------------------------------------------------
+const User = new UserData(db);
 
 // Add
 // ---------------------------------------------------------------------------------------------------------------------
 router.post("/add", async (req,res) => {
     try {
-        const {name, user_id} = req.body;
-        const [rows] = await db.execute("SELECT id FROM users WHERE id = ?", [user_id]);
-        if(rows.length === 0){ return res.status(200).json({message:"User Not Found"}); }
-        console.log(user_id);
-        const PlantTypeID = await NewPlant.Create(name, user_id);
-        return res.status(200).json({PlantTypeID});
+        const {name, email, password, type, created_at } = req.body;
+        const UserID = await User.Create(name, email, password, type, created_at);
+        return res.status(201).json({user_id: UserID});
     } catch (error){ res.status(500).json({ error: error.message }); }
 });
 // ---------------------------------------------------------------------------------------------------------------------
@@ -35,8 +20,9 @@ router.post("/add", async (req,res) => {
 //  --------------------------------------------------------------------------------------------------------------------
 router.get("/list" , async (req, res) => {
     try{
-        const data = await NewPlant.Read();
-        res.status(201).json({message: data });
+        const data = await User.Read();
+        res.status(201).json({message: data});
+        // res.status(201).json({users: data });
     } catch (error){ res.status(500).json({ error: error.message }); }
 })
 //  --------------------------------------------------------------------------------------------------------------------
@@ -45,8 +31,8 @@ router.get("/list" , async (req, res) => {
 //  --------------------------------------------------------------------------------------------------------------------
 router.patch("/update", async (req, res) => {
     try {
-        await NewPlant.Update(req);
-        res.status(200).json({ message: "Plant updated successfully" });
+        await User.Update(req);
+        res.status(200).json({ message: "User updated successfully" });
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
 //  --------------------------------------------------------------------------------------------------------------------
@@ -55,8 +41,8 @@ router.patch("/update", async (req, res) => {
 //  --------------------------------------------------------------------------------------------------------------------
 router.delete("/delete", async (req,res)=>{
     try{
-        await NewPlant.Delete(req);
-        res.status(201).json({message: "Plant deleted successfully"});
+        await User.Delete(req);
+        res.status(201).json({message: "User deleted successfully"});
     } catch (error) { res.status(500).json({ error: error.message }); }
 })
 //  --------------------------------------------------------------------------------------------------------------------

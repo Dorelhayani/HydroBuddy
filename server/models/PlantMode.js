@@ -22,7 +22,7 @@ class PlantData{
 
 // Creat Method
 // ---------------------------------------------------------------------------------------------------------------------
-    async Create(plantName) {
+    async Create(plantName,userId) {
         try {
             const date = new Date();
             const formattedDate = date.toISOString().split('T')[0];
@@ -31,7 +31,7 @@ class PlantData{
             let plantTypeID;
             if (sql.length > 0) {  plantTypeID = sql[0].ID; }
             else {
-                let [newPlantType] = await this.DB.execute(`INSERT INTO planttype(name) VALUES(?)`, [plantName]);
+                let [newPlantType] = await this.DB.execute(`INSERT INTO planttype(name, user_id) VALUES(?,?)`, [plantName,userId]);
                 plantTypeID = newPlantType.insertId;
             }
             let [newPlant] = await this.DB.execute(`INSERT INTO plant(PlantTypeID, Date) VALUES(?, ?)`, [plantTypeID, formattedDate]);
@@ -69,13 +69,21 @@ async Update(plantName){
 
 // Delete Method
 // ---------------------------------------------------------------------------------------------------------------------
-async Delete(plantName){
-    try {
-        const {ID} = plantName.body;
-        let [sql,t]= await this.DB.execute(`SELECT * FROM planttype where ID = ?`,[ID]);
-        if(sql.length > 0){ await this.DB.execute(`DELETE FROM planttype WHERE id = ?`,[ID]); }
-    } catch (error) { console.log(error); }
-}
+// async Delete(plantName){
+//     try {
+//         const {ID} = plantName.body;
+//         let [sql,t]= await this.DB.execute(`SELECT * FROM planttype where ID = ?`,[ID]);
+//         if(sql.length > 0){ await this.DB.execute(`DELETE FROM planttype WHERE id = ?`,[ID]); }
+//     } catch (error) { console.log(error); }
+// }
+
+    async Delete(plantName){
+        try {
+            const {ID} = plantName.body;
+            let [sql,t]= await this.DB.execute(`SELECT * FROM planttype where ID = ?`,[ID]);
+            if(sql.length > 0){ await this.DB.execute(`DELETE FROM planttype WHERE id = ?`,[ID]); }
+        } catch (error) { console.log(error); }
+    }
 // ---------------------------------------------------------------------------------------------------------------------
 }
 module.exports = PlantData;
