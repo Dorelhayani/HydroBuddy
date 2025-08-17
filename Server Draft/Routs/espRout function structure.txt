@@ -1,0 +1,16 @@
+
+const express = require('express');
+const router = express.Router();
+const EspData = require('../models/EspMode');
+
+router.get('/', (req, res) => {
+    console.log(req.query);
+    res.send("ESP root route reached.");
+});
+
+router.patch('/state', EspData.EspState);
+router.get('/dataMode', EspData.DataMode);
+router.patch('/moisture', EspData.MoistureMode);
+router.patch('/Saturday', EspData.SaturdayMode);
+router.patch('/manual', EspData.ManualMode);
+module.exports = router;

@@ -1,0 +1,39 @@
+#include "GlobalVariables.h"
+
+void setup() {
+  isReady = false;
+  pinMode(pump, OUTPUT);
+  digitalWrite(pump, HIGH);
+  Serial.begin(115200);
+  WiFi_Setup();
+  dht.begin();
+  isPumpON = true;
+  statusCheckTime = millis();
+
+  configTzTime(timeZone, ntpServer);
+  initializeSystem();
+}
+
+void loop() {
+  if (!isReady) return;
+
+    if ((millis() - lastSentDataTime) > (2000)) {
+    CurrentStatus = GetState();
+    dataMode(CurrentStatus);
+    TimeDatePrint();
+    logStateChange(CurrentStatus);
+    // StateMachinePrint();
+
+    lastSentDataTime = millis();
+  }
+
+  if (millis() - statusCheckTime > (1 * minutes)) {
+    Serial.println("📤 Sending Data...");
+    SendData(CurrentTemp, light, moisture);
+    // if(CurrentTemp > 0 && light > 0 ) { SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0)); }   // לבידקה אחר כך
+    SendToDatasensors(CurrentTemp, light, moisture, String(isPumpON ? 1 : 0));
+    // dataMode(CurrentStatus);
+    statusCheckTime = millis();
+  }
+  SM();
+}
