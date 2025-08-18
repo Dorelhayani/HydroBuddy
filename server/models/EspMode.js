@@ -24,6 +24,7 @@ class EspData {
     }
 // ---------------------------------------------------------------------------------------------------------------------
 
+
 // Data Mode
 // ---------------------------------------------------------------------------------------------------------------------
     async DataMode(val) {
@@ -46,20 +47,62 @@ class EspData {
 // ---------------------------------------------------------------------------------------------------------------------
 
 
+// Temperature Mode
+// ---------------------------------------------------------------------------------------------------------------------
+    async TemperatureMode(val){
+        try{
+            const tempLVL = parseInt(val.tempLVL, 10);
+            const minTime = parseInt(val.minTime, 10);
+            const maxTime = parseInt(val.maxTime, 10);
+            const lightThresHold = parseInt(val.lightThresHold, 10);
+            const minLight = parseInt(val.minLight, 10);
+            const maxLight = parseInt(val.maxLight, 10);
+
+            const validTemp =
+                Number.isInteger(minTime) && Number.isInteger(maxTime) && Number.isInteger(lightThresHold)
+                && Number.isInteger(minLight) && Number.isInteger(maxLight) && minTime > 0 && maxTime > 0
+                && lightThresHold > 0 && minLight > 0 && maxLight > 0;
+
+            if(!validTemp){
+                const err = new Error("Please insert valid numeric values for temperature mode");
+                err.code = 400;
+                throw err;
+            }
+            const raw = fs.readFileSync(this.jsonPath, "utf8");
+            const data = JSON.parse(raw);
+
+            data.TEMP_MODE = {
+                tempLVL,
+                minTime,
+                maxTime,
+                lightThresHold,
+                minLight,
+                maxLight,
+            };
+
+            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
+            console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime}, 
+            light ThresHold: ${lightThresHold}, minLight: ${minLight}, maxLight: ${maxLight}`);
+
+            return { message: "Temperature mode updated", TEMP_MODE: data.TEMP_MODE, }
+        }
+    catch (err) { throw new Error("Error handling temperature mode: " + err.message); }
+    }
+
 // Moisture Mode
 // ---------------------------------------------------------------------------------------------------------------------
-    async MoistureMode(data) {
+    async MoistureMode(val) {
         try {
-            const moistureLVL = parseInt(data.moistureLVL, 10);
-            const minMoisture = parseInt(data.minMoisture, 10);
-            const maxMoisture = parseInt(data.maxMoisture, 10);
+            const moistureLVL = parseInt(val.moistureLVL, 10);
+            const minMoisture = parseInt(val.minMoisture, 10);
+            const maxMoisture = parseInt(val.maxMoisture, 10);
 
             const validMoist =
                 Number.isInteger(minMoisture) && Number.isInteger(maxMoisture) && Number.isInteger(moistureLVL) &&
                 moistureLVL > 0 && minMoisture > 0 && maxMoisture > 0;
 
             if (!validMoist) {
-                const err = new Error("Please insert valid numeric values for moisture");
+                const err = new Error("Please insert valid numeric values for moisture mode");
                 err.code = 400;
                 throw err;
             }
@@ -76,7 +119,8 @@ class EspData {
             fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
             console.log( `Moisture Level is ${moistureLVL}, Min: ${minMoisture}, Max: ${maxMoisture}`);
 
-            return { message: "Moisture mode updated", SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE, }; }
+            return { message: "Moisture mode updated", SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE, }
+        }
         catch (err) { throw new Error("Error handling moisture mode: " + err.message); }
     }
 // ---------------------------------------------------------------------------------------------------------------------

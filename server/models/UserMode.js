@@ -56,10 +56,10 @@ class UserData{
 
     async Update(user){
         try{
-            const {id, name, email, type} = user.body;
+            const {id, name, email, password, type} = user.body;
             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-            if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?, type = ?
-                 WHERE id = ?`,[id, name, email, type]); }
+            if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?,password = ?, type = ?
+                 WHERE id = ?`,[id, name, email, password, type]); }
         } catch (error){ console.log(error); }
     }
 // ---------------------------------------------------------------------------------------------------------------------

@@ -1,9 +1,12 @@
 {
   "state": "61",
   "TEMP_MODE": {
-    "temp": 23,
-    "minTime": 1,
-    "maxTime": 3
+    "tempLVL": null,
+    "minTime": 2,
+    "maxTime": 5,
+    "lightThresHold": 60,
+    "minLight": 20,
+    "maxLight": 50
   },
   "SOIL_MOISTURE_MODE": {
     "minMoisture": 10,
