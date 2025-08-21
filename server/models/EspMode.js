@@ -51,12 +51,12 @@ class EspData {
 // ---------------------------------------------------------------------------------------------------------------------
     async TemperatureMode(val){
         try{
-            const tempLVL = parseInt(val.tempLVL, 10);
-            const minTime = parseInt(val.minTime, 10);
-            const maxTime = parseInt(val.maxTime, 10);
-            const lightThresHold = parseInt(val.lightThresHold, 10);
-            const minLight = parseInt(val.minLight, 10);
-            const maxLight = parseInt(val.maxLight, 10);
+            const tempLVL = Number(val.tempLVL);
+            const minTime = Number(val.minTime);
+            const maxTime = Number(val.maxTime);
+            const lightThresHold = Number(val.lightThresHold);
+            const minLight = Number(val.minLight);
+            const maxLight = Number(val.maxLight);
 
             const validTemp =
                 Number.isInteger(minTime) && Number.isInteger(maxTime) && Number.isInteger(lightThresHold)
@@ -72,6 +72,7 @@ class EspData {
             const data = JSON.parse(raw);
 
             data.TEMP_MODE = {
+                ...(data.TEMP_MODE || {}),
                 tempLVL,
                 minTime,
                 maxTime,
@@ -81,13 +82,40 @@ class EspData {
             };
 
             fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime}, 
+            console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime},
             light ThresHold: ${lightThresHold}, minLight: ${minLight}, maxLight: ${maxLight}`);
 
             return { message: "Temperature mode updated", TEMP_MODE: data.TEMP_MODE, }
         }
     catch (err) { throw new Error("Error handling temperature mode: " + err.message); }
     }
+
+// Update Temperature sensor's reading to JSON
+// ---------------------------------------------------------------------------------------------------------------------
+    async UpadteTemp(val){
+        try{
+            const tempSensor = val?.temp ?? val?.TEMP_MODE?.temp;
+            const t = Number(tempSensor);
+            if (!Number.isFinite(t)) {
+                const err = new Error("Invalid temp");
+                err.code = 400;
+                throw err;
+            }
+
+            const raw = fs.readFileSync(this.jsonPath, "utf8");
+            const data = JSON.parse(raw);
+            data.TEMP_MODE = {
+                ...(data.TEMP_MODE || {}),
+                temp: t,
+
+            };
+            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
+            return { message: "Sensor temp updated", temp: t, TEMP_MODE: data.TEMP_MODE };
+        }
+        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+    }
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 // Moisture Mode
 // ---------------------------------------------------------------------------------------------------------------------

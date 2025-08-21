@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const EspData = require("../models/EspMode");
 const db = require("../models/database");
+const fs = require("fs");
 const Esp = new EspData(db);
 
 router.get("/", (req, res) => {
@@ -49,6 +50,21 @@ router.patch("/temp", async (req, res) => {
         return res.status(statusCode).json({ error: err.message });
     }
 });
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+// Update Temperature sensor's reading to JSON
+// ---------------------------------------------------------------------------------------------------------------------
+router.patch("/temp-config", async (req, res) => {
+try{
+    const result = await Esp.UpadteTemp(req.body);
+    return res.status(200).json(result);
+} catch (err) {
+    res.status(err.code || 500).json({ error: err.message });
+    const statusCode = err.code && [400, 404].includes(err.code) ? err.code : 500;
+    return res.status(statusCode).json({ error: err.message });
+}
+})
 // ---------------------------------------------------------------------------------------------------------------------
 
 
