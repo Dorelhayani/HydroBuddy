@@ -82,6 +82,21 @@ router.patch("/moisture", async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------
 
 
+// Update Temperature sensor's reading to JSON
+// ---------------------------------------------------------------------------------------------------------------------
+router.patch("/moist-config", async (req, res) => {
+    try{
+        const result = await Esp.UpadteMoisture(req.body);
+        return res.status(200).json(result);
+    } catch (err) {
+        res.status(err.code || 500).json({ error: err.message });
+        const statusCode = err.code && [400, 404].includes(err.code) ? err.code : 500;
+        return res.status(statusCode).json({ error: err.message });
+    }
+})
+// ---------------------------------------------------------------------------------------------------------------------
+
+
 // Saturday Mode
 // ---------------------------------------------------------------------------------------------------------------------
 router.patch("/Saturday", async (req, res) => {

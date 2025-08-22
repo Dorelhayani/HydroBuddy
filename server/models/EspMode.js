@@ -89,6 +89,8 @@ class EspData {
         }
     catch (err) { throw new Error("Error handling temperature mode: " + err.message); }
     }
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 // Update Temperature sensor's reading to JSON
 // ---------------------------------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ class EspData {
 
             };
             fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            return { message: "Sensor temp updated", temp: t, TEMP_MODE: data.TEMP_MODE };
+            return { message: "temp Sensor updated", temp: t, TEMP_MODE: data.TEMP_MODE };
         }
         catch (err) { throw new Error("Error temperature reading: " + err.message); }
     }
@@ -121,9 +123,9 @@ class EspData {
 // ---------------------------------------------------------------------------------------------------------------------
     async MoistureMode(val) {
         try {
-            const moistureLVL = parseInt(val.moistureLVL, 10);
-            const minMoisture = parseInt(val.minMoisture, 10);
-            const maxMoisture = parseInt(val.maxMoisture, 10);
+            const moistureLVL = Number(val.moistureLVL);
+            const minMoisture = Number(val.minMoisture);
+            const maxMoisture = Number(val.maxMoisture);
 
             const validMoist =
                 Number.isInteger(minMoisture) && Number.isInteger(maxMoisture) && Number.isInteger(moistureLVL) &&
@@ -154,11 +156,38 @@ class EspData {
 // ---------------------------------------------------------------------------------------------------------------------
 
 
+// Update Moisture sensor's reading to JSON
+// ---------------------------------------------------------------------------------------------------------------------
+    async UpadteMoisture(val){
+        try{
+            const moistSensor = val?.moisture ?? val?.SOIL_MOISTURE_MODE?.moisture;
+            const m = Number(moistSensor);
+            if (!Number.isFinite(m)) {
+                const err = new Error("Invalid temp");
+                err.code = 400;
+                throw err;
+            }
+
+            const raw = fs.readFileSync(this.jsonPath, "utf8");
+            const data = JSON.parse(raw);
+            data.SOIL_MOISTURE_MODE = {
+                ...(data.SOIL_MOISTURE_MODE || {}),
+                moisture: m,
+
+            };
+            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
+            return { message: "moisture Sensor updated", temp: m, TEMP_MODE: data.TEMP_MODE };
+        }
+        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+    }
+// ---------------------------------------------------------------------------------------------------------------------
+
+
 // Saturday Mode
 // ---------------------------------------------------------------------------------------------------------------------
     async SaturdayMode(payload) {
         try {
-            const duration = parseInt(payload.duration, 10);
+            const duration = Number(payload.duration);
             const dateAct = payload.dateAct; // למשל "30/05/2025"
             const timeAct = payload.timeAct; // למשל "14:30"
 
