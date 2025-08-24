@@ -11,7 +11,7 @@ router.post("/add", async (req,res) => {
     try {
         const {name, email, password, type, created_at } = req.body;
         const UserID = await User.Create(name, email, password, type, created_at);
-        return res.status(201).json({user_id: UserID});
+        return res.status(201).json({message: UserID});
     } catch (error){ res.status(500).json({ error: error.message }); }
 });
 // ---------------------------------------------------------------------------------------------------------------------

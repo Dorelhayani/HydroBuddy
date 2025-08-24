@@ -1,3 +1,5 @@
+const req = require("express/lib/request");
+
 class PlantData{
     constructor(db) { this.DB = db; }
 
@@ -5,16 +7,20 @@ class PlantData{
 // Ssend ESP Data
 // ---------------------------------------------------------------------------------------------------------------------
     async storeESPData(temp, light, moisture, isRunning) {
-        const timestamp = new Date();
-
+        // const curr_user = req.user_id;
+        const activeUserId = 1;
         await this.DB.execute(
-            `INSERT INTO datasensors(PlantID, sensor, value, Date, isRunning) 
-               VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)`,
-            [
-                1, "temperature", temp, timestamp, isRunning,  // רשומה ראשונה - טמפרטורה
-                1, "light", light, timestamp, isRunning,      // רשומה שנייה - אור
-                1, "moisture", moisture, timestamp, isRunning // רשומה שלישית - לחות
-            ]
+            `INSERT INTO datasensors (PlantID, temp, light, moisture, isRunning, Date)
+             VALUES (
+                        (SELECT p.ID
+                         FROM plant p
+                                  JOIN planttype pt ON pt.ID = p.PlantTypeID
+                         WHERE pt.user_id = ?
+                         ORDER BY p.ID DESC
+                            LIMIT 1),
+                 ?, ?, ?, ?, CURDATE()
+                 )`,
+            [activeUserId, temp, light, moisture, isRunning]
         );
     }
 // ---------------------------------------------------------------------------------------------------------------------

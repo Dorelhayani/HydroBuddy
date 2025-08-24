@@ -1,11 +1,10 @@
 class UserData{
     constructor(db) { this.DB = db; }
 
-    // Creat Method
+// Creat Method
 // ---------------------------------------------------------------------------------------------------------------------
     async Create(name, email, password, type){
         try {
-
             let date = new Date();
             let creatAt = date.toISOString().split('T')[0];
             const Query = `INSERT INTO users(name, email, password, type, created_at) VALUES (?, ?, ?, ?, ?)`;
@@ -45,15 +44,6 @@ class UserData{
 
 // Update Method
 // ---------------------------------------------------------------------------------------------------------------------
-//     async Update(user){
-//         try{
-//             const {id, name, email, password, type} = user.body;
-//             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-//             if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?, password = ? , type = ?
-//                  WHERE id = ?`,[id, name, email, password, type]); }
-//         } catch (error){ console.log(error); }
-//     }
-
     async Update(user){
         try{
             const {id, name, email, password, type} = user.body;
