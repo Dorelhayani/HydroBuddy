@@ -29,8 +29,8 @@ class EspData {
 // ---------------------------------------------------------------------------------------------------------------------
     async DataMode(val) {
         try {
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
+            const rows = fs.readFileSync(this.jsonPath, "utf8");
+            const data = JSON.parse(rows);
 
             if (val && val.state) {
                 const requestedKey = val.state; // למשל "SATURDAY_MODE"
@@ -113,6 +113,33 @@ class EspData {
             };
             fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
             return { message: "temp Sensor updated", temp: t, TEMP_MODE: data.TEMP_MODE };
+        }
+        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+    }
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+ // Update Light sensor's reading to JSON
+// ---------------------------------------------------------------------------------------------------------------------
+    async UpadteLight(val){
+        try{
+            const lightSensor = val?.light ?? val?.TEMP_MODE?.light;
+            const l = Number(lightSensor);
+            if (!Number.isFinite(l)) {
+                const err = new Error("Invalid light");
+                err.code = 400;
+                throw err;
+            }
+
+            const raw = fs.readFileSync(this.jsonPath, "utf8");
+            const data = JSON.parse(raw);
+            data.TEMP_MODE = {
+                ...(data.TEMP_MODE || {}),
+                light: l,
+
+            };
+            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
+            return { message: "light Sensor updated", light: l, TEMP_MODE: data.TEMP_MODE };
         }
         catch (err) { throw new Error("Error temperature reading: " + err.message); }
     }
