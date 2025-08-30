@@ -33,7 +33,7 @@ class EspData {
             const data = JSON.parse(rows);
 
             if (val && val.state) {
-                const requestedKey = val.state; // למשל "SATURDAY_MODE"
+                const requestedKey = val.state;
                 if (data.hasOwnProperty(requestedKey)) { return { [requestedKey]: data[requestedKey] }; }
                 else {
                     const err = new Error(`State '${requestedKey}' not found.`);
