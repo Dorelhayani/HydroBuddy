@@ -1,9 +1,12 @@
-import {Link, Form, Outlet, useNavigate, useLoaderData} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {Form, Outlet, useNavigate, useLoaderData} from "react-router-dom";
+import { useState} from "react";
 import { Api } from "../../services/api";
 
-export default function PlantPage(){
-return (
+export default function PlantPage({plants}) {
+
+
+
+    return (
     <div className="Plant-container">
         <div className="plant-sidebar">
 
@@ -16,7 +19,7 @@ return (
 }
 
 export function AddPlant(){
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);  // להתחיל ב-false כדי להראות את הטופס
     const [ok, setOk] = useState(false);

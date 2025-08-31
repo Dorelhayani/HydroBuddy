@@ -1,4 +1,3 @@
-
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 async function http(path, options = {}) {
@@ -16,11 +15,27 @@ function toArray(x) {
     return [];
 }
 
+
 export const Api = {
     getSensors: () => http("/esp/sendJSON").then(toArray),
+
+    // setTempConfig: (temp) =>
+    //     http("/esp/temp-config", {
+    //         method: "PATCH",
+    //         headers: JSON_HEADERS,
+    //         body: JSON.stringify({ temp }),
+    //     }),
+
     getDataMode: () => http("/esp/dataMode").then(toArray),
-    getPlants:  () => http("/plants").then(toArray),
-    getUsers:   () => http("/users").then(toArray),
+
+
+    getPlants:  () => http("/PlantRout/list").then(toArray),
+
+    async getPlantOptions() {
+        const list = await this.getPlants();
+        return list.map(p => ({ id: p.ID, name: p.name }));
+    },
+
 
     setPlantAdd: (plant) =>
         http("/PlantRout/add", {
@@ -29,11 +44,45 @@ export const Api = {
             body: JSON.stringify(plant),
         }),
 
+    setPlantDelete: (plant) =>
+        http("/PlantRout/delete", {
+            method: "DELETE",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(plant),
+        }),
 
-    // setTempConfig: (temp) =>
-    //     http("/esp/temp-config", {
-    //         method: "PATCH",
-    //         headers: JSON_HEADERS,
-    //         body: JSON.stringify({ temp }),
-    //     }),
+    setPlantEdit: (plant) =>
+        http("/PlantRout/update", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(plant),
+        }),
+
+
+
+
+    getUsers:   () => http("/users/list").then(toArray),
+
+    setUserAdd: (plant) =>
+        http("/users/add", {
+            method: "POST",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(plant),
+        }),
+
+    setUserDelete: (plant) =>
+        http("/users/delete", {
+            method: "DELETE",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(plant),
+        }),
+
+    setUserEdit: (plant) =>
+        http("/users/update", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: JSON.stringify(plant),
+        }),
+
+
 };
