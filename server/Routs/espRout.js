@@ -16,7 +16,6 @@ router.get("/", (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------
 router.get("/sendJSON", async (req, res) => {
     try {
-        // const raw = await fs.readFile(JSON_PATH, "utf8");
         const raw = fs.readFileSync(jsonPath, "utf8");
         const json = JSON.parse(raw);
         res.status(200).json(json);

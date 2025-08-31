@@ -53,7 +53,7 @@ class PlantData{
         try{
             // let [sql]= await this.DB.execute(`SELECT * FROM planttype`);
 
-            let [sql,t] = await this.DB.execute(`SELECT plant.*, planttype.* FROM plant 
+            let [sql,t] = await this.DB.execute(`SELECT plant.*, planttype.* FROM plant
                 JOIN planttype ON plant.PlantTypeID = planttype.ID` );
             return sql;
         } catch (error){ console.log(error); }

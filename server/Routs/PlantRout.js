@@ -23,7 +23,7 @@ router.post("/add", async (req,res) => {
     try {
         const {name, user_id} = req.body;
         const [rows] = await db.execute("SELECT id FROM users WHERE id = ?", [user_id]);
-        if(rows.length === 0){ return res.status(200).json({message:"User Not Found"}); }
+        if(rows.length === 0){ return res.status(201).json({message:"User Not Found"}); }
         console.log(user_id);
         const PlantTypeID = await NewPlant.Create(name, user_id);
         return res.status(200).json({PlantTypeID});
@@ -36,7 +36,7 @@ router.post("/add", async (req,res) => {
 router.get("/list" , async (req, res) => {
     try{
         const data = await NewPlant.Read();
-        res.status(201).json({message: data });
+        res.status(200).json(data);
     } catch (error){ res.status(500).json({ error: error.message }); }
 })
 //  --------------------------------------------------------------------------------------------------------------------
