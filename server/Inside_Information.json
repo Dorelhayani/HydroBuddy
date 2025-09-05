@@ -1,5 +1,5 @@
 {
-  "state": "62",
+  "state": "64",
   "TEMP_MODE": {
     "temp": 29.4,
     "tempLVL": 19,
@@ -12,14 +12,14 @@
   },
   "SOIL_MOISTURE_MODE": {
     "moisture": 0,
-    "minMoisture": 15,
-    "maxMoisture": 2,
-    "moistureLVL": 5
+    "minMoisture": 7,
+    "maxMoisture": 7,
+    "moistureLVL": 7
   },
   "SATURDAY_MODE": {
-    "dateAct": "31/05/2025",
-    "timeAct": "19:15",
-    "duration": 2
+    "dateAct": "04/09/2025",
+    "timeAct": "20:21",
+    "duration": 1
   },
   "MANUAL_MODE": {
     "enabled": false,

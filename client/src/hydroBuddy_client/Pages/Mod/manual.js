@@ -1,67 +1,51 @@
-import { Link,Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Api } from "../../services/api";
 
 
 export default function Manual(){
-    const [err, setErr] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [rows, setRows] = useState([]);
-
-    useEffect(() => {
-        Api.getSensors()
-            .then((arr) => setRows(Array.isArray(arr) ? arr : []))
-            .catch((e) => setErr(e.message))
-            .finally(() => setLoading(false));
-    }, []);
-
-
-    if (loading) return <div>Loading…</div>;
-    if (err) return <div style={{ color: "red" }}>Error: {err}</div>;
-
-    return (
-        <>
-            {/*<h4> Mode: {state} </h4>*/}
-            <table border="1" className="table" >
-                <thead>
-                <tr>
-                    <th>Temp</th>
-                    <th>Light</th>
-                    <th>moisture</th>
-                    <th>Pump State</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows.map((r) => (
-                    <tr key={r.id}>
-                        <td>{r.temp}</td>
-                        <td>{r.light}</td>
-                        <td>{r.moisture}</td>
-                        <td>{r.isRunning ? "ON" : "OFF"}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            <button><Link to={'./edit'}>Edit</Link></button>
-            <Outlet/>
-        </>
-    );
-}
-
-
-export function HandleManual() {
-    const [manulMode, setManulMode] = useState(null); // אוחז רק את TEMP_MODE
+    const [sensors, setSensors] = useState(null);
+    const [enabled, setEnabled] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState("");
+
+    function ToggleSwitch({ checked, onToggle, disabled }) {
+        const base = {
+            width: 64,
+            height: 34,
+            borderRadius: 999,
+            border: "1px solid #3a3a3a",
+            position: "relative",
+            cursor: disabled ? "not-allowed" : "pointer",
+            background: checked ? "#2ecc71" : "#e53e3e", // ירוק/אדום
+            transition: "background 120ms ease",
+        };
+        const knob = {
+            position: "absolute",
+            top: 3,
+            left: checked ? 34 : 3,
+            width: 28,
+            height: 28,
+            borderRadius: 999,
+            background: "#1f1f1f",
+            boxShadow: "0 2px 6px rgba(0,0,0,.4)",
+            transition: "left 120ms ease",
+        };
+        return (
+            <div onClick={() => !disabled && onToggle(!checked)} style={base} aria-checked={checked} role="switch">
+                <div style={knob} />
+            </div>
+        );
+    }
+
 
     async function load() {
         try {
             setLoading(true);
             setMsg("");
             const res = await Api.esp.getSensors();
-            const data = res?.TEMP_MODE || null;
-            setManulMode(data);
+            setSensors(res);
+            setEnabled(Boolean(res?.MANUAL_MODE?.enabled));
         } catch (e) {
             setMsg(e.message || "Load failed");
         } finally {
@@ -71,82 +55,50 @@ export function HandleManual() {
 
     useEffect(() => { load(); }, []);
 
-    const fields = [
-        { key: "temp", label: "Temperature (°C)" },
-        { key: "light", label: "Light Level" },
-        { key: "moisture", label: "Moisture (%)" },
-        { key: "enabled", label: `${manulMode? "Pump ON" : "Pump OFF"}` },
-    ];
-
-    function onLocalChange(key, raw) {
-        setManulMode((prev) => ({ ...prev, [key]: raw === "" ? "" : Number(raw) }));
-    }
-
-    async function patchSingle() {
+    async function handleToggle(next) {
+        setSaving(true);
+        setMsg("");
+        const prev = enabled;
+        setEnabled(next);
         try {
-            setSaving(true);
-            setMsg("");
-            await Api.manual.saveChanges(manulMode);
-        }
-        catch (err) {
-            setMsg(err.message || "PATCH failed");
-        }
-        finally { setSaving(false); }
-    }
-
-    async function saveAll() {
-        try {
-            setSaving(true);
-            setMsg("");
-            await Api.manual.saveChanges(manulMode);
+            await Api.manual.setEnabled(next);
+            setSensors((s) => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE||{}), enabled: next }}));
         } catch (e) {
-            setMsg(e.message || "Save failed");
+            setEnabled(prev);
+            setMsg(e.message || "Update failed");
         } finally {
             setSaving(false);
         }
     }
 
     if (loading) return <p style={{ fontFamily: "Helvetica", color: "#bbb" }}>Loading…</p>;
-    if (!manulMode) return <p style={{ fontFamily: "Helvetica", color: "salmon" }}>No Data Found</p>;
+    if (!sensors) return <p style={{ fontFamily: "Helvetica", color: "salmon" }}>No Data Found</p>;
 
-    const wrap = { fontFamily: "Helvetica", background: "#1f1f1f", color: "#eaeaea", padding: 18, borderRadius: 16, maxWidth: 560 };
-    const row = { display: "grid", gridTemplateColumns: "1fr 160px 170px", gap: 8, alignItems: "center", marginBottom: 10 };
-    const input = { background: "#2a2a2a", color: "#eaeaea", border: "1px solid #3a3a3a", borderRadius: 12, padding: "8px 10px" };
-    const btnBlue =  { background: "#2b6cb0", color: "#fff", border: "none", borderRadius: 12, padding: "8px 12px", cursor: "pointer" }; // עדכון שדה
-    const btnYellow = { background: "#e6c229", color: "#000", border: "none", borderRadius: 12, padding: "8px 12px", cursor: "pointer" }; // כללי
-    const btnRed =   { background: "#e53e3e", color: "#fff", border: "none", borderRadius: 12, padding: "8px 12px", cursor: "pointer" }; // רענון/אתחול
+    const rows = [
+        { label: "Temperature (°C)", value: sensors?.TEMP_MODE?.temp ?? "-" },
+        { label: "Light Level",      value: sensors?.TEMP_MODE?.light ?? "-" },
+        { label: "Moisture (%)",     value: sensors?.SOIL_MOISTURE_MODE?.moisture ?? "-" },
+    ];
+
+    const wrap = { fontFamily: "Helvetica", background: "#1f1f1f", color: "#eaeaea", padding: 18, borderRadius: 16, maxWidth: 400 };
+    const row = { display: "grid", gridTemplateColumns: "1fr 160px", gap: 8, alignItems: "center", marginBottom: 10 };
+    const valueBox = { background: "#2a2a2a", color: "#eaeaea", border: "1px solid #3a3a3a", borderRadius: 12, padding: "8px 10px" };
+    const status = { marginLeft: 12, opacity: 0.85 };
 
     return (
         <div style={wrap}>
-            <h3 style={{ marginTop: 0 }}>Temperature MODE</h3>
+            <h3 style={{ marginTop: 0 }}>Manual MODE</h3>
 
-            {fields.map(({ key, label }) => (
-                <div key={key} style={row}>
-                    <label htmlFor={key}>{label}</label>
-                    <input
-                        id={key}
-                        value={manulMode[key]}
-                        onChange={(e) => onLocalChange(key, e.target.value)}
-                        style={input}
-                    />
-                    {/*<button*/}
-                    {/*    onClick={() => patchSingle(key)}*/}
-                    {/*    disabled={saving || manulMode[key] === "" || Number.isNaN(Number(manulMode[key]))}*/}
-                    {/*    style={btnBlue}*/}
-                    {/*    title="עדכון שדה יחיד (PATCH)"*/}
-                    {/*>*/}
-                    {/*    update {key}*/}
-                    {/*</button>*/}
+            {rows.map(({ label, value }) => (
+                <div key={label} style={row}>
+                    <span>{label}</span>
+                    <div style={valueBox}>{value}</div>
                 </div>
             ))}
 
-            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button onClick={saveAll} disabled={saving} style={btnYellow} title="PATCH לכל המפתחות">
-                    Save All Changes
-                </button>
-                <button onClick={load} disabled={saving} style={btnRed} title="רענון מהשרת">
-                    Refresh
-                </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 165, marginTop: 16 }}>
+                <ToggleSwitch checked={enabled} onToggle={handleToggle} disabled={saving} />
+                <span style={status}>{enabled ? "Pump ON" : "Pump OFF"}</span>
             </div>
 
             {saving && <p style={{ marginTop: 8 }}>שומר…</p>}

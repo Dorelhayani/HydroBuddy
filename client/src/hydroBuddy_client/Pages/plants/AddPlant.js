@@ -1,4 +1,4 @@
-import {Form, Outlet, useNavigate, useLoaderData} from "react-router-dom";
+import {Form, useNavigate, useLoaderData} from "react-router-dom";
 import { useState} from "react";
 import { Api } from "../../services/api";
 
@@ -24,7 +24,7 @@ export default function AddPlant(){
         setLoading(true);
         try {
             const payload = { name: newPlant.name.trim(), user_id: Number(newPlant.user_id) };
-            await Api.setPlantAdd(payload);
+            await Api.plants.setPlantAdd(payload);
             setOk(true);
             // אופציונלי: לנווט לרשימת הצמחים או לאפס טופס
             // navigate("/plants");

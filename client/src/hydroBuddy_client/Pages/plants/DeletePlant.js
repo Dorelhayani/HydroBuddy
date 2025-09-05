@@ -6,11 +6,9 @@ export default function DeletePlant() {
     const [err, setErr] = useState("");
     const [ok, setOk] = useState(false);
 
-    // רשימת הצמחים לבחירה
     const [plants, setPlants] = useState([]);
     const [listLoading, setListLoading] = useState(true);
 
-    // שמירת הטופס
     const [saving, setSaving] = useState(false);
     const [editPlant, setEditPlant] = useState({ ID: "", name: "" });
 
@@ -31,7 +29,7 @@ export default function DeletePlant() {
         setListLoading(true);
         setErr("");
 
-        Api.getPlantOptions()
+        Api.plants.getPlantOptions()
             .then(opts => { if (mounted) setPlants(opts); })
             .catch(e => { if (mounted) setErr(e.message); })
             .finally(() => { if (mounted) setListLoading(false); });
@@ -39,8 +37,6 @@ export default function DeletePlant() {
         return () => { mounted = false; };
     }, []);
 
-
-    // שליחת עדכון
     const onSubmit = async (e) => {
         e.preventDefault();
         setOk(false);
@@ -51,7 +47,7 @@ export default function DeletePlant() {
             if (!payload.ID || !payload.name) {
                 throw new Error("Please choose a plant and enter a name");
             }
-            await Api.setPlantDelete(payload); // ראה הערה למטה לגבי הנתיב
+            await Api.plants.setPlantDelete(payload); // ראה הערה למטה לגבי הנתיב
             setOk(true);
         } catch (e) {
             setErr(e.message || "Failed to update plant");
@@ -62,7 +58,7 @@ export default function DeletePlant() {
 
     return (
         <div className="form-container">
-            <h3>Edit Plant</h3>
+            <h3>Delete Plant</h3>
 
             {listLoading ? (
                 <div>Loading plants…</div>

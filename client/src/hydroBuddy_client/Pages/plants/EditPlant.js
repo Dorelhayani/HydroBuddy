@@ -31,7 +31,7 @@ export default function EditPlant() {
         setListLoading(true);
         setErr("");
 
-        Api.getPlantOptions()
+        Api.plants.getPlantOptions()
             .then(opts => { if (mounted) setPlants(opts); })
             .catch(e => { if (mounted) setErr(e.message); })
             .finally(() => { if (mounted) setListLoading(false); });
@@ -58,7 +58,7 @@ export default function EditPlant() {
             if (!payload.ID || !payload.name) {
                 throw new Error("Please choose a plant and enter a name");
             }
-            await Api.setPlantEdit(payload); // ראה הערה למטה לגבי הנתיב
+            await Api.plants.setPlantEdit(payload); // ראה הערה למטה לגבי הנתיב
             setOk(true);
         } catch (e) {
             setErr(e.message || "Failed to update plant");

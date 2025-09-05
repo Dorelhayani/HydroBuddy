@@ -85,7 +85,8 @@ class EspData {
             console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime},
             light ThresHold: ${lightThresHold}, minLight: ${minLight}, maxLight: ${maxLight}`);
 
-            return { message: "Temperature mode updated", TEMP_MODE: data.TEMP_MODE, }
+            // return { message: "Temperature mode updated", TEMP_MODE: data.TEMP_MODE, }
+            return { TEMP_MODE: data.TEMP_MODE, }
         }
     catch (err) { throw new Error("Error handling temperature mode: " + err.message); }
     }
@@ -215,8 +216,8 @@ class EspData {
     async SaturdayMode(payload) {
         try {
             const duration = Number(payload.duration);
-            const dateAct = payload.dateAct; // למשל "30/05/2025"
-            const timeAct = payload.timeAct; // למשל "14:30"
+            const dateAct = payload.dateAct;
+            const timeAct = payload.timeAct;
 
             const [day, month, year] = dateAct.split("/").map((x) => parseInt(x, 10));
             const [hour, minute] = timeAct.split(":").map((x) => parseInt(x, 10));
@@ -271,7 +272,7 @@ class EspData {
             fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
             console.log(`Manual mode set to: ${enabled}`);
 
-            return { message: "Manual mode updated", MANUAL_MODE: data.MANUAL_MODE.enabled, }; }
+            return { message: "Manual mode updated", MANUAL_MODE: data.MANUAL_MODE, }; }
         catch (err) { throw new Error("Error handling manual mode: " + err.message); }
     }
 // ---------------------------------------------------------------------------------------------------------------------
