@@ -1,4 +1,5 @@
 const JSON_HEADERS = { "Content-Type": "application/json" };
+// let routArr = ["list", "add", "update", "delete"];
 
 async function http(path, options = {}) {
     const res = await fetch(path, options);
@@ -14,6 +15,7 @@ function toArray(x) {
     }
     return [];
 }
+
 
 export const Api = {
 
@@ -75,33 +77,34 @@ export const Api = {
     },
 
     plants:{
-        getPlants:  () => http("/PlantRout/list").then(toArray),
+        async getOptions() {
+            const list = await this.list();
+            return list.map(p => ({ id: p.ID, name: p.name }));
+        },
 
-        setPlantAdd: (plant) =>
+        // list:  () => http("/PlantRout/list").then(toArray),
+        list:  () => http("/PlantRout/list"),
+
+        add: (plant) =>
             http("/PlantRout/add", {
                 method: "POST",
                 headers: JSON_HEADERS,
                 body: JSON.stringify(plant),
             }),
 
-        setPlantEdit: (plant) =>
+        edit: (plant) =>
             http("/PlantRout/update", {
                 method: "PATCH",
                 headers: JSON_HEADERS,
                 body: JSON.stringify(plant),
             }),
 
-        setPlantDelete: (plant) =>
+        delete: (plant) =>
             http("/PlantRout/delete", {
                 method: "DELETE",
                 headers: JSON_HEADERS,
                 body: JSON.stringify(plant),
             }),
-
-        async getPlantOptions() {
-            const list = await this.getPlants();
-            return list.map(p => ({ id: p.ID, name: p.name }));
-        },
     },
 
     users:{
