@@ -1,5 +1,5 @@
 {
-  "state": "62",
+  "state": "64",
   "TEMP_MODE": {
     "temp": 23.6,
     "tempLVL": 25,
@@ -11,10 +11,10 @@
     "maxLight": 10
   },
   "SOIL_MOISTURE_MODE": {
-    "minMoisture": 7,
-    "maxMoisture": 5,
+    "moisture": 0,
     "moistureLVL": 7,
-    "moisture": 0
+    "minMoisture": 7,
+    "maxMoisture": 5
   },
   "SATURDAY_MODE": {
     "dateAct": "11/09/2025",
