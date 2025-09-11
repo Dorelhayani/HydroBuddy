@@ -1,3 +1,4 @@
+
 .wrap{
     margin: auto;
     font-family: Helvetica, serif;
@@ -10,15 +11,28 @@
 
 .grid{
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* שלושת הקישורים */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     align-items: center;
-    margin-bottom: 10px; /* היה marginBottom */
+    margin-bottom: 10px;
+}
+
+.title, .description, .sub-title, .description{
+    text-align: center;
 }
 
 .label{
     opacity: 0.9;
     margin-bottom: 6px;
+}
+
+.valueBox{
+    background: #2a2a2a;
+    color: #eaeaea;
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    padding: 8px 10px;
+    width: 80%;
 }
 
 .input{
@@ -28,6 +42,20 @@
     border-radius: 12px;
     padding: 8px 10px;
     width: 80%;
+}
+.row{
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    padding: 4px;
+    align-items: center;
+    marginBottom: 10px;
+}
+
+.btn-container{
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
 }
 
 .btnYellow{
@@ -40,4 +68,65 @@
     border-radius: 12px;
     padding: 10px 14px;
     cursor: pointer;
+}
+.toggle {
+    width: 64px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid #3a3a3a;
+    position: relative;
+    cursor: pointer;
+    transition: background 120ms ease;
+    background: #e53e3e;
+}
+
+.toggle[aria-checked="true"] {
+    background: #2ecc71; /* ירוק */
+}
+
+.toggle[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* הכפתורון */
+.toggle .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #1f1f1f;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    transition: transform 120ms ease;
+}
+
+.toggle[aria-checked="true"] .knob {
+    transform: translateX(31px); /* 64 - 28 - 3 ≈ 33; תכוונן אם צריך */
+}
+
+.toggle{
+    margin-left: 12px;
+    opacity: .85;
+}
+.toggle-container{
+    display: flex;
+    align-items: center;
+    gap: 165px;
+    margin-top: 16px;
+}
+
+.saving, .msg{
+    margin-top: 8px;
+}
+
+.loading{
+    font-family: Helvetica, serif;
+    color: #bbb;
+}
+
+.sensors{
+    font-family: Helvetica, serif;
+    color: salmon;
 }

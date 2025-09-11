@@ -1,0 +1,38 @@
+import {http} from "./http";
+const JSON_HEADERS = { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" };
+
+export const esp = {
+    dataMode: () => http("/esp/dataMode"),
+
+    state: () => http("/esp/state"),
+
+    getSensors: () => http("/esp/sendJSON"),
+
+    setTemp: ({ temp, tempLVL, minTime, maxTime, light, lightThresHold, minLight, maxLight}) =>
+        http("/esp/temp", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: new URLSearchParams({ temp, tempLVL, minTime, maxTime, light, lightThresHold, minLight, maxLight}),
+        }),
+
+    setMoist: ({ moisture, minMoisture, maxMoisture,moistureLVL }) =>
+        http("/esp/moisture", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: new URLSearchParams({moisture, minMoisture, maxMoisture, moistureLVL}),
+        }),
+
+    setSaturday: ({ dateAct, timeAct, duration }) =>
+        http("/esp/Saturday", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: new URLSearchParams({dateAct, timeAct, duration: String(duration)}),
+        }),
+
+    setEnabled: (enabled) =>
+        http("/esp/manual", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: new URLSearchParams({ enabled: String(enabled) }),
+        })
+}

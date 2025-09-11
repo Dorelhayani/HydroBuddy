@@ -1,8 +1,8 @@
 import { Link, Outlet, Form, useOutletContext } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { Api } from "../../services/api";
-import { useRequestStatus } from "../../hooks/RequestStatus";
-import "../../style/Plant.css"
+import { plants } from "../services/plants";
+import { useRequestStatus } from "../hooks/RequestStatus";
+import "../style/Plant.css"
 
 export default function PlantPage() {
     const [plantsList, setPlantsList] = useState([]);
@@ -13,7 +13,7 @@ export default function PlantPage() {
         setListLoading(true);
         setErr("");
         try {
-            const opts = await Api.plants.getOptions();
+            const opts = await plants.getOptions();
             setPlantsList(opts);
         } catch (e) {
             setErr(e.message || "Failed to load plants");
@@ -56,7 +56,7 @@ export function AddPlant() {
         e.preventDefault();
         start();
         try {
-            await Api.plants.add({ name: plant.name.trim(), user_id: Number(plant.user_id) });
+            await plants.add({ name: plant.name.trim(), user_id: Number(plant.user_id) });
             succeed("Plant added successfully.");
             setPlant({ name: "", user_id: "" });
             await refresh();
@@ -67,16 +67,15 @@ export function AddPlant() {
 
     return (
         <div className="wrap">
-            <h4 style={{ marginTop: 0 }}>Add Plant</h4>
+            {/*<div className="title">${plants.add.title}</div>*/}
+            <div className="title">Add Plant</div>
 
             <Form method="post" onSubmit={onSubmit}>
-                <div className="label">Plant</div>
-                <input className="input" type="text" name="name" value={plant.name} onChange={onChange}/>
+                <input className="input" type="text" name="name" value={plant.name} onChange={onChange} placeholder="Pant" />
 
-                <div className="label">User Id</div>
-                <input className="input" type="number" name="user_id" value={plant.user_id} onChange={onChange}/>
+                <input className="input" type="number" name="user_id" value={plant.user_id} onChange={onChange} placeholder="User Id"/>
 
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                <div className = "btn-container">
                     <button className="btnYellow" type="submit" disabled={loading}>
                         {loading ? "Saving..." : "Add Plant"}
                     </button>
@@ -115,7 +114,7 @@ export function EditPlant() {
         try {
             const payload = { ID: Number(editPlant.ID), name: editPlant.name.trim() };
             if (!payload.ID || !payload.name) throw new Error("Please choose a plant and enter a name");
-            await Api.plants.edit(payload);
+            await plants.edit(payload);
             succeed("Plant updated successfully.");
             await refresh();
         } catch (e) {
@@ -125,16 +124,16 @@ export function EditPlant() {
 
     return (
         <div className="wrap">
-            <h4 style={{ marginTop: 0 }}>Edit Plant</h4>
+            <div className="title">Edit Plant</div>
+            {/*<h4 style={{ marginTop: 0 }}>Edit Plant</h4>*/}
 
             {listLoading ? (
                 <div>Loading plants…</div>
             ) : (
                 <Form method="patch" onSubmit={onSubmit}>
                     <div className="label">
-                        Choose Plant
                         <select className="input" name="ID" value={editPlant.ID} onChange={onSelectChange}>
-                            <option value="">— Select —</option>
+                            <option className="opt" value="" >— Select Plant—</option>
                             {plantsList.map((p) => (
                                 <option key={p.id} value={p.id}> {p.name} </option>
                             ))}
@@ -142,13 +141,11 @@ export function EditPlant() {
                     </div>
 
                     <div className="label">
-                        New Name
                         <input className="input" type="text" name="name" value={editPlant.name} onChange={onNameChange}
-                            placeholder="Enter new plant name"
-                        />
+                            placeholder="Enter new plant name" required />
                     </div>
 
-                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                    <div className = "btn-container">
                         <button className="btnYellow" type="submit" disabled={loading}>
                             {loading ? "Saving…" : "Edit Plant"}
                         </button>
@@ -176,9 +173,9 @@ export function DeletePlant() {
         e.preventDefault();
         start();
         try {
-            const payload = { ID: Number(selectedID) };
+            const payload = { ID: parseInt(selectedID) };
             if (!payload.ID) throw new Error("Please choose a plant");
-            await Api.plants.delete(payload);
+            await plants.delete(payload);
             succeed("Plant deleted successfully.");
             setSelectedID("");
             await refresh();
@@ -189,15 +186,15 @@ export function DeletePlant() {
 
     return (
         <div className="wrap">
-            <h4 style={{ marginTop: 0 }}>Delete Plant</h4>
+            {/*<h4 style={{ marginTop: 0 }}>Delete Plant</h4>*/}
+            <div className="title">Delete Plant</div>
 
             {listLoading ? (
                 <div>Loading plants…</div>
             ) : (
                 <Form method="delete" onSubmit={onSubmit}>
-                    <div className="label">Choose Plant</div>
                     <select className="input" name="ID" value={selectedID} onChange={onSelectChange}>
-                        <option value="">— Select —</option>
+                        <option value="">— Select Plant —</option>
                         {plantsList.map((p) => (
                             <option key={p.id} value={p.id}>
                                 {p.name}
@@ -205,7 +202,7 @@ export function DeletePlant() {
                         ))}
                     </select>
 
-                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                    <div className = "btn-container">
                         <button className="btnYellow" type="submit" disabled={loading}>
                             {loading ? "Saving…" : "Delete Plant"}
                         </button>

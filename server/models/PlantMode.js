@@ -75,14 +75,6 @@ async Update(plantName){
 
 // Delete Method
 // ---------------------------------------------------------------------------------------------------------------------
-// async Delete(plantName){
-//     try {
-//         const {ID} = plantName.body;
-//         let [sql,t]= await this.DB.execute(`SELECT * FROM planttype where ID = ?`,[ID]);
-//         if(sql.length > 0){ await this.DB.execute(`DELETE FROM planttype WHERE id = ?`,[ID]); }
-//     } catch (error) { console.log(error); }
-// }
-
     async Delete(plantName){
         try {
             const {ID} = plantName.body;

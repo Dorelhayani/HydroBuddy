@@ -11,7 +11,7 @@ export default function HomePage(){
             <div className="homepage-content">
                 <button><Link to='/mod'>Change Mod</Link></button>
                 <button><Link to='/plants'>Plants Page</Link></button>
-                {/*<Link to='/mod_change'>Change Mod</Link>*/}
+                {/*<Link to='/mod_change'>Change sensors</Link>*/}
                 <Outlet/>
             </div>
         </div>

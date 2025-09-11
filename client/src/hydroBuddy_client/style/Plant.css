@@ -16,9 +16,14 @@
   margin-bottom: 10px; /* היה marginBottom */
  }
 
- .label{
-  opacity: 0.9;
-  margin-bottom: 6px;
+ /*.label{*/
+ /* margin-bottom: 8px;*/
+ /*}*/
+
+ .title{
+  justify-content: center;
+  font-weight: bold;
+  margin-top: 0;
  }
 
  .input{
@@ -26,8 +31,17 @@
   color: #eaeaea;
   border: 1px solid #3a3a3a;
   border-radius: 12px;
+  justify-content: center;
   padding: 8px 10px;
+  margin-bottom: 8px;
   width: 80%;
+ }
+
+ .btn-container{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
  }
 
  .btnYellow{
@@ -40,4 +54,16 @@
   border-radius: 12px;
   padding: 10px 14px;
   cursor: pointer;
+  outline: none;
+  /*box-shadow: 0 9px #999;*/
  }
+
+ .btnYellow:hover{
+  background: #a18a19;
+ }
+
+  .btnYellow:active{
+   background-color: #a18a19;
+   box-shadow: 0 5px #666;
+   transform: translateY(4px);
+  }
