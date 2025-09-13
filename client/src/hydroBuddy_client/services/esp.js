@@ -4,9 +4,14 @@ const JSON_HEADERS = { "Content-Type": "application/x-www-form-urlencoded;charse
 export const esp = {
     dataMode: () => http("/esp/dataMode"),
 
-    state: () => http("/esp/state"),
-
     getSensors: () => http("/esp/sendJSON"),
+
+    setState: ({state}) =>
+        http("/esp/state", {
+            method: "PATCH",
+            headers: JSON_HEADERS,
+            body: new URLSearchParams({ state }),
+        }),
 
     setTemp: ({ temp, tempLVL, minTime, maxTime, light, lightThresHold, minLight, maxLight}) =>
         http("/esp/temp", {

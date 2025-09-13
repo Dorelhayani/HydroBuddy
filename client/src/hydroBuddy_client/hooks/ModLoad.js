@@ -1,65 +1,38 @@
-import { useState, useCallback, useEffect } from "react";
 import { esp } from "../services/esp";
 import { useRequestStatus } from "./RequestStatus";
-import { toInputDate, toServerDate, validateClient } from "../domain/formatters";
+import { useState, useCallback, useEffect } from "react";
+import {toInputDate, toServerDate, validateClient} from "../domain/formatters";
 
-export function SaturdayLoad() {
+export function StateLoad() {
     const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
-    const [sensors, setSensors] = useState(null);
-    const [form, setForm] = useState({ date: "", time: "", duration: "" });
+    const [state, setState] = useState(null);
+    const [form, setForm] = useState({ state: ""});
 
     const load = useCallback(async () => {
         start();
         try {
-            const res = await esp.getSensors();
-            setSensors(res);
+            const res = await esp.dataMode();
+            const current = Number(res?.CurrentStatus ?? NaN );
+            setState(current);
 
-            const dateFromServer = res?.SATURDAY_MODE?.dateAct || "";
-            const timeFromServer = res?.SATURDAY_MODE?.timeAct || "";
-            const durFromServer  = res?.SATURDAY_MODE?.duration ?? "";
-
-            setForm({
-                date: toInputDate(dateFromServer),   // yyyy-mm-dd
-                time: timeFromServer,                // HH:MM
-                duration: String(durFromServer),
-            });
-
+            setForm({ state: Number.isFinite(current) ? String(current) : "" });
             succeed();
-        } catch (e) {
-            fail(e);
-        }
+        } catch (e) { fail(e); }
     }, [start, succeed, fail]);
 
     const save = useCallback(async () => {
-        const payload = {
-            dateAct: toServerDate(form.date), // dd/mm/yyyy
-            timeAct: form.time,               // HH:MM
-            duration: parseInt(form.duration, 10),
-        };
+        const payload = Number(form.state);
+        if(!Number.isFinite(payload)) {throw new Error("Choose a Valid state number");}
+        const result = await run(() => esp.setState({state: payload}), { successMessage: "State saved" });
 
-        if (!validateClient(payload)) {
-            throw new Error("בדוק תאריך/שעה/משך: פורמט לא תקין");
-        }
+        const committed = Number(result?.CurrentStatus ?? payload);
+        setState(committed);
 
-        await run(() => esp.setSaturday(payload), { successMessage: "Saturday mode saved" });
-
-        // עדכון מקומי של התצוגה
-        setSensors((s) => ({
-            ...s,
-            SATURDAY_MODE: {
-                ...(s?.SATURDAY_MODE || {}),
-                dateAct: payload.dateAct,
-                timeAct: payload.timeAct,
-                duration: payload.duration,
-            },
-        }));
     }, [form, run]);
 
     useEffect(() => { load(); }, [load]);
-
-    return { sensors, form, setForm, load, save, loading, ok, err, message };
+    return { state, form, setForm, load, save, loading, ok, err, message };
 }
-
 
 export function TemperatureLoad(){
     const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
@@ -180,6 +153,63 @@ export function MoistureLoad(){
                 moistureLVL: payload.moistureLVL,
                 minMoisture: payload.minMoisture,
                 maxMoisture: payload.maxMoisture,
+            },
+        }));
+    }, [form, run]);
+
+    useEffect(() => { load(); }, [load]);
+
+    return { sensors, form, setForm, load, save, loading, ok, err, message };
+}
+
+
+export function SaturdayLoad() {
+    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
+    const [sensors, setSensors] = useState(null);
+    const [form, setForm] = useState({ date: "", time: "", duration: "" });
+
+    const load = useCallback(async () => {
+        start();
+        try {
+            const res = await esp.getSensors();
+            setSensors(res);
+
+            const dateFromServer = res?.SATURDAY_MODE?.dateAct || "";
+            const timeFromServer = res?.SATURDAY_MODE?.timeAct || "";
+            const durFromServer  = res?.SATURDAY_MODE?.duration ?? "";
+
+            setForm({
+                date: toInputDate(dateFromServer),
+                time: timeFromServer,
+                duration: String(durFromServer),
+            });
+            succeed();
+        } catch (e) {
+            fail(e);
+        }
+    }, [start, succeed, fail]);
+
+    const save = useCallback(async () => {
+        const payload = {
+            dateAct: toServerDate(form.date),
+            timeAct: form.time,
+            duration: parseInt(form.duration, 10),
+        };
+
+        if (!validateClient(payload)) {
+            throw new Error("בדוק תאריך/שעה/משך: פורמט לא תקין");
+        }
+
+        await run(() => esp.setSaturday(payload), { successMessage: "Saturday mode saved" });
+
+        // עדכון מקומי של התצוגה
+        setSensors((s) => ({
+            ...s,
+            SATURDAY_MODE: {
+                ...(s?.SATURDAY_MODE || {}),
+                dateAct: payload.dateAct,
+                timeAct: payload.timeAct,
+                duration: payload.duration,
             },
         }));
     }, [form, run]);

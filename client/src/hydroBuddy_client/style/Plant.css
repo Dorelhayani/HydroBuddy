@@ -1,69 +1,70 @@
- .wrap{
-  margin: auto;
-  font-family: Helvetica, serif;
-  background: #1f1f1f;
-  color: #eaeaea;
-  padding: 18px;
-  border-radius: 16px;
-  max-width: 640px;
- }
+/* .wrap{*/
+/*  margin: auto;*/
+/*  font-family: Helvetica, serif;*/
+/*  background: #1f1f1f;*/
+/*  color: #eaeaea;*/
+/*  padding: 18px;*/
+/*  border-radius: 16px;*/
+/*  max-width: 640px;*/
+/* }*/
 
- .grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* שלושת הקישורים */
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 10px; /* היה marginBottom */
- }
+/* .grid{*/
+/*  display: grid;*/
+/*  grid-template-columns: 1fr 1fr 1fr;*/
+/*  gap: 12px;*/
+/*  align-items: center;*/
+/*  margin-bottom: 10px;*/
+/* }*/
 
- /*.label{*/
- /* margin-bottom: 8px;*/
+/*.main-title{*/
+/* padding: 10px;*/
+/* margin: 20px;*/
+/* text-align: center;*/
+/* font-weight: bold;*/
+/*}*/
+
+/* .title{*/
+/*  font-weight: bold;*/
+/*  padding: 10px;*/
+/* }*/
+
+/* .input{*/
+/*  background: #2a2a2a;*/
+/*  color: #eaeaea;*/
+/*  border: 1px solid #3a3a3a;*/
+/*  border-radius: 12px;*/
+/*  justify-content: center;*/
+/*  padding: 8px 10px;*/
+/*  margin-bottom: 8px;*/
+/*  width: 80%;*/
+/* }*/
+
+ /*.btn-container{*/
+ /* display: flex;*/
+ /* justify-content: center;*/
+ /* gap: 8px;*/
+ /* margin-top: 12px;*/
  /*}*/
 
- .title{
-  justify-content: center;
-  font-weight: bold;
-  margin-top: 0;
- }
+ /*.btnYellow{*/
+ /* display: inline-block;*/
+ /* text-align: center;*/
+ /* text-decoration: none;*/
+ /* background: #e6c229;*/
+ /* color: #000;*/
+ /* border: none;*/
+ /* border-radius: 12px;*/
+ /* padding: 10px 14px;*/
+ /* cursor: pointer;*/
+ /* outline: none;*/
+ /*}*/
 
- .input{
-  background: #2a2a2a;
-  color: #eaeaea;
-  border: 1px solid #3a3a3a;
-  border-radius: 12px;
-  justify-content: center;
-  padding: 8px 10px;
-  margin-bottom: 8px;
-  width: 80%;
- }
+ /*.btnYellow:hover{*/
+ /* background: #a18a19;*/
+ /*}*/
 
- .btn-container{
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
- }
-
- .btnYellow{
-  display: inline-block;
-  text-align: center;
-  text-decoration: none;
-  background: #e6c229;
-  color: #000;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-  outline: none;
-  /*box-shadow: 0 9px #999;*/
- }
-
- .btnYellow:hover{
-  background: #a18a19;
- }
-
-  .btnYellow:active{
-   background-color: #a18a19;
-   box-shadow: 0 5px #666;
-   transform: translateY(4px);
-  }
+  /*.btnYellow:active{*/
+  /* background-color: #a18a19;*/
+  /* box-shadow: 0 5px #666;*/
+  /* transform: translateY(4px);*/
+  /*}*/

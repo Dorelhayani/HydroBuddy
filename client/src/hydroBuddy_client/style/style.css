@@ -1,0 +1,226 @@
+.main-container{
+    margin: auto;
+
+    font-family: Helvetica, serif;
+    background: #1f1f1f;
+    color: #eaeaea;
+    padding: 18px;
+    border-radius: 16px;
+    max-width: 640px;
+    align-items: center;
+}
+
+.grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.main-title{
+    padding: 10px;
+    margin: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+
+.title, .description, .sub-title, .description{
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+}
+
+.label{
+    margin-bottom: 6px;
+}
+
+.txt{
+    text-decoration-style: double;
+    justify-content: space-between;
+    font-size: 16px;
+    text-align: center;
+    /*font-weight: bold;*/
+    margin-bottom: 6px;
+}
+
+.sub-valueBox{
+    background: #2a2a2a;
+    color: #eaeaea;
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    padding: 10px 20px;
+    margin: 5%;
+    width: 160%;
+}
+
+.valueBox{
+    background: #2a2a2a;
+    color: #eaeaea;
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    padding: 8px 10px;
+    width: 80%;
+}
+
+.input{
+    background: #2a2a2a;
+    color: #eaeaea;
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    justify-content: center;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    width: 80%;
+}
+
+.toggle-container{
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    padding: 4px;
+    align-items: center;
+    marginBottom: 10px;
+}
+
+.link{
+    text-align: center;
+    text-decoration: none;
+    background: #e6c229;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+.link-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.btn-container{
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+}
+
+.btn{
+        display: inline-block;
+        text-align: center;
+        text-decoration: none;
+        background: #e6c229;
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+}
+
+.btn:hover{
+    background: #a18a19;
+}
+
+.btn:active{
+    background-color: #a18a19;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.btnMod{
+    background: #197da1;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 160ms ease, opacity 120ms ease;
+
+}
+.btnMod.is-success,
+.btnMod.is-success:hover,
+.btnMod.is-success:focus {
+    background: #197da1 !important;
+    color: #000;
+}
+
+button.btnMod[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;  /* מונע לחיצות */
+}
+
+.btnMod:hover{
+    background: #166c8a;
+}
+
+.btnMod:active{
+    background-color: #197da1;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.toggle {
+    width: 64px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid #3a3a3a;
+    position: relative;
+    cursor: pointer;
+    transition: background 120ms ease;
+    background: #e53e3e;
+}
+
+.toggle[aria-checked="true"] {
+    background: #2ecc71; /* ירוק */
+}
+
+.toggle[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* הכפתורון */
+.toggle .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #1f1f1f;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    transition: transform 120ms ease;
+}
+
+.toggle[aria-checked="true"] .knob {
+    transform: translateX(31px); /* 64 - 28 - 3 ≈ 33; תכוונן אם צריך */
+}
+
+.toggle{
+    margin-left: 12px;
+    opacity: .85;
+}
+.toggle-container{
+    display: flex;
+    align-items: center;
+    gap: 165px;
+    margin-top: 16px;
+}
+
+.saving, .msg{
+    margin-top: 8px;
+}
+
+.loading{
+    font-family: Helvetica, serif;
+    color: #bbb;
+}
+
+.sensors{
+    font-family: Helvetica, serif;
+    color: salmon;
+}

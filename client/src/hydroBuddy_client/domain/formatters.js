@@ -1,5 +1,4 @@
 
-
 export function validateClient(p) {
     const dateOk = /^\d{2}\/\d{2}\/\d{4}$/.test(p.dateAct);
     const timeOk = /^\d{2}:\d{2}$/.test(p.timeAct);
@@ -21,7 +20,6 @@ export function toServerDate(yyyy_mm_dd) {
     if (!y || !m || !d) return "";
     return `${d.padStart(2,"0")}/${m.padStart(2,"0")}/${y}`;
 }
-
 
 export function ToggleSwitch({ checked, onToggle, disabled }) {
     const handleClick = () => {

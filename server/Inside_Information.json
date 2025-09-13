@@ -1,25 +1,25 @@
 {
-  "state": "64",
+  "state": "61",
   "TEMP_MODE": {
-    "temp": 23.6,
-    "tempLVL": 25,
+    "temp": 29,
+    "tempLVL": 52,
     "minTime": 3,
     "maxTime": 7,
-    "light": 24,
+    "light": 28,
     "lightThresHold": 60,
     "minLight": 5,
     "maxLight": 10
   },
   "SOIL_MOISTURE_MODE": {
-    "moisture": 0,
-    "moistureLVL": 7,
-    "minMoisture": 7,
-    "maxMoisture": 5
+    "minMoisture": 1,
+    "maxMoisture": 2,
+    "moistureLVL": 3,
+    "moisture": 0
   },
   "SATURDAY_MODE": {
     "dateAct": "11/09/2025",
-    "timeAct": "09:00",
-    "duration": 1
+    "timeAct": "19:57",
+    "duration": 2
   },
   "MANUAL_MODE": {
     "enabled": false,

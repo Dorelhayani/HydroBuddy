@@ -41,6 +41,17 @@ class UserData{
     }
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Get Users List - For Client Side
+// ---------------------------------------------------------------------------------------------------------------------
+    async List(){
+        try{
+            let [sql]= await this.DB.execute(`SELECT * FROM users`);
+            return sql;
+        } catch (error){ console.log(error); }
+
+    }
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 // Update Method
 // ---------------------------------------------------------------------------------------------------------------------
@@ -49,7 +60,9 @@ class UserData{
             const {id, name, email, password, type} = user.body;
             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
             if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?,password = ?, type = ?
-                 WHERE id = ?`,[id, name, email, password, type]); }
+                 WHERE id = ?`,[name, email, password, type, id]);
+            }
+            console.log(sql);
         } catch (error){ console.log(error); }
     }
 // ---------------------------------------------------------------------------------------------------------------------

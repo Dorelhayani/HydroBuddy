@@ -21,8 +21,17 @@ router.post("/add", async (req,res) => {
 router.get("/list" , async (req, res) => {
     try{
         const data = await User.Read();
-        res.status(201).json({message: data});
-        // res.status(201).json({users: data });
+        res.status(200).json(data);
+    } catch (error){ res.status(500).json({ error: error.message }); }
+})
+//  --------------------------------------------------------------------------------------------------------------------
+
+// List
+//  --------------------------------------------------------------------------------------------------------------------
+router.get("/users_list" , async (req, res) => {
+    try{
+        const data = await User.List();
+        res.status(201).json(data);
     } catch (error){ res.status(500).json({ error: error.message }); }
 })
 //  --------------------------------------------------------------------------------------------------------------------
