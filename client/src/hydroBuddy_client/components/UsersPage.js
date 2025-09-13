@@ -1,8 +1,8 @@
-// import "../style/users.css"
 import { users } from "../services/users";
-import { useRequestStatus } from "../hooks/RequestStatus";
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, Outlet, Form, useOutletContext } from "react-router-dom";
+import { useRequestStatus } from "../hooks/RequestStatus";
+import {FlashButton} from "../hooks/Components";
 
 export default function UserPage() {
     const [userList, setUserList] = useState([]);
@@ -43,7 +43,7 @@ export default function UserPage() {
 
 
 export function AddUser() {
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
     const { refresh } = useOutletContext();
     const [user, setUser] = useState({ name: "", email: "", password: "", type: "", created_at: "" });
 
@@ -52,8 +52,7 @@ export function AddUser() {
         setUser((prev) => ({ ...prev, [name]: value }));
     };
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
         start();
         try {
             await users.add({ name: user.name.trim(), email: String(user.email), password: String(user.password), type: Number(user.type) });
@@ -69,7 +68,7 @@ export function AddUser() {
         <div className="main-container">
             <div className="title">Add User</div>
 
-            <Form method="post" onSubmit={onSubmit}>
+            <Form method="post" onSubmit={(e) => e.preventDefault()}>
                 <input className="input" type="text" name="name" value={user.name} onChange={onChange} placeholder="user name" />
 
                 <input className="input" type="text" name="email" value={user.email} onChange={onChange} placeholder="email"/>
@@ -79,14 +78,9 @@ export function AddUser() {
                 <input className="input" type="number" name="type" value={user.type} onChange={onChange} placeholder="type"/>
 
                 <div className = "btn-container">
-                    <button className="btn" type="submit" disabled={loading}>
-                        {loading ? "Saving..." : "Add user"}
-                    </button>
+                    <FlashButton onClickAsync={onSubmit} loading={loading}>Add User</FlashButton>
                 </div>
             </Form>
-
-            {/*{ok && <div style={{ color: "green", marginTop: 8 }}>Plant added successfully.</div>}*/}
-            {/*{err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}*/}
         </div>
     );
 }
@@ -94,7 +88,7 @@ export function AddUser() {
 
 export function EditUser() {
     const { userList, listLoading, refresh } = useOutletContext();
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
     const [edituser, setEdituser] = useState({ id: "", name: "", email: "", password: "", type: "", created_at: "" });
 
     const onSelectChange = (e) => {
@@ -115,8 +109,7 @@ export function EditUser() {
         setEdituser(prev => ({ ...prev, [name]: value }));
     };
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
         start();
         try {
             const payload = { id: Number(edituser.id), name: edituser.name.trim() , email: String(edituser.email), password: edituser.password, type: Number(edituser.type) };
@@ -129,6 +122,7 @@ export function EditUser() {
         }
     };
 
+
     return (
         <div className="main-container">
             <div className="title">Edit User</div>
@@ -136,7 +130,7 @@ export function EditUser() {
             {listLoading ? (
                 <div>Loading plants…</div>
             ) : (
-                <Form method="patch" onSubmit={onSubmit}>
+                <Form method="patch" onSubmit={(e) => e.preventDefault()}>
                     <div className="label">
                         <select className="input" name="id" value={edituser.id} onChange={onSelectChange}>
                             <option className="opt" value="" >— Select User—</option>
@@ -167,15 +161,10 @@ export function EditUser() {
                     </div>
 
                     <div className = "btn-container">
-                        <button className="btn" type="submit" disabled={loading}>
-                            {loading ? "Saving…" : "Edit user"}
-                        </button>
+                        <FlashButton onClickAsync={onSubmit} loading={loading}>Edit user</FlashButton>
                     </div>
                 </Form>
             )}
-
-            {/*{ok && <div style={{ color: "green", marginTop: 8 }}>Plant updated successfully.</div>}*/}
-            {/*{err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}*/}
         </div>
     );
 }
@@ -184,14 +173,13 @@ export function EditUser() {
 export function DeleteUser() {
     const { userList, listLoading, refresh } = useOutletContext();
     const [selectedID, setSelectedID] = useState("");
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
 
     const onSelectChange = (e) => {
         setSelectedID(e.target.value);
     };
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
         start();
         try {
             const payload = { id: parseInt(selectedID) };
@@ -212,7 +200,7 @@ export function DeleteUser() {
             {listLoading ? (
                 <div>Loading plants…</div>
             ) : (
-                <Form method="delete" onSubmit={onSubmit}>
+                <Form method="delete" onSubmit={(e) => e.preventDefault()}>
                     <select className="input" name="id" value={selectedID} onChange={onSelectChange}>
                         <option value="">— Select Plant —</option>
                         {userList.map((p) => (
@@ -223,15 +211,13 @@ export function DeleteUser() {
                     </select>
 
                     <div className = "btn-container">
-                        <button className="btn" type="submit" disabled={loading}>
-                            {loading ? "Saving…" : "Delete Plant"}
-                        </button>
+                        <FlashButton onClickAsync={onSubmit} loading={loading}>
+                            Delete User
+                        </FlashButton>
                     </div>
                 </Form>
             )}
 
-            {/*{ok && <div style={{ color: "green", marginTop: 8 }}>Plant deleted successfully.</div>}*/}
-            {/*{err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}*/}
         </div>
     );
 }

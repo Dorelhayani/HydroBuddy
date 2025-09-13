@@ -101,37 +101,8 @@
     margin-bottom: 10px;
 }
 
-.btn-container{
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    justify-content: center;
-}
-
-.btn{
-        display: inline-block;
-        text-align: center;
-        text-decoration: none;
-        background: #e6c229;
-        color: #000;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 14px;
-        cursor: pointer;
-}
-
-.btn:hover{
-    background: #a18a19;
-}
-
-.btn:active{
-    background-color: #a18a19;
-    box-shadow: 0 5px #666;
-    transform: translateY(4px);
-}
-
 .btnMod{
-    background: #197da1;
+    background: #ADE2F4;
     color: #000;
     border: none;
     border-radius: 12px;
@@ -140,10 +111,11 @@
     transition: background 160ms ease, opacity 120ms ease;
 
 }
+
 .btnMod.is-success,
 .btnMod.is-success:hover,
 .btnMod.is-success:focus {
-    background: #197da1 !important;
+    background: #C1E9F7 !important;
     color: #000;
 }
 
@@ -154,11 +126,10 @@ button.btnMod[disabled] {
 }
 
 .btnMod:hover{
-    background: #166c8a;
+    background: #7AAFC1;
 }
 
 .btnMod:active{
-    background-color: #197da1;
     box-shadow: 0 5px #666;
     transform: translateY(4px);
 }

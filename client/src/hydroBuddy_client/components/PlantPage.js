@@ -43,7 +43,7 @@ export default function PlantPage() {
 }
 
 export function AddPlant() {
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
     const { refresh } = useOutletContext();
     const [plant, setPlant] = useState({ name: "", user_id: "" });
 
@@ -70,18 +70,16 @@ export function AddPlant() {
             <div className="title">Add Plant</div>
 
             <Form method="post" onSubmit={(e) => e.preventDefault()}>
-                <input className="input" type="text" name="name" value={plant.name} onChange={onChange} placeholder="Plant" />
-                <input className="input" type="number" name="user_id" value={plant.user_id} onChange={onChange} placeholder="User Id" />
+                <input className="input" type="text" name="name" value={plant.name}
+                       onChange={onChange} placeholder="Plant" />
+
+                <input className="input" type="number" name="user_id" value={plant.user_id}
+                       onChange={onChange} placeholder="User Id" />
 
                 <div className="btn-container">
-                    <FlashButton onClickAsync={onSubmit} loading={loading}>
-                        Add Plant
-                    </FlashButton>
+                    <FlashButton onClickAsync={onSubmit} loading={loading}>Add Plant</FlashButton>
                 </div>
             </Form>
-
-            {ok && <div style={{ color: "green", marginTop: 8 }}>Plant added successfully.</div>}
-            {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
         </div>
     );
 }
@@ -89,7 +87,7 @@ export function AddPlant() {
 
 export function EditPlant() {
     const { plantsList, listLoading, refresh } = useOutletContext();
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
     const [editPlant, setEditPlant] = useState({ ID: "", name: "" });
 
     const onSelectChange = (e) => {
@@ -101,18 +99,12 @@ export function EditPlant() {
         });
     };
 
-    const onNameChange = (e) => {
-        const { value } = e.target;
-        setEditPlant((prev) => ({ ...prev, name: value }));
+    const onFieldChange = (e) => {
+        const { name, value } = e.target;
+        setEditPlant(prev => ({ ...prev, [name]: value }));
     };
 
-    // const onChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setEditPlant((prev) => ({ ...prev, [name]: value }));
-    // };
-
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
         start();
         try {
             const payload = { ID: Number(editPlant.ID), name: editPlant.name.trim() };
@@ -132,7 +124,6 @@ export function EditPlant() {
 
             {listLoading ? ( <div>Loading plants…</div> ) :
                 (
-                // <Form method="patch" onSubmit={onSubmit}>
                 <Form method="patch" onSubmit={(e) => e.preventDefault()}>
                     <div className="label">
                         <select className="input" name="ID" value={editPlant.ID} onChange={onSelectChange}>
@@ -144,23 +135,16 @@ export function EditPlant() {
                     </div>
 
                     <div className="label">
-                        <input className="input" type="text" name="name" value={editPlant.name} onChange={onNameChange}
+                        {/*<input className="input" type="text" name="name" value={editPlant.name} onChange={onNameChange}*/}
+                        <input className="input" type="text" name="name" value={editPlant.name} onChange={onFieldChange}
                             placeholder="Enter new plant name" required />
                     </div>
 
                     <div className = "btn-container">
-                        <FlashButton onClickAsync={onSubmit} loading={loading}>
-                            Edit Plant
-                        </FlashButton>
-                        {/*<button className="btn" type="submit" disabled={loading}>*/}
-                        {/*    {loading ? "Saving…" : "Edit Plant"}*/}
-                        {/*</button>*/}
+                        <FlashButton onClickAsync={onSubmit} loading={loading}>Edit Plant</FlashButton>
                     </div>
                 </Form>
             )}
-
-            {ok && <div style={{ color: "green", marginTop: 8 }}>Plant updated successfully.</div>}
-            {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
         </div>
     );
 }
@@ -169,14 +153,13 @@ export function EditPlant() {
 export function DeletePlant() {
     const { plantsList, listLoading, refresh } = useOutletContext();
     const [selectedID, setSelectedID] = useState("");
-    const { loading, ok, err, start, succeed, fail } = useRequestStatus();
+    const { loading, start, succeed, fail } = useRequestStatus();
 
     const onSelectChange = (e) => {
         setSelectedID(e.target.value);
     };
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
         start();
         try {
             const payload = { ID: parseInt(selectedID) };
@@ -198,7 +181,6 @@ export function DeletePlant() {
             {listLoading ? (
                 <div>Loading plants…</div>
             ) : (
-                // <Form method="delete" onSubmit={onSubmit}>
                 <Form method="delete" onSubmit={(e) => e.preventDefault()}>
                     <select className="input" name="ID" value={selectedID} onChange={onSelectChange}>
                         <option value="">— Select Plant —</option>
@@ -210,18 +192,10 @@ export function DeletePlant() {
                     </select>
 
                     <div className = "btn-container">
-                        <FlashButton onClickAsync={onSubmit} loading={loading}>
-                            Delete Plant
-                        </FlashButton>
-                        {/*<button className="btn" type="submit" disabled={loading}>*/}
-                        {/*    {loading ? "Saving…" : "Delete Plant"}*/}
-                        {/*</button>*/}
+                        <FlashButton onClickAsync={onSubmit} loading={loading}>Delete Plant</FlashButton>
                     </div>
                 </Form>
             )}
-
-            {ok && <div style={{ color: "green", marginTop: 8 }}>Plant deleted successfully.</div>}
-            {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
         </div>
     );
 }

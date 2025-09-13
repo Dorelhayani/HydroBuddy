@@ -1,11 +1,11 @@
 {
   "state": "61",
   "TEMP_MODE": {
-    "temp": 29,
+    "temp": 27.9,
     "tempLVL": 52,
     "minTime": 3,
     "maxTime": 7,
-    "light": 28,
+    "light": 19,
     "lightThresHold": 60,
     "minLight": 5,
     "maxLight": 10
