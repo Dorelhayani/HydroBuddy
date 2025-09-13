@@ -1,4 +1,4 @@
-import {Link, Outlet, Form, useNavigate } from "react-router-dom";
+import {Link, Outlet, Form, useNavigate } from "react-router-dom"
 import React from "react";
 import {FlashButton} from "../hooks/Components" ;
 import {ToggleSwitch} from "../domain/formatters";
