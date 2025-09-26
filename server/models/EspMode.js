@@ -85,7 +85,6 @@ class EspData {
             console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime},
             light ThresHold: ${lightThresHold}, minLight: ${minLight}, maxLight: ${maxLight}`);
 
-            // return { message: "Temperature mode updated", TEMP_MODE: data.TEMP_MODE, }
             return { TEMP_MODE: data.TEMP_MODE, }
         }
     catch (err) { throw new Error("Error handling temperature mode: " + err.message); }

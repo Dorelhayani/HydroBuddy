@@ -1,5 +1,3 @@
-const req = require("express/lib/request");
-
 class PlantData{
     constructor(db) { this.DB = db; }
 

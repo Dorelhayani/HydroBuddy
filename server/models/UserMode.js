@@ -1,21 +1,5 @@
 class UserData{
     constructor(db) { this.DB = db; }
-
-// Creat Method
-// ---------------------------------------------------------------------------------------------------------------------
-    async Create(name, email, password, type){
-        try {
-            let date = new Date();
-            let creatAt = date.toISOString().split('T')[0];
-            const Query = `INSERT INTO users(name, email, password, type, created_at) VALUES (?, ?, ?, ?, ?)`;
-            const pararms = [name, email, password, type, creatAt];
-            const [result] = await this.DB.execute(Query, pararms);
-            return result.insertId;
-        } catch (error) { throw error; }
-    }
-// ---------------------------------------------------------------------------------------------------------------------
-
-
 // Read Method
 // ---------------------------------------------------------------------------------------------------------------------
     async Read() {
@@ -24,7 +8,6 @@ class UserData{
         SELECT
           u.id         AS user_id,
           u.name       AS user_name,
-          u.type       AS user_type,
           p.ID         AS plant_id,
           p.name       AS plant_name,
           p.user_id    AS plant_user_id
@@ -55,27 +38,54 @@ class UserData{
 
 // Update Method
 // ---------------------------------------------------------------------------------------------------------------------
-    async Update(user){
+//     async Update(user){
+//         try{
+//             const {id, name, email} = user.body;
+//             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
+//             if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?
+//                  WHERE id = ?`,[name, email, id]);
+//             }
+//             console.log(sql);
+//         } catch (error){ console.log(error); }
+//     }
+
+    async Update(id, data){
         try{
-            const {id, name, email, password, type} = user.body;
-            let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-            if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?,password = ?, type = ?
-                 WHERE id = ?`,[name, email, password, type, id]);
+            const { name, email } = data;
+            const [rows] = await this.DB.execute(`SELECT * FROM users WHERE id = ?`, [id]);
+            if (rows.length > 0) {
+                await this.DB.execute(`UPDATE users SET name = ?, email = ? WHERE id = ?`, [name, email, id]);
+            } else {
+                throw new Error('User not found');
             }
-            console.log(sql);
-        } catch (error){ console.log(error); }
+        } catch (error) {
+            throw error;
+        }
     }
 // ---------------------------------------------------------------------------------------------------------------------
 
 
 // Delete Method
 // ---------------------------------------------------------------------------------------------------------------------
-    async Delete(user){
+//     async Delete(user){
+//         try {
+//             const {id} = user.body;
+//             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
+//             if(sql.length > 0){ await this.DB.execute(`DELETE FROM users WHERE id = ?`,[id]); }
+//         } catch (error) { console.log(error); }
+//     }
+
+    async Delete(id){
         try {
-            const {id} = user.body;
-            let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-            if(sql.length > 0){ await this.DB.execute(`DELETE FROM users WHERE id = ?`,[id]); }
-        } catch (error) { console.log(error); }
+            const [rows] = await this.DB.execute(`SELECT * FROM users WHERE id = ?`, [id]);
+            if (rows.length > 0) {
+                await this.DB.execute(`DELETE FROM users WHERE id = ?`, [id]);
+            } else {
+                throw new Error('User not found');
+            }
+        } catch (error) {
+            throw error;
+        }
     }
 // ---------------------------------------------------------------------------------------------------------------------
 }
