@@ -1,92 +1,78 @@
-class UserData{
-    constructor(db) { this.DB = db; }
-// Read Method
-// ---------------------------------------------------------------------------------------------------------------------
+class UserData {
+    constructor(db) {
+        this.DB = db;
+    }
+
+    // Get single user (id, name, email, created_at) or null if not found
+    async GetOneUser(id) {
+        if (!id) throw new Error('Missing user id');
+        const [rows] = await this.DB.execute(
+            `SELECT id, name, email, created_at FROM users WHERE id = ? LIMIT 1`,
+            [id]
+        );
+        return rows && rows.length ? rows[0] : null;
+    }
+
+    // Read users joined with planttype (returns rows where a user has at least one planttype)
     async Read() {
-        try {
-            const sqlQuery = `
-        SELECT
-          u.id         AS user_id,
-          u.name       AS user_name,
-          p.ID         AS plant_id,
-          p.name       AS plant_name,
-          p.user_id    AS plant_user_id
-        FROM users AS u
-        JOIN planttype AS p
-          ON u.id = p.user_id;
-      `;
-            let [rows] = await this.DB.execute(sqlQuery);
-            return rows;
-        } catch (error) {
-            console.error("Error in Read():", error);
-            throw error;
+        const sql = `
+      SELECT
+        u.id          AS user_id,
+        u.name        AS user_name,
+        pt.ID         AS plant_id,
+        pt.name       AS plant_name,
+        pt.user_id    AS plant_user_id
+      FROM users AS u
+      JOIN planttype AS pt ON u.id = pt.user_id
+    `;
+        const [rows] = await this.DB.execute(sql);
+        return rows;
+    }
+
+    // List all users (safe select of key columns)
+    async List() {
+        const [rows] = await this.DB.execute(
+            `SELECT id, name, email, created_at FROM users ORDER BY id ASC`
+        );
+        return rows;
+    }
+
+    // Update user (only name and email). Throws if user not found.
+    async Update(id, data) {
+        if (!id) throw new Error('Missing user id');
+        const name = data && data.name ? String(data.name).trim() : null;
+        const email = data && data.email ? String(data.email).trim().toLowerCase() : null;
+
+        if (!name && !email) throw new Error('Nothing to update');
+
+        const [rows] = await this.DB.execute(`SELECT id FROM users WHERE id = ? LIMIT 1`, [id]);
+        if (!rows || rows.length === 0) throw new Error('User not found');
+
+        const updates = [];
+        const params = [];
+        if (name) {
+            updates.push('name = ?');
+            params.push(name);
         }
-    }
-// ---------------------------------------------------------------------------------------------------------------------
-
-// Get Users List - For Client Side
-// ---------------------------------------------------------------------------------------------------------------------
-    async List(){
-        try{
-            let [sql]= await this.DB.execute(`SELECT * FROM users`);
-            return sql;
-        } catch (error){ console.log(error); }
-
-    }
-// ---------------------------------------------------------------------------------------------------------------------
-
-
-// Update Method
-// ---------------------------------------------------------------------------------------------------------------------
-//     async Update(user){
-//         try{
-//             const {id, name, email} = user.body;
-//             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-//             if(sql.length > 0){ await this.DB.execute(`UPDATE users SET name = ?, email = ?
-//                  WHERE id = ?`,[name, email, id]);
-//             }
-//             console.log(sql);
-//         } catch (error){ console.log(error); }
-//     }
-
-    async Update(id, data){
-        try{
-            const { name, email } = data;
-            const [rows] = await this.DB.execute(`SELECT * FROM users WHERE id = ?`, [id]);
-            if (rows.length > 0) {
-                await this.DB.execute(`UPDATE users SET name = ?, email = ? WHERE id = ?`, [name, email, id]);
-            } else {
-                throw new Error('User not found');
-            }
-        } catch (error) {
-            throw error;
+        if (email) {
+            updates.push('email = ?');
+            params.push(email);
         }
+        params.push(id);
+
+        await this.DB.execute(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+        return true;
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
+    // Delete user by id. Throws if user not found.
+    async Delete(id) {
+        if (!id) throw new Error('Missing user id');
+        const [rows] = await this.DB.execute(`SELECT id FROM users WHERE id = ? LIMIT 1`, [id]);
+        if (!rows || rows.length === 0) throw new Error('User not found');
 
-// Delete Method
-// ---------------------------------------------------------------------------------------------------------------------
-//     async Delete(user){
-//         try {
-//             const {id} = user.body;
-//             let [sql,t]= await this.DB.execute(`SELECT * FROM users where id = ?`,[id]);
-//             if(sql.length > 0){ await this.DB.execute(`DELETE FROM users WHERE id = ?`,[id]); }
-//         } catch (error) { console.log(error); }
-//     }
-
-    async Delete(id){
-        try {
-            const [rows] = await this.DB.execute(`SELECT * FROM users WHERE id = ?`, [id]);
-            if (rows.length > 0) {
-                await this.DB.execute(`DELETE FROM users WHERE id = ?`, [id]);
-            } else {
-                throw new Error('User not found');
-            }
-        } catch (error) {
-            throw error;
-        }
+        await this.DB.execute(`DELETE FROM users WHERE id = ?`, [id]);
+        return true;
     }
-// ---------------------------------------------------------------------------------------------------------------------
 }
+
 module.exports = UserData;

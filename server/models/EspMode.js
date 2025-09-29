@@ -1,281 +1,189 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs').promises;
+const path = require('path');
 
 class EspData {
     constructor(db) {
         this.DB = db;
-        this.jsonPath = path.join(__dirname, "..", "Inside_Information.json");
+        this.jsonPath = path.join(__dirname, '..', 'Inside_Information.json');
     }
-// ESP State
-// ---------------------------------------------------------------------------------------------------------------------
-    async EspState(val) {
-        try {
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
 
-            if (val && typeof val.state !== "undefined") {
-                data.state = val.state;
-                fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-                console.log(`State updated to: ${data.state}`);
-                return { message: "State updated", CurrentStatus: data.state, };
-            }
-            return { CurrentStatus: data.state, };
-        } catch (err) { throw new Error("Error handling state: " + err.message); }
+    // --- helpers ---
+    async _readJson() {
+        const raw = await fs.readFile(this.jsonPath, 'utf8');
+        return JSON.parse(raw);
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
-
-// Data Mode
-// ---------------------------------------------------------------------------------------------------------------------
-    async DataMode(val) {
-        try {
-            const rows = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(rows);
-
-            if (val && val.state) {
-                const requestedKey = val.state;
-                if (data.hasOwnProperty(requestedKey)) { return { [requestedKey]: data[requestedKey] }; }
-                else {
-                    const err = new Error(`State '${requestedKey}' not found.`);
-                    err.code = 404;
-                    throw err;
-                }
-            }
-            return { CurrentStatus: data.state }; }
-        catch (err) { throw new Error("Error handling esp state mode: " + err.message); }
+    async _writeJson(obj) {
+        await fs.writeFile(this.jsonPath, JSON.stringify(obj, null, 2), 'utf8');
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
-
-// Temperature Mode
-// ---------------------------------------------------------------------------------------------------------------------
-    async TemperatureMode(val){
-        try{
-            const tempLVL = Number(val.tempLVL);
-            const minTime = Number(val.minTime);
-            const maxTime = Number(val.maxTime);
-            const lightThresHold = Number(val.lightThresHold);
-            const minLight = Number(val.minLight);
-            const maxLight = Number(val.maxLight);
-
-            const validTemp =
-                Number.isInteger(minTime) && Number.isInteger(maxTime) && Number.isInteger(lightThresHold)
-                && Number.isInteger(minLight) && Number.isInteger(maxLight) && minTime > 0 && maxTime > 0
-                && lightThresHold > 0 && minLight > 0 && maxLight > 0;
-
-            if(!validTemp){
-                const err = new Error("Please insert valid numeric values for temperature mode");
-                err.code = 400;
-                throw err;
-            }
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-
-            data.TEMP_MODE = {
-                ...(data.TEMP_MODE || {}),
-                tempLVL,
-                minTime,
-                maxTime,
-                lightThresHold,
-                minLight,
-                maxLight,
-            };
-
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            console.log( `Temperature Level is ${tempLVL}, MinTime: ${minTime}, MaxTIme: ${maxTime},
-            light ThresHold: ${lightThresHold}, minLight: ${minLight}, maxLight: ${maxLight}`);
-
-            return { TEMP_MODE: data.TEMP_MODE, }
+    _ensureFiniteNumber(value, name) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) {
+            const err = new Error(`Invalid numeric value for ${name}`);
+            err.code = 400;
+            throw err;
         }
-    catch (err) { throw new Error("Error handling temperature mode: " + err.message); }
+        return n;
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
+    // --- ESP state (get / set) ---
+    async EspState(payload) {
+        const data = await this._readJson();
 
-// Update Temperature sensor's reading to JSON
-// ---------------------------------------------------------------------------------------------------------------------
-    async UpadteTemp(val){
-        try{
-            const tempSensor = val?.temp ?? val?.TEMP_MODE?.temp;
-            const t = Number(tempSensor);
-            if (!Number.isFinite(t)) {
-                const err = new Error("Invalid temp");
-                err.code = 400;
-                throw err;
-            }
-
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-            data.TEMP_MODE = {
-                ...(data.TEMP_MODE || {}),
-                temp: t,
-
-            };
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            return { message: "temp Sensor updated", temp: t, TEMP_MODE: data.TEMP_MODE };
+        if (payload && typeof payload.state !== 'undefined') {
+            data.state = payload.state;
+            await this._writeJson(data);
+            return { message: 'State updated', CurrentStatus: data.state };
         }
-        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+
+        return { CurrentStatus: data.state };
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
-
- // Update Light sensor's reading to JSON
-// ---------------------------------------------------------------------------------------------------------------------
-    async UpadteLight(val){
-        try{
-            const lightSensor = val?.light ?? val?.TEMP_MODE?.light;
-            const l = Number(lightSensor);
-            if (!Number.isFinite(l)) {
-                const err = new Error("Invalid light");
-                err.code = 400;
-                throw err;
+    // --- Data mode: return specific key or current state ---
+    async DataMode(payload) {
+        const data = await this._readJson();
+        if (payload && payload.state) {
+            const key = payload.state;
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                return { [key]: data[key] };
             }
-
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-            data.TEMP_MODE = {
-                ...(data.TEMP_MODE || {}),
-                light: l,
-
-            };
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            return { message: "light Sensor updated", light: l, TEMP_MODE: data.TEMP_MODE };
+            const err = new Error(`State '${key}' not found`);
+            err.code = 404;
+            throw err;
         }
-        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+        return { CurrentStatus: data.state };
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
+    // --- Temperature mode: set full mode config ---
+    async TemperatureMode(payload) {
+        const tempLVL = this._ensureFiniteNumber(payload?.tempLVL, 'tempLVL');
+        const minTime = this._ensureFiniteNumber(payload?.minTime, 'minTime');
+        const maxTime = this._ensureFiniteNumber(payload?.maxTime, 'maxTime');
+        const lightThresHold = this._ensureFiniteNumber(payload?.lightThresHold, 'lightThresHold');
+        const minLight = this._ensureFiniteNumber(payload?.minLight, 'minLight');
+        const maxLight = this._ensureFiniteNumber(payload?.maxLight, 'maxLight');
 
-// Moisture Mode
-// ---------------------------------------------------------------------------------------------------------------------
-    async MoistureMode(val) {
-        try {
-            const moistureLVL = Number(val.moistureLVL);
-            const minMoisture = Number(val.minMoisture);
-            const maxMoisture = Number(val.maxMoisture);
-
-            const validMoist =
-                Number.isInteger(minMoisture) && Number.isInteger(maxMoisture) && Number.isInteger(moistureLVL) &&
-                moistureLVL > 0 && minMoisture > 0 && maxMoisture > 0;
-
-            if (!validMoist) {
-                const err = new Error("Please insert valid numeric values for moisture mode");
-                err.code = 400;
-                throw err;
-            }
-
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-
-            data.SOIL_MOISTURE_MODE = {
-                minMoisture,
-                maxMoisture,
-                moistureLVL,
-            };
-
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            console.log( `Moisture Level is ${moistureLVL}, Min: ${minMoisture}, Max: ${maxMoisture}`);
-
-            return { message: "Moisture mode updated", SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE, }
+        if (![minTime, maxTime, lightThresHold, minLight, maxLight].every(Number.isInteger)) {
+            const err = new Error('Temperature mode numeric values must be integers');
+            err.code = 400;
+            throw err;
         }
-        catch (err) { throw new Error("Error handling moisture mode: " + err.message); }
+
+        const data = await this._readJson();
+        data.TEMP_MODE = {
+            ...(data.TEMP_MODE || {}),
+            tempLVL,
+            minTime,
+            maxTime,
+            lightThresHold,
+            minLight,
+            maxLight,
+        };
+
+        await this._writeJson(data);
+        return { TEMP_MODE: data.TEMP_MODE };
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
+    // --- Update temperature reading ---
+    async UpdateTemp(payload) {
+        const t = this._ensureFiniteNumber(payload?.temp ?? payload?.TEMP_MODE?.temp, 'temp');
+        const data = await this._readJson();
+        data.TEMP_MODE = { ...(data.TEMP_MODE || {}), temp: t };
+        await this._writeJson(data);
+        return { message: 'Temp sensor updated', temp: t, TEMP_MODE: data.TEMP_MODE };
+    }
 
-// Update Moisture sensor's reading to JSON
-// ---------------------------------------------------------------------------------------------------------------------
-    async UpadteMoisture(val){
-        try{
-            const moistSensor = val?.moisture ?? val?.SOIL_MOISTURE_MODE?.moisture;
-            const m = Number(moistSensor);
-            if (!Number.isFinite(m)) {
-                const err = new Error("Invalid temp");
-                err.code = 400;
-                throw err;
-            }
+    // --- Update light reading ---
+    async UpdateLight(payload) {
+        const l = this._ensureFiniteNumber(payload?.light ?? payload?.TEMP_MODE?.light, 'light');
+        const data = await this._readJson();
+        data.TEMP_MODE = { ...(data.TEMP_MODE || {}), light: l };
+        await this._writeJson(data);
+        return { message: 'Light sensor updated', light: l, TEMP_MODE: data.TEMP_MODE };
+    }
 
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-            data.SOIL_MOISTURE_MODE = {
-                ...(data.SOIL_MOISTURE_MODE || {}),
-                moisture: m,
+    // --- Moisture mode: set full mode config ---
+    async MoistureMode(payload) {
+        const moistureLVL = this._ensureFiniteNumber(payload?.moistureLVL, 'moistureLVL');
+        const minMoisture = this._ensureFiniteNumber(payload?.minMoisture, 'minMoisture');
+        const maxMoisture = this._ensureFiniteNumber(payload?.maxMoisture, 'maxMoisture');
 
-            };
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            return { message: "moisture Sensor updated", temp: m, TEMP_MODE: data.TEMP_MODE };
+        if (![moistureLVL, minMoisture, maxMoisture].every(Number.isInteger)) {
+            const err = new Error('Moisture mode numeric values must be integers');
+            err.code = 400;
+            throw err;
         }
-        catch (err) { throw new Error("Error temperature reading: " + err.message); }
+
+        const data = await this._readJson();
+        data.SOIL_MOISTURE_MODE = { minMoisture, maxMoisture, moistureLVL };
+        await this._writeJson(data);
+        return { message: 'Moisture mode updated', SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
+    // --- Update moisture reading ---
+    async UpdateMoisture(payload) {
+        const m = this._ensureFiniteNumber(payload?.moisture ?? payload?.SOIL_MOISTURE_MODE?.moisture, 'moisture');
+        const data = await this._readJson();
+        data.SOIL_MOISTURE_MODE = { ...(data.SOIL_MOISTURE_MODE || {}), moisture: m };
+        await this._writeJson(data);
+        return { message: 'Moisture sensor updated', moisture: m, SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
+    }
 
-// Saturday Mode
-// ---------------------------------------------------------------------------------------------------------------------
+    // --- Saturday mode: validate date/time strings and set ---
+    _parseDate(dateStr) {
+        const parts = (dateStr || '').split('/').map((p) => parseInt(p, 10));
+        if (parts.length !== 3) return null;
+        const [day, month, year] = parts;
+        if (![day, month, year].every(Number.isInteger)) return null;
+        return { day, month, year };
+    }
+
+    _parseTime(timeStr) {
+        const parts = (timeStr || '').split(':').map((p) => parseInt(p, 10));
+        if (parts.length !== 2) return null;
+        const [hour, minute] = parts;
+        if (![hour, minute].every(Number.isInteger)) return null;
+        return { hour, minute };
+    }
+
     async SaturdayMode(payload) {
-        try {
-            const duration = Number(payload.duration);
-            const dateAct = payload.dateAct;
-            const timeAct = payload.timeAct;
+        const duration = this._ensureFiniteNumber(payload?.duration, 'duration');
+        const dateAct = payload?.dateAct;
+        const timeAct = payload?.timeAct;
 
-            const [day, month, year] = dateAct.split("/").map((x) => parseInt(x, 10));
-            const [hour, minute] = timeAct.split(":").map((x) => parseInt(x, 10));
+        const d = this._parseDate(dateAct);
+        const t = this._parseTime(timeAct);
 
-            const validTime = Number.isInteger(hour) && Number.isInteger(minute) &&
-                hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && Number.isInteger(duration) && duration > 0;
+        const validDate = d && d.day >= 1 && d.day <= 31 && d.month >= 1 && d.month <= 12 && d.year >= 2020;
+        const validTime = t && t.hour >= 0 && t.hour <= 23 && t.minute >= 0 && t.minute <= 59;
+        if (!validDate || !validTime || duration <= 0) {
+            const err = new Error('Please insert a valid date/time/duration');
+            err.code = 400;
+            throw err;
+        }
 
-            const validDate = Number.isInteger(day) && Number.isInteger(month) && Number.isInteger(year) &&
-                day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2020;
-
-            if (!validTime || !validDate) {
-                const err = new Error("Please insert a valid date/time signature");
-                err.code = 400;
-                throw err;
-            }
-
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
-
-            data.SATURDAY_MODE = {
-                dateAct,
-                timeAct,
-                duration,
-            };
-
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            console.log(`Saturday mode set to: ${dateAct} at ${timeAct} for ${duration} minutes`);
-
-            return { message: "Saturday mode updated", SATURDAY_MODE: data.SATURDAY_MODE, }; }
-        catch (err) { throw new Error("Error handling saturday mode: " + err.message); }
+        const data = await this._readJson();
+        data.SATURDAY_MODE = { dateAct, timeAct, duration };
+        await this._writeJson(data);
+        return { message: 'Saturday mode updated', SATURDAY_MODE: data.SATURDAY_MODE };
     }
-// ---------------------------------------------------------------------------------------------------------------------
 
-
-// Manual Mode
-// ---------------------------------------------------------------------------------------------------------------------
+    // --- Manual mode: get or set enabled flag ---
     async ManualMode(payload) {
-        try {
-            if (typeof payload.enabled === "undefined") {
-                const raw = fs.readFileSync(this.jsonPath, "utf8");
-                const data = JSON.parse(raw);
-                return { MANUAL_MODE: data.MANUAL_MODE ? data.MANUAL_MODE.enabled : false,};
-            }
-            const enabled = payload.enabled === "true";
+        const data = await this._readJson();
 
-            const raw = fs.readFileSync(this.jsonPath, "utf8");
-            const data = JSON.parse(raw);
+        // get
+        if (typeof payload === 'undefined' || typeof payload.enabled === 'undefined') {
+            return { MANUAL_MODE: !!(data.MANUAL_MODE && data.MANUAL_MODE.enabled) };
+        }
 
-            if (!data.MANUAL_MODE) data.MANUAL_MODE = {};
-            data.MANUAL_MODE.enabled = enabled;
-
-            fs.writeFileSync(this.jsonPath, JSON.stringify(data, null, 2), "utf8");
-            console.log(`Manual mode set to: ${enabled}`);
-
-            return { message: "Manual mode updated", MANUAL_MODE: data.MANUAL_MODE, }; }
-        catch (err) { throw new Error("Error handling manual mode: " + err.message); }
+        // set (accept boolean or "true"/"false")
+        const enabled = payload.enabled === true || payload.enabled === 'true';
+        data.MANUAL_MODE = { ...(data.MANUAL_MODE || {}), enabled };
+        await this._writeJson(data);
+        return { message: 'Manual mode updated', MANUAL_MODE: data.MANUAL_MODE };
     }
-// ---------------------------------------------------------------------------------------------------------------------
-
 }
 
 module.exports = EspData;
