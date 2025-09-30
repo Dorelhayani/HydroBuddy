@@ -1,250 +1,164 @@
+import { createContext, useContext, useMemo, useCallback, useEffect, useState } from "react";
 import { esp } from "../services/esp";
 import { useRequestStatus } from "./RequestStatus";
-import { useState, useCallback, useEffect } from "react";
-import {toInputDate, toServerDate, validateClient} from "../domain/formatters";
+import { toInputDate, toServerDate, validateClient } from "../domain/formatters";
 
-export function StateLoad() {
-    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
+export function useSensors() {
+    const { loading, start, succeed, fail } = useRequestStatus();
+    const [sensors, setSensors] = useState(null);
+
+    const refreshSensors = useCallback(async () => {
+        start();
+        try {
+            const res = await esp.getSensors();
+            setSensors(res);
+            succeed();
+        } catch (e) { fail(e); }
+    }, [start, succeed, fail]);
+
+    useEffect(() => { refreshSensors(); }, [refreshSensors]);
+    return { sensors, setSensors, refreshSensors, loadingSensors: loading };
+}
+
+export function useModState() {
+    const { loading, start, succeed, fail, run } = useRequestStatus();
     const [state, setState] = useState(null);
-    const [form, setForm] = useState({ state: ""});
+    const [form, setForm] = useState({ state: "" });
 
     const load = useCallback(async () => {
         start();
         try {
             const res = await esp.dataMode();
-            const current = Number(res?.CurrentStatus ?? NaN );
+            const current = Number(res?.CurrentStatus ?? NaN);
             setState(current);
-
             setForm({ state: Number.isFinite(current) ? String(current) : "" });
             succeed();
         } catch (e) { fail(e); }
     }, [start, succeed, fail]);
 
-    const save = useCallback(async () => {
-        const payload = Number(form.state);
-        if(!Number.isFinite(payload)) {throw new Error("Choose a Valid state number");}
-        const result = await run(() => esp.setState({state: payload}), { successMessage: "State saved" });
+    useEffect(() => { load(); }, [load]);
 
-        const committed = Number(result?.CurrentStatus ?? payload);
+    const saveState = useCallback(async () => {
+        const n = Number(form.state);
+        if (!Number.isFinite(n)) throw new Error("Choose a valid state number");
+        const result = await run(() => esp.setState({ state: n }), { successMessage: "State saved" });
+        const committed = Number(result?.CurrentStatus ?? n);
         setState(committed);
-
+        return committed;
     }, [form, run]);
 
-    useEffect(() => { load(); }, [load]);
-    return { state, form, setForm, load, save, loading, ok, err, message };
+    return { state, form, setForm, saveState, reloadState: load, loadingState: loading };
 }
 
-export function TemperatureLoad(){
-    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
-    const [sensors, setSensors] = useState(null);
-    const [form, setForm] = useState({ moisture: "", moistureLVL: "", minMoisture: "" });
+const ModDataCtx = createContext(null);
 
-    const load = useCallback(async () => {
-        start();
-        try {
-            const res = await esp.getSensors();
-            setSensors(res);
+export function ModDataProvider({ children }) {
+    const sensorsApi = useSensors();
+    const stateApi   = useModState();
 
-            const temp = res?.TEMP_MODE?.temp  || "";
-            const tempLVL = res?.TEMP_MODE?.tempLVL || "";
-            const minTime  = res?.TEMP_MODE?.minTime ?? "";
-            const maxTime  = res?.TEMP_MODE?.maxTime ?? "";
-            const light  = res?.TEMP_MODE?.light ?? "";
-            const lightThresHold  = res?.TEMP_MODE?.lightThresHold ?? "";
-            const minLight  = res?.TEMP_MODE?.minLight ?? "";
-            const maxLight  = res?.TEMP_MODE?.maxLight ?? "";
+    const value = useMemo(
+        () => ({ ...sensorsApi, ...stateApi }),
+        [sensorsApi.sensors, sensorsApi.loadingSensors, stateApi.state, stateApi.loadingState, stateApi.form]
+    );
 
-            setForm({
-                temp: temp,
-                tempLVL: tempLVL,
-                minTime: minTime,
-                maxTime: maxTime,
-                light: light,
-                lightThresHold: lightThresHold,
-                minLight: minLight,
-                maxLight: maxLight,
-            });
+    return <ModDataCtx.Provider value={value}>{children}</ModDataCtx.Provider>;
+}
 
-            succeed();
-        } catch (e) {
-            fail(e);
-        }
-    }, [start, succeed, fail]);
+export function useModData() {
+    const ctx = useContext(ModDataCtx);
+    if (!ctx) throw new Error("useModData must be used inside <ModDataProvider>");
+    return ctx;
+}
 
-    const save = useCallback(async () => {
+
+export function TempFormFromSensors(s) {
+    const t = s?.TEMP_MODE || {};
+    return {
+        temp: t.temp ?? "",
+        tempLVL: t.tempLVL ?? "",
+        minTime: t.minTime ?? "",
+        maxTime: t.maxTime ?? "",
+        light: t.light ?? "",
+        lightThresHold: t.lightThresHold ?? "",
+        minLight: t.minLight ?? "",
+        maxLight: t.maxLight ?? "",
+    };
+}
+
+export function MoistureFormFromSensors(s) {
+    const m = s?.SOIL_MOISTURE_MODE || {};
+    return {
+        moisture: m.moisture ?? "",
+        moistureLVL: m.moistureLVL ?? "",
+        minMoisture: m.minMoisture ?? "",
+        maxMoisture: m.maxMoisture ?? "",
+    };
+}
+
+export function SaturdayFormFromSensors(s) {
+    const d = s?.SATURDAY_MODE || {};
+    return {
+        date: toInputDate(d.dateAct || ""),
+        time: d.timeAct || "",
+        duration: String(d.duration ?? ""),
+    };
+}
+
+
+export function useSaveTemperature() {
+    const { run, loading } = useRequestStatus();
+    const save = useCallback(async (form) => {
         const payload = {
             temp: parseFloat(form.temp),
             tempLVL: parseFloat(form.tempLVL),
-            minTime: parseInt(form.minTime),
-            maxTime: parseInt(form.maxTime),
-            light: parseInt(form.light),
-            lightThresHold: parseInt(form.lightThresHold),
-            minLight: parseInt(form.minLight),
-            maxLight: parseInt(form.maxLight),
+            minTime: parseInt(form.minTime, 10),
+            maxTime: parseInt(form.maxTime, 10),
+            light: parseInt(form.light, 10),
+            lightThresHold: parseInt(form.lightThresHold, 10),
+            minLight: parseInt(form.minLight, 10),
+            maxLight: parseInt(form.maxLight, 10),
         };
-
-        await run(() => esp.setTemp(payload), { successMessage: "temperature mode saved" });
-
-        // עדכון מקומי של התצוגה
-        setSensors((s) => ({
-            ...s,
-            TEMP_MODE: { ...(s?.TEMP_MODE || {}),
-                temp: payload.temp,
-                tempLVL: payload.tempLVL,
-                minTime: payload.minTime,
-                maxTime: payload.maxTime,
-                light: payload.light,
-                lightThresHold: payload.lightThresHold,
-                minLight: payload.minLight,
-                maxLight: payload.maxLight,
-            },
-        }));
-    }, [form, run]);
-
-    useEffect(() => { load(); }, [load]);
-
-    return { sensors, form, setForm, load, save, loading, ok, err, message };
+        await run(() => esp.setTemp(payload), { successMessage: "Temperature mode saved" });
+        return payload;
+    }, [run]);
+    return { save, saving: loading };
 }
 
-
-export function MoistureLoad(){
-    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
-    const [sensors, setSensors] = useState(null);
-    const [form, setForm] = useState({ moisture: "", moistureLVL: "", minMoisture: "" });
-
-    const load = useCallback(async () => {
-        start();
-        try {
-            const res = await esp.getSensors();
-            setSensors(res);
-
-            const moisture = res?.SOIL_MOISTURE_MODE?.moisture  || "";
-            const moistureLVL = res?.SOIL_MOISTURE_MODE?.moistureLVL || "";
-            const minMoisture  = res?.SOIL_MOISTURE_MODE?.minMoisture ?? "";
-            const maxMoisture  = res?.SOIL_MOISTURE_MODE?.maxMoisture ?? "";
-
-            setForm({
-                moisture: moisture,
-                moistureLVL: moistureLVL,
-                minMoisture: minMoisture,
-                maxMoisture: maxMoisture,
-            });
-
-            succeed();
-        } catch (e) {
-            fail(e);
-        }
-    }, [start, succeed, fail]);
-
-    const save = useCallback(async () => {
+export function useSaveMoisture() {
+    const { run, loading } = useRequestStatus();
+    const save = useCallback(async (form) => {
         const payload = {
-            moisture: parseInt(form.moisture),
-            moistureLVL: parseInt(form.moistureLVL),
-            minMoisture: parseInt(form.minMoisture),
-            maxMoisture: parseInt(form.maxMoisture),
+            moisture: parseInt(form.moisture, 10),
+            moistureLVL: parseInt(form.moistureLVL, 10),
+            minMoisture: parseInt(form.minMoisture, 10),
+            maxMoisture: parseInt(form.maxMoisture, 10),
         };
-
-        await run(() => esp.setMoist(payload), { successMessage: "moisture mode saved" });
-
-        setSensors((s) => ({
-            ...s,
-            SOIL_MOISTURE_MODE: { ...(s?.SOIL_MOISTURE_MODE || {}),
-                moisture: payload.moisture,
-                moistureLVL: payload.moistureLVL,
-                minMoisture: payload.minMoisture,
-                maxMoisture: payload.maxMoisture,
-            },
-        }));
-    }, [form, run]);
-
-    useEffect(() => { load(); }, [load]);
-
-    return { sensors, form, setForm, load, save, loading, ok, err, message };
+        await run(() => esp.setMoist(payload), { successMessage: "Moisture mode saved" });
+        return payload;
+    }, [run]);
+    return { save, saving: loading };
 }
 
-
-export function SaturdayLoad() {
-    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
-    const [sensors, setSensors] = useState(null);
-    const [form, setForm] = useState({ date: "", time: "", duration: "" });
-
-    const load = useCallback(async () => {
-        start();
-        try {
-            const res = await esp.getSensors();
-            setSensors(res);
-
-            const dateFromServer = res?.SATURDAY_MODE?.dateAct || "";
-            const timeFromServer = res?.SATURDAY_MODE?.timeAct || "";
-            const durFromServer  = res?.SATURDAY_MODE?.duration ?? "";
-
-            setForm({
-                date: toInputDate(dateFromServer),
-                time: timeFromServer,
-                duration: String(durFromServer),
-            });
-            succeed();
-        } catch (e) {
-            fail(e);
-        }
-    }, [start, succeed, fail]);
-
-    const save = useCallback(async () => {
+export function useSaveSaturday() {
+    const { run, loading } = useRequestStatus();
+    const save = useCallback(async (form) => {
         const payload = {
             dateAct: toServerDate(form.date),
             timeAct: form.time,
             duration: parseInt(form.duration, 10),
         };
-
-        if (!validateClient(payload)) {
-            throw new Error("בדוק תאריך/שעה/משך: פורמט לא תקין");
-        }
-
+        if (!validateClient(payload)) throw new Error("בדוק תאריך/שעה/משך: פורמט לא תקין");
         await run(() => esp.setSaturday(payload), { successMessage: "Saturday mode saved" });
-
-        // עדכון מקומי של התצוגה
-        setSensors((s) => ({
-            ...s,
-            SATURDAY_MODE: {
-                ...(s?.SATURDAY_MODE || {}),
-                dateAct: payload.dateAct,
-                timeAct: payload.timeAct,
-                duration: payload.duration,
-            },
-        }));
-    }, [form, run]);
-
-    useEffect(() => { load(); }, [load]);
-
-    return { sensors, form, setForm, load, save, loading, ok, err, message };
+        return payload;
+    }, [run]);
+    return { save, saving: loading };
 }
 
-
-export function ManualLoad(){
-    const { loading, ok, err, message, start, succeed, fail, run } = useRequestStatus();
-    const [sensors, setSensors] = useState(null);
-    const [enabled, setEnabled] = useState(false);
-
-    const load = useCallback(async () => {
-        start();
-        try {
-            const res = await esp.getSensors();
-            setSensors(res);
-            setEnabled(Boolean(res?.MANUAL_MODE?.enabled));
-            succeed();
-        } catch (e) {
-            fail(e);
-        }
-    }, [start, succeed, fail]);
-
-    const save = useCallback(async (nextEnabled) => {
-        const value = typeof nextEnabled === "boolean" ? nextEnabled : enabled;
-        await run(() => esp.setEnabled(value), {
-        });
-        setSensors((s) => ({...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: value },}));
-    }, [enabled, run]);
-
-    useEffect(() => { load(); }, [load]);
-
-    return { sensors, enabled, setEnabled, load, save, loading, ok, err, message };
+export function useSaveManual() {
+    const { run, loading } = useRequestStatus();
+    const save = useCallback(async (enabled) => {
+        await run(() => esp.setEnabled(enabled), { successMessage: "Manual mode saved" });
+        return enabled;
+    }, [run]);
+    return { save, saving: loading };
 }

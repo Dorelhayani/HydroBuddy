@@ -1,4 +1,3 @@
-import "../style/Mod.css"
 import { useState, useCallback, useRef, useEffect } from "react";
 
 export function useFlashButton(ms = 3000) {
@@ -33,7 +32,7 @@ export function FlashButton({ onClickAsync, loading, children, className = "", m
     return (
         <button
             type="button"
-            className={`btnMod ${success ? "is-success" : ""} ${className}`}
+            className={`btn ${success ? "is-success" : ""} ${className}`}
             onClick={handleClick}
             disabled={loading || cooling}
         >
@@ -41,3 +40,4 @@ export function FlashButton({ onClickAsync, loading, children, className = "", m
         </button>
     );
 }
+

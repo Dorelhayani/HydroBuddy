@@ -14,6 +14,11 @@ const authController = new AuthModel(db, {
 // Redirect root to frontend
 router.get('/', (req, res) => res.redirect(process.env.FRONTEND_ORIGIN || 'http://localhost:3000/'));
 
+// Return The Current User Info
+router.get('/me', authController.isLogged.bind(authController), (req, res) => {
+    return res.status(200).json(req.user);
+});
+
 // Register
 router.post('/register', async (req, res) => {
     try {
@@ -25,9 +30,12 @@ router.post('/register', async (req, res) => {
         const id = await authController.Register(name, email, password);
         return res.status(201).json({ message: 'User created', id });
     } catch (error) {
-        if (error && error.code === 'EMAIL_EXISTS') return res.status(409).json({ error: 'Email already registered' });
-        if (error && error.code === 'WEAK_PASSWORD') return res.status(400).json({ error: 'Password too weak', score: error.score, feedback: error.feedback });
-        if (error && error.code === 'NonValidEmail') return res.status(400).json({ error: 'Please enter a valid email' });
+        if (error && error.code === 'EMAIL_EXISTS')
+            return res.status(409).json({ error: 'Email already registered' });
+        if (error && error.code === 'WEAK_PASSWORD')
+            return res.status(400).json({ error: 'Password too weak', score: error.score, feedback: error.feedback });
+        if (error && error.code === 'NonValidEmail')
+            return res.status(400).json({ error: 'Please enter a valid email' });
         console.error('Register error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
@@ -62,11 +70,6 @@ router.post('/logout', async (req, res) => {
         console.error('Logout route error:', err);
         res.status(500).json({ error: 'Logout failed' });
     }
-});
-
-// Me (protected) - uses middleware to populate req.user_id / req.name
-router.get('/me', authController.isLogged.bind(authController), (req, res) => {
-    return res.json({ id: req.user_id, name: req.name });
 });
 
 module.exports = router;
