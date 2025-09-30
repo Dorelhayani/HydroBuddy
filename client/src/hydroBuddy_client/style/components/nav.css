@@ -1,0 +1,3 @@
+/* nav.css - nav item styles (used with layout.nav) */
+.nav a { border-radius: 8px; color: var(--text); }
+.nav a.active { background: rgba(255,255,255,0.04); color: var(--accent); }

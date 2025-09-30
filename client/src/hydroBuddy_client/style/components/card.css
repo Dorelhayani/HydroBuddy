@@ -1,0 +1,25 @@
+/* card.css */
+/*.card {*/
+/*    background: var(--surface);*/
+/*    border: 1px solid var(--muted);*/
+/*    border-radius: var(--radius);*/
+/*    padding: 12px;*/
+/*    box-shadow: 0 6px 18px rgba(0,0,0,0.35);*/
+/*}*/
+/*.card .card-title { font-weight:600; margin-bottom:8px; }*/
+/*.card .card-body { color: #ddd; font-size: .95rem; }*/
+
+
+.card {
+    position: relative;
+    margin: auto;
+    width: 18rem;
+    background: var(--surface);
+    border: 1px solid var(--muted);
+    border-radius: var(--radius);
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.card .card-title { font-weight:600; margin-bottom:8px; }
+.card .card-body { color: #ddd; font-size: .95rem; }
+

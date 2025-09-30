@@ -1,0 +1,9 @@
+/* utils.css - helpers */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.flex { display:flex; gap: var(--gap-md); align-items:center; }
+.muted { color: #bbb; }
+
+/* tiny helpers */
+.row { display:flex; gap: 8px; align-items:center; }
+.btn-row { display:flex; gap: 8px; justify-content:center; margin-top: 12px; }

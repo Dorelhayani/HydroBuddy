@@ -10,6 +10,7 @@
     align-items: center;
 }
 
+
 .grid{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -17,6 +18,33 @@
     align-items: center;
     margin-bottom: 10px;
 }
+
+.navbar {
+    overflow: auto;
+}
+
+.navbar a {
+    float: left;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.navbar a:hover {
+    background-color: #000;
+}
+
+.active {
+    background-color: #04AA6D;
+}
+
+/*@media screen and (max-width: 500px) {*/
+/*    .navbar a {*/
+/*        float: none;*/
+/*        display: block;*/
+/*    }*/
+/*}*/
 
 .main-title{
     padding: 10px;
@@ -41,7 +69,6 @@
     justify-content: space-between;
     font-size: 16px;
     text-align: center;
-    /*font-weight: bold;*/
     margin-bottom: 6px;
 }
 
@@ -93,6 +120,7 @@
     padding: 10px 14px;
     cursor: pointer;
 }
+
 .link-container{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -100,8 +128,19 @@
     align-items: center;
     margin-bottom: 10px;
 }
-
-.btnMod{
+.mod-btn-container{
+    /*align-items: center;*/
+}
+.btn-container{
+    margin: auto;
+    /*display: grid;*/
+    /*grid-template-columns: 1fr 1fr;*/
+    /*gap: 12px;*/
+    /*align-items: center;*/
+    /*margin-bottom: 10px;*/
+    /*align-items: center;*/
+}
+.btn{
     background: #ADE2F4;
     color: #000;
     border: none;
@@ -112,24 +151,24 @@
 
 }
 
-.btnMod.is-success,
-.btnMod.is-success:hover,
-.btnMod.is-success:focus {
+.btn.is-success,
+.btn.is-success:hover,
+.btn.is-success:focus {
     background: #C1E9F7 !important;
     color: #000;
 }
 
-button.btnMod[disabled] {
+button.btn[disabled] {
     opacity: 0.65;
     cursor: not-allowed;
     pointer-events: none;  /* מונע לחיצות */
 }
 
-.btnMod:hover{
+.btn:hover{
     background: #7AAFC1;
 }
 
-.btnMod:active{
+.btn:active{
     box-shadow: 0 5px #666;
     transform: translateY(4px);
 }

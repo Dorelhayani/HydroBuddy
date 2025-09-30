@@ -1,0 +1,32 @@
+:root{
+    /* colors */
+    --bg: #1f1f1f;
+    --surface: #2a2a2a;
+    --muted: #3a3a3a;
+    --text: #eaeaea;
+    --accent: #ADE2F4;
+    --accent-600: #7AAFC1;
+    --accent-200: #C1E9F7;
+    --warning: #e6c229;
+    --danger: #e53e3e;
+    --success: #2ecc71;
+
+    /* spacing & sizes */
+    --gap-sm: 8px;
+    --gap-md: 12px;
+    --gap-lg: 20px;
+    --radius: 12px;
+    --container-w: 640px;
+
+    /* typography */
+    --font-sans: "Helvetica", Arial, sans-serif;
+    --base-size: 16px;
+    --line-height: 1.4;
+}
+
+/* responsive breakpoints (mobile-first) */
+@media (min-width: 768px) {
+    :root {
+        --container-w: 900px;
+    }
+}

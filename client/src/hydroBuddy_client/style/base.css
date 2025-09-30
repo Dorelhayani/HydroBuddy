@@ -1,0 +1,48 @@
+/* base.css - reset + global */
+* { box-sizing: border-box; }
+html,body,#root { height: 100%; }
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--base-size);
+    line-height: var(--line-height);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* main container used across pages */
+.main-container {
+    margin: 24px auto;
+    padding: 18px;
+    border-radius: var(--radius);
+    max-width: var(--container-w);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+
+/* simple grid helper (mobile-first) */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+}
+@media (min-width: 640px) {
+    .grid.two { grid-template-columns: 1fr 1fr; }
+}
+
+/* headings */
+.title { font-weight: 700; font-size: 1.25rem; margin: 0 0 8px; text-align: center; }
+.main-title { font-size: 1.5rem; margin: 12px 0; text-align:center; }
+
+/* inputs */
+.input, textarea, select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--muted);
+    color: var(--text);
+    outline: none;
+}
+.input:focus { border-color: var(--accent-600); box-shadow: 0 0 0 3px rgba(122,175,193,0.08); }
