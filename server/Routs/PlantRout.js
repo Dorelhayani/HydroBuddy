@@ -13,6 +13,30 @@ function handleError(res, err) {
     return res.status(500).json({ error: msg });
 }
 
+// List all plants (admin/public)
+router.get('/list', async (req, res) => {
+    try {
+        const data = await Plants.Read();
+        return res.status(200).json(data);
+    } catch (err) {
+        return handleError(res, err);
+    }
+});
+
+// plantList -> return array of plants directly
+router.get("/plantList", async (req, res) => {
+    try {
+        const user_id = req.user_id;
+        if (!user_id) return res.status(401).json({ error: 'Not authenticated' });
+
+        const plants = await Plants.ReadUserPlant(user_id);
+        return res.status(200).json(plants); // <-- RETURNS ARRAY DIRECTLY
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Store Sensors Value To Datasensors
 router.post('/StoreToDatasensors', async (req, res) => {
     try {
@@ -54,28 +78,6 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// List all plants (admin/public)
-router.get('/list', async (req, res) => {
-    try {
-        const data = await Plants.Read();
-        return res.status(200).json(data);
-    } catch (err) {
-        return handleError(res, err);
-    }
-});
-
-// List plants for current user
-router.get('/plantList', async (req, res) => {
-    try {
-        const user_id = req.user_id;
-        if (!user_id) return res.status(401).json({ error: 'Not authenticated' });
-
-        const plants = await Plants.ReadUserPlant(user_id);
-        return res.status(200).json({ plants });
-    } catch (err) {
-        return handleError(res, err);
-    }
-});
 
 // Update plant type name (owned by user)
 router.patch('/update', async (req, res) => {

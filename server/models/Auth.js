@@ -55,6 +55,52 @@ class Auth {
         return result.insertId;
     }
 
+    // Change password -
+    async Changepassword(name, password) {
+        const userID = user_id;
+        const OldPassword = `SELECT password FROM users WHERE id = ? LIMIT 1`
+        const [rows] = await this.DB.execute(sql, params);
+        if (!rows || rows.length === 0) {
+            const err = new Error('Invalid credentials');
+            err.code = 'INVALID_CREDENTIALS';
+            throw err;
+        }
+
+        const user = rows[0];
+        const match = await bcrypt.compare(password, user.password);
+        if (match) {
+            const err = new Error('Invalid credentials');
+            err.code = 'INVALID_CREDENTIALS';
+            throw err;
+        }
+
+            try {
+                await this.DB.execute(`UPDATE users SET password = ? WHERE id = ?`, [password, user.id]);
+            } catch (e) {
+                console.error('Failed updating password:', e);
+            }
+
+        const strength = zxcvbn(password || '', [displayName, normalizedEmail]);
+        const MIN_ACCEPTABLE_SCORE = 3;
+        if (strength.score < MIN_ACCEPTABLE_SCORE) {
+            const err = new Error('Password too weak');
+            err.code = 'WEAK_PASSWORD';
+            err.feedback = strength.feedback;
+            err.score = strength.score;
+            throw err;
+        }
+
+        const hashed = await bcrypt.hash(password, this.saltRounds);
+        const createdAt = new Date().toISOString().split('T')[0];
+        const [result] = await this.DB.execute(
+            `INSERT INTO users (password) VALUES (?)`,
+            [displayName, normalizedEmail, hashed, createdAt]
+        );
+
+
+        return { id: user.id, password: user.password };
+    }
+
     // authenticate by email or name -> returns { id, name, email, token }
     async authenticate(identifier, password) {
         if (!identifier || !password) {
@@ -117,25 +163,32 @@ class Auth {
             const parts = String(data).split(',');
             req.user_id = parts[0];
             req.name = parts[1];
+            try {
+                const [rows] = await this.DB.execute(
+                    `SELECT id, name, email, created_at FROM users WHERE id = ?`,
+                    [req.user_id]
+                );
+                if (!rows || rows.length === 0) return rows && rows.length ? rows[0] : null;
+
+                const userRow = { ...rows[0] };
+                delete userRow.password;
+                delete userRow.current_token;
+                req.user = userRow;
+            } catch (e) { return res.status(500).json({ error: 'Error fetching user row' }); }
 
             if (this.singleSession) {
                 try {
-                    const [rows] = await this.DB.execute(`SELECT current_token FROM users WHERE id = ? LIMIT 1`, [req.user_id]);
-                    if (!rows || rows.length === 0) return res.status(401).json({ error: 'Invalid session' });
-                    const dbToken = rows[0].current_token;
+                    const [rows2] = await this.DB.execute(`SELECT current_token FROM users WHERE id = ?`, [req.user_id]);
+                    if (!rows2 || rows2.length === 0) return res.status(401).json({ error: 'Invalid session' });
+                    const dbToken = rows2[0].current_token;
                     if (!dbToken || dbToken !== token) return res.status(401).json({ error: 'Session invalidated' });
-                } catch (e) {
-                    console.error('Error verifying single-session token:', e);
-                    return res.status(500).json({ error: 'Auth error' });
-                }
+                } catch (e) { return res.status(500).json({ error: 'Error verifying single-session token' }); }
             }
 
             return next();
-        } catch (error) {
-            console.error('Auth middleware error:', error);
-            return res.status(500).json({ error: 'Auth middleware error' });
-        }
+        } catch (error) { return res.status(500).json({ error: 'Auth middleware error' }); }
     }
+
 
     // logout: clear cookie and current_token if enabled
     async logout(req, res) {
@@ -149,18 +202,14 @@ class Auth {
                     const data = decoded && decoded.data ? decoded.data : '';
                     const id = String(data).split(',')[0];
                     if (id) await this.DB.execute(`UPDATE users SET current_token = NULL WHERE id = ?`, [id]);
-                } catch (e) {
-                    // ignore
-                }
+                } catch (e) {}
             }
 
             return res.json({ message: 'Logged out' });
-        } catch (error) {
-            console.error('Logout error:', error);
-            return res.status(500).json({ error: 'Logout failed' });
-        }
+        } catch (error) { return res.status(500).json({ error: 'Logout failed' }); }
     }
 
+    // cookieOptions: set cookie time
     static cookieOptions(reqIsSecure = false) {
         const isProd = process.env.NODE_ENV === 'production';
         return {

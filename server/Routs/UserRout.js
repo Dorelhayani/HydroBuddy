@@ -12,7 +12,7 @@ function handleError(res, err) {
     return res.status(500).json({ error: msg });
 }
 
-// Get current authenticated user's info (uses req.user_id populated by auth middleware)
+// Get current authenticated user's info
 router.get('/user_info', async (req, res) => {
     try {
         const userId = req.user_id;
@@ -20,11 +20,22 @@ router.get('/user_info', async (req, res) => {
 
         const user = await User.GetOneUser(userId);
         if (!user) return res.status(404).json({ error: 'User not found' });
-        return res.status(200).json({ user });
+        return res.status(200).json(user);
     } catch (err) {
         return handleError(res, err);
     }
 });
+
+// users_list -> return array directly
+router.get('/users_list', async (req, res) => {
+    try {
+        const rows = await User.List();
+        return res.status(200).json(rows); // <-- RETURNS ARRAY DIRECTLY
+    } catch (err) {
+        return handleError(res, err);
+    }
+});
+
 
 // Read: users joined with planttype (users that have plant types)
 router.get('/list', async (req, res) => {
@@ -46,7 +57,24 @@ router.get('/users_list', async (req, res) => {
     }
 });
 
-// Update user (only the user themself can update their info)
+router.patch('/change_password/:id', async (req, res) => {
+    try {
+        const paramId = String(req.params.id || '').trim();
+        const authId = String(req.user_id || '').trim();
+        if (!authId) return res.status(401).json({ error: 'Not authenticated' });
+        if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
+        if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
+
+        const { password } = req.body;
+        await User.Update(paramId, { password });
+        return res.status(200).json({ message: 'User password updated successfully' });
+    } catch (err) {
+        return handleError(res, err);
+    }
+});
+
+
+// Update user (only the user themselves can update their info)
 router.patch('/update/:id', async (req, res) => {
     try {
         const paramId = String(req.params.id || '').trim();
@@ -63,7 +91,7 @@ router.patch('/update/:id', async (req, res) => {
     }
 });
 
-// Delete user (only the user themself can delete their account)
+// Delete user (only the user themselves can delete their account)
 router.delete('/delete/:id', async (req, res) => {
     try {
         const paramId = String(req.params.id || '').trim();

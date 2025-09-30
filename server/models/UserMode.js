@@ -7,7 +7,7 @@ class UserData {
     async GetOneUser(id) {
         if (!id) throw new Error('Missing user id');
         const [rows] = await this.DB.execute(
-            `SELECT id, name, email, created_at FROM users WHERE id = ? LIMIT 1`,
+            `SELECT id, name, email, created_at FROM users WHERE id = ?`,
             [id]
         );
         return rows && rows.length ? rows[0] : null;
