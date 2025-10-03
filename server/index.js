@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5050;
-
 const cookieParser = require('cookie-parser');
 
 const db = require('./models/database');
@@ -21,6 +20,7 @@ const authMiddleware = new Auth(db, {
 });
 
 // Middlewares
+app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,7 +30,7 @@ app.use(
         credentials: true,
     })
 );
-app.use(morgan('dev'));
+
 
 // Routes
 const AuthRout = require('./Routs/AuthRout');

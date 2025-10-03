@@ -46,7 +46,10 @@ router.post('/login', async (req, res) => {
     try {
         const identifier = req.body.identifier ?? req.body.name ?? req.body.email;
         const password = req.body.password;
+        console.log(identifier);
+        console.log(password);
         if (!identifier || !password) return res.status(400).json({ error: 'Missing credentials' });
+
 
         const { id, name, token } = await authController.authenticate(identifier, password);
 
