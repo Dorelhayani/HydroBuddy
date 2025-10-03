@@ -1,72 +1,3 @@
-// import { Link, Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
-// import Home from "../Pages/Home";
-// import Login from "../Pages/Login"; // הובאה פשוטה וברורה
-// import Plants, { AddPlant, EditPlant, DeletePlant } from "../components/Plants";
-// import UsersPage, { Register } from "../components/UsersPage";
-// import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../components/Mod";
-// import { ModDataProvider } from "../hooks/ModLoad";
-// import React from "react";
-// import {AuthProvider} from "../hooks/useAuth";
-//
-// export default function AppShell() {
-//     const rtr = createBrowserRouter([
-//         {
-//             path: "/",
-//             element: (
-//                 <>
-//                     <header className="main-container">
-//                         <div className="navbar">
-//                             <Link to="/Account"><i className="fa fa-fw fa-search"></i> Account</Link>
-//                             <Link to="/home"><i className="fa fa-fw fa-envelope"></i> Home </Link>
-//                             <Link to="/home"><i className="fa fa-fw fa-envelope"></i> Contact</Link>
-//                             <Link to="users/"><i className="fa fa-fw fa-user"></i>Log out</Link>
-//                         </div>
-//                     </header>
-//                     <Outlet />
-//                 </>
-//             ),
-//             children: [
-//                 { index: true, element: <Login /> },
-//                 { path: "home", element: <Home /> },
-//                 {
-//                     path: "mod",
-//                     element: (
-//                         <ModDataProvider>
-//                             <Mod />
-//                         </ModDataProvider>
-//                     ),
-//                     children: [
-//                         { path: "temperature", element: <TemperatureMode /> },
-//                         { path: "moisture", element: <MoistureMode /> },
-//                         { path: "saturday", element: <SaturdayMode /> },
-//                         { path: "manual", element: <Manual /> },
-//                     ],
-//                 },
-//                 {
-//                     path: "plants",
-//                     element: <Plants />,
-//                     children: [
-//                         { path: "add", element: <AddPlant /> },
-//                         { path: "edit", element: <EditPlant /> },
-//                         { path: "delete", element: <DeletePlant /> },
-//                     ],
-//                 },
-//                 {
-//                     path: "Account",
-//                     element: <UsersPage />,
-//                     children: [
-//                         { path: "register", element: <Register /> },
-//                         // { path: "edit", element: <EditInfo /> },
-//                         // { path: "delete", element: <DeleteAccount /> },
-//                     ],
-//                 },
-//             ],
-//         },
-//     ]);
-//
-//     return <AuthProvider><RouterProvider router={rtr} /></AuthProvider>;
-// }
-
 import React, { useState, Suspense } from "react";
 import { Link, Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "../hooks/useAuth";
@@ -75,12 +6,10 @@ import { ModDataProvider } from "../hooks/ModLoad";
 import Home from "../Pages/Home";
 import Login from "../Pages/Login"; // הובאה פשוטה וברורה
 import Plants, { AddPlant, EditPlant, DeletePlant } from "../components/Plants";
-// import Account, {ChangePassword, Register} from "../components/Account";
-import Account from "../components/Account";
+import Account, {ChangePassword, Register} from "../components/Account";
 import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../components/Mod";
 
 function Layout() {
-    const [open, setOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     return (
@@ -93,14 +22,10 @@ function Layout() {
                                 title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
                             {sidebarCollapsed ? "▸" : "▾"}
                         </button>
-
-                        <button aria-label="menu" className="burger" onClick={() => setOpen(v => !v)}>☰</button>
                     </div>
 
-                    {/*<div className="brand">HydroBuddy</div>*/}
                     <Link className="brand" to="/home">HydroBuddy</Link>
                 </div>
-
             </header>
 
             <div className="body-area">
@@ -183,10 +108,10 @@ const router = createBrowserRouter([
             {
                 path: "Account",
                 element: <Account />,
-                // children: [
-                //     { path: "register", element: <Register /> },
+                children: [
+                    { path: "register", element: <Register /> },
                 //     { path: "ChangePassword", element: <ChangePassword /> }
-                // ],
+                ],
             },
         ],
     },
