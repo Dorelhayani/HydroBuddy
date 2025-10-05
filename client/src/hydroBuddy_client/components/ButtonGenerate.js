@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import React, {useState, useCallback, useRef, useEffect } from "react";
 
 export function useFlashButton(ms = 3000) {
-    const [cooling, setCooling] = useState(false);   // נעילה ל־3ש'
-    const [success, setSuccess] = useState(false);   // צבע ירוק
+    const [cooling, setCooling] = useState(false);
+    const [success, setSuccess] = useState(false);
     const tRef = useRef(null);
 
     const flash = useCallback(() => {
@@ -16,28 +16,31 @@ export function useFlashButton(ms = 3000) {
     }, [ms]);
 
     useEffect(() => () => clearTimeout(tRef.current), []);
+
     return { cooling, success, flash };
 }
 
-export function FlashButton({ onClickAsync, loading, children, className = "", ms = 3000 }) {
+export default function FlashButton({ onClickAsync, loading = false, children, className = "", ms = 2000, ...rest }) {
     const { cooling, success, flash } = useFlashButton(ms);
 
     const handleClick = async (e) => {
         e?.preventDefault?.();
+        if (loading || cooling) return;
         try {
             await onClickAsync();
             flash();
-        } catch (e) { }
+        } catch (err) {}
     };
+
     return (
         <button
             type="button"
             className={`btn ${success ? "is-success" : ""} ${className}`}
             onClick={handleClick}
             disabled={loading || cooling}
+            {...rest}
         >
             {loading ? "Saving…" : success ? "Saved!" : children}
         </button>
     );
 }
-

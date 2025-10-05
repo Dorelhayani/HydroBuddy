@@ -1,25 +1,56 @@
-/* card.css */
-/*.card {*/
-/*    background: var(--surface);*/
-/*    border: 1px solid var(--muted);*/
-/*    border-radius: var(--radius);*/
-/*    padding: 12px;*/
-/*    box-shadow: 0 6px 18px rgba(0,0,0,0.35);*/
-/*}*/
-/*.card .card-title { font-weight:600; margin-bottom:8px; }*/
-/*.card .card-body { color: #ddd; font-size: .95rem; }*/
 
+.card-img-top{
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
 
 .card {
-    position: relative;
-    margin: auto;
-    width: 18rem;
-    background: var(--surface);
-    border: 1px solid var(--muted);
-    border-radius: var(--radius);
-    padding: 12px;
+    background: #2a2a2a;
+    color: #eaeaea;
+    border-radius: 12px;
+    border: 1px solid #3a3a3a;
+    overflow: hidden;
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    max-width: 18rem;
+    transition: 0.3s;
 }
-.card .card-title { font-weight:600; margin-bottom:8px; }
-.card .card-body { color: #ddd; font-size: .95rem; }
 
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgb(255, 255, 255);
+}
+
+/* header / body / footer */
+.card-header, .card-footer {
+    padding: 12px 16px;
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-weight: 700;
+}
+.card-footer { border-top: 1px solid rgba(255,255,255,0.03); border-bottom: none; }
+.card-body {
+    font-size: .95rem;
+    border-bottom: 1px solid #3a3a3a;
+    padding: 16px;
+    line-height: 1.4;
+}
+
+/* variants (colors) */
+.border-success { border-color: #2ecc71 !important; }
+.text-success { color: #2ecc71 !important; }
+.border-primary { border-color: #5DA9F6 !important; }
+.text-primary { color: #5DA9F6 !important; }
+.border-warning { border-color: #f1c40f !important; }
+.text-warning { color: #f1c40f !important; }
+.border-danger { border-color: #e74c3c !important; }
+.text-danger { color: #e74c3c !important; }
+
+/* small helpers */
+.card-title { margin: 0 0 8px; font-size: 1.05rem; }
+.card-text { margin: 0; color: #cfcfcf; }

@@ -1,14 +1,13 @@
 import React, { useState, Suspense } from "react";
 import { Link, Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AuthProvider } from "../hooks/useAuth";
+import {AuthProvide} from "../hooks/AuthProvider";
 import { ModDataProvider } from "../hooks/ModLoad";
 
 import Home from "../Pages/Home";
-import Login from "../Pages/Login"; // הובאה פשוטה וברורה
-import Plants, { AddPlant, EditPlant, DeletePlant } from "../components/Plants";
-import Account, {ChangePassword, Register} from "../components/Account";
-import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../components/Mod";
-
+import Login from "../Pages/Login";
+import Plants, { AddPlant, EditPlant, DeletePlant } from "../Pages/Plants";
+import Account from "../Pages/Account";
+import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../Pages/Mod";
 function Layout() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -24,7 +23,8 @@ function Layout() {
                         </button>
                     </div>
 
-                    <Link className="brand" to="/home">HydroBuddy</Link>
+                    <Link className="brand" to="/home">⌂</Link>
+                    <div className="brand" >HydroBuddy</div>
                 </div>
             </header>
 
@@ -81,7 +81,8 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [
             { index: true, element: <Login /> },
-            { path: "home", element: <Home /> },
+            // { path: "home", element: <Home /> },
+            { path: "home", element:(<ModDataProvider><Home /></ModDataProvider>)},
             {
                 path: "mod",
                 element: (
@@ -108,10 +109,6 @@ const router = createBrowserRouter([
             {
                 path: "Account",
                 element: <Account />,
-                children: [
-                    { path: "register", element: <Register /> },
-                //     { path: "ChangePassword", element: <ChangePassword /> }
-                ],
             },
         ],
     },
@@ -119,8 +116,8 @@ const router = createBrowserRouter([
 
 export default function AppShell() {
     return (
-        <AuthProvider>
+        <AuthProvide>
             <RouterProvider router={router} />
-        </AuthProvider>
+        </AuthProvide>
     );
 }
