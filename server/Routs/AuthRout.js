@@ -66,21 +66,65 @@ router.post('/login', async (req, res) => {
 });
 
 // password change
-router.patch('/change_password/:id', async (req, res) => {
-    try {
-        const paramId = String(req.params.id || '').trim();
-        const authId = String(req.user_id || '').trim();
-        if (!authId) return res.status(401).json({ error: 'Not authenticated' });
-        if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
-        if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
+// router.patch('/change_password/:id', async (req, res) => {
+//     try {
+//         const paramId = String(req.params.id || '').trim();
+//         const authId = String(req.user_id || '').trim();
+//         if (!authId) return res.status(401).json({ error: 'Not authenticated' });
+//         if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
+//         if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
+//
+//         const { password } = req.body;
+//         await User.Update(paramId, { password });
+//         return res.status(200).json({ message: 'User password updated successfully' });
+//     } catch (err) {
+//         return handleError(res, err);
+//     }
+// });
 
-        const { password } = req.body;
-        await User.Update(paramId, { password });
-        return res.status(200).json({ message: 'User password updated successfully' });
-    } catch (err) {
-        return handleError(res, err);
+// routes/AuthRout.js
+
+// password change
+router.patch(
+    '/change_password/:id',
+    authController.isLogged.bind(authController),
+    async (req, res) => {
+        try {
+            const paramId = String(req.params.id || '').trim();
+            const authId  = String(req.user_id || '').trim();
+            if (!authId) return res.status(401).json({ error: 'Not authenticated' });
+            if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
+            if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own password' });
+
+            const { currentPassword, newPassword, newPasswordConfirm } = req.body || {};
+            if (!currentPassword || !newPassword || !newPasswordConfirm)
+                return res.status(400).json({ error: 'Missing fields' });
+            if (newPassword !== newPasswordConfirm)
+                return res.status(400).json({ error: 'Passwords do not match' });
+
+            await authController.changePassword(paramId, currentPassword, newPassword);
+
+            // אם מפעילים singleSession – נאלץ התחברות מחדש
+            if (authController.singleSession) {
+                res.clearCookie(authController.cookieName, AuthModel.cookieOptions(req.secure));
+                return res.status(200).json({ message: 'Password updated. Please log in again.' });
+            }
+
+            return res.status(200).json({ message: 'Password updated' });
+        } catch (error) {
+            if (error && (error.code === 'INVALID_CREDENTIALS' || error.code === 'PASSWORD_SAME'))
+                return res.status(400).json({ error: error.message });
+            if (error && error.code === 'WEAK_PASSWORD')
+                return res.status(400).json({ error: 'Password too weak', score: error.score, feedback: error.feedback });
+            if (error && error.code === 'MISSING_FIELDS' || error?.code === 'NOT_FOUND')
+                return res.status(400).json({ error: error.message });
+
+            console.error('Change password error:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
     }
-});
+);
+
 
 // Logout
 router.post('/logout', async (req, res) => {

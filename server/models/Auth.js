@@ -55,32 +55,45 @@ class Auth {
         return result.insertId;
     }
 
-    // Change password -
-    async Changepassword(name, password) {
-        const userID = user_id;
-        const OldPassword = `SELECT password FROM users WHERE id = ? LIMIT 1`
-        const [rows] = await this.DB.execute(sql, params);
+    // Change password
+    async changePassword(userId, currentPassword, newPassword) {
+        const id = String(userId || '').trim();
+        if (!id || !currentPassword || !newPassword) {
+            const err = new Error('Missing fields');
+            err.code = 'MISSING_FIELDS';
+            throw err;
+        }
+
+        // הבא את המשתמש (כולל hash קיים)
+        const [rows] = await this.DB.execute(
+            `SELECT id, name, email, password FROM users WHERE id = ? LIMIT 1`,
+            [id]
+        );
         if (!rows || rows.length === 0) {
-            const err = new Error('Invalid credentials');
-            err.code = 'INVALID_CREDENTIALS';
+            const err = new Error('User not found');
+            err.code = 'NOT_FOUND';
             throw err;
         }
 
         const user = rows[0];
-        const match = await bcrypt.compare(password, user.password);
-        if (match) {
-            const err = new Error('Invalid credentials');
+
+        // ודא שהסיסמה הנוכחית נכונה
+        const ok = await bcrypt.compare(currentPassword, user.password);
+        if (!ok) {
+            const err = new Error('Current password is incorrect');
             err.code = 'INVALID_CREDENTIALS';
             throw err;
         }
 
-            try {
-                await this.DB.execute(`UPDATE users SET password = ? WHERE id = ?`, [password, user.id]);
-            } catch (e) {
-                console.error('Failed updating password:', e);
-            }
+        // אל תאפשר אותה סיסמה
+        if (currentPassword === newPassword) {
+            const err = new Error('New password must be different');
+            err.code = 'PASSWORD_SAME';
+            throw err;
+        }
 
-        const strength = zxcvbn(password || '', [displayName, normalizedEmail]);
+        // בדיקת חוזק
+        const strength = zxcvbn(newPassword || '', [user.name, user.email]);
         const MIN_ACCEPTABLE_SCORE = 3;
         if (strength.score < MIN_ACCEPTABLE_SCORE) {
             const err = new Error('Password too weak');
@@ -90,15 +103,16 @@ class Auth {
             throw err;
         }
 
-        const hashed = await bcrypt.hash(password, this.saltRounds);
-        const createdAt = new Date().toISOString().split('T')[0];
-        const [result] = await this.DB.execute(
-            `INSERT INTO users (password) VALUES (?)`,
-            [displayName, normalizedEmail, hashed, createdAt]
-        );
+        // hash + עדכון
+        const hashed = await bcrypt.hash(newPassword, this.saltRounds);
+        await this.DB.execute(`UPDATE users SET password = ? WHERE id = ?`, [hashed, id]);
 
+        // אופציונלי: ביטול כל הסשנים (מומלץ כשsingleSession פעיל)
+        if (this.singleSession) {
+            await this.DB.execute(`UPDATE users SET current_token = NULL WHERE id = ?`, [id]);
+        }
 
-        return { id: user.id, password: user.password };
+        return { id };
     }
 
     // authenticate by email or name -> returns { id, name, email, token }
@@ -168,7 +182,7 @@ class Auth {
                     `SELECT id, name, email, created_at FROM users WHERE id = ?`,
                     [req.user_id]
                 );
-                if (!rows || rows.length === 0) return rows && rows.length ? rows[0] : null;
+                    if (!rows || rows.length === 0) return rows && rows.length ? rows[0] : 401;
 
                 const userRow = { ...rows[0] };
                 delete userRow.password;
