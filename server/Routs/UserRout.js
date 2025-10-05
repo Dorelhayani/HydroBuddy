@@ -57,24 +57,22 @@ router.get('/users_list', async (req, res) => {
     }
 });
 
-router.patch('/change_password/:id', async (req, res) => {
-    try {
-        const paramId = String(req.params.id || '').trim();
-        const authId = String(req.user_id || '').trim();
-        if (!authId) return res.status(401).json({ error: 'Not authenticated' });
-        if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
-        if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
+// router.patch('/change_password/:id', async (req, res) => {
+//     try {
+//         const paramId = String(req.params.id || '').trim();
+//         const authId = String(req.user_id || '').trim();
+//         if (!authId) return res.status(401).json({ error: 'Not authenticated' });
+//         if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
+//         if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
+//
+//         const { password } = req.body;
+//         await User.Update(paramId, { password });
+//         return res.status(200).json({ message: 'User password updated successfully' });
+//     } catch (err) {
+//         return handleError(res, err);
+//     }
+// });
 
-        const { password } = req.body;
-        await User.Update(paramId, { password });
-        return res.status(200).json({ message: 'User password updated successfully' });
-    } catch (err) {
-        return handleError(res, err);
-    }
-});
-
-
-// Update user (only the user themselves can update their info)
 router.patch('/update/:id', async (req, res) => {
     try {
         const paramId = String(req.params.id || '').trim();
@@ -91,7 +89,7 @@ router.patch('/update/:id', async (req, res) => {
     }
 });
 
-// Delete user (only the user themselves can delete their account)
+
 router.delete('/delete/:id', async (req, res) => {
     try {
         const paramId = String(req.params.id || '').trim();

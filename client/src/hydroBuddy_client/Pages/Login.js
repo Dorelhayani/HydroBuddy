@@ -1,155 +1,179 @@
-// import React, { useState } from "react";
-// import {Form, useNavigate} from "react-router-dom";
-// import { auth } from "../services/auth";
-// import { FlashButton } from "../hooks/Components";
-// import { useRequestStatus } from "../hooks/RequestStatus";
-//
-// export default function Login() {
-//     const navigate = useNavigate();
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//
-//     const [form, setForm] = useState({ name: "", password: "" });
-//     const [err, setErr] = useState("");
-//
-//     const onChange = (e) => {
-//         const { name, value } = e.target;
-//         setForm((p) => ({ ...p, [name]: value }));
-//     };
-//
-//     const onSubmit = async (e) => {
-//         if (e && typeof e.preventDefault === "function") e.preventDefault();
-//
-//         setErr("");
-//         start();
-//         try {
-//             await auth.login({ name: form.name.trim(), password: form.password });
-//             succeed("Logged in");
-//             navigate("/plants");
-//         } catch (error) {
-//             setErr(error.message || "Login failed");
-//             fail(error);
-//         }
-//     };
-//     return (
-//         <div className="main-container">
-//             <h3 className="title">Login</h3>
-//
-//             <Form className="grid" onSubmit={onSubmit}>
-//                 <label className="label">Name</label>
-//                 <input
-//                     className="input"
-//                     type="text"
-//                     name="name"
-//                     value={form.name}
-//                     onChange={onChange}
-//                     placeholder="Your name or email"
-//                     required
-//                 />
-//
-//                 <label className="label">Password</label>
-//                 <input
-//                     className="input"
-//                     type="password"
-//                     name="password"
-//                     value={form.password}
-//                     onChange={onChange}
-//                     placeholder="Password"
-//                     required
-//                 />
-//
-//                 <div className="btn-container" style={{ marginTop: 12 }}>
-//                     <FlashButton onClickAsync={onSubmit} loading={loading}>
-//                         Sign In
-//                     </FlashButton>
-//                 </div>
-//
-//                 {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
-//             </Form>
-//
-//             <div style={{ marginTop: 12 }}>
-//                 <small>Not registered yet?</small>
-//                 <button className="btn" onClick={() => navigate("Account/register")} style={{ marginLeft: 8 }}>
-//                     Create account
-//                 </button>
-//             </div>
-//         </div>
-//     );
-// }
-
 import React, { useState } from "react";
-import {Form, useNavigate} from "react-router-dom";
-import { auth } from "../services/auth";
-import { FlashButton } from "../hooks/Components";
-import { useRequestStatus } from "../hooks/RequestStatus";
+import { Outlet, useNavigate } from "react-router-dom";
+
+import {useAuth} from "../hooks/useAuth";
+import GenericForm from "../components/FormGenerate";
+import FlashButton from "../components/ButtonGenerate";
+import Card, { useBorderFlash } from "../components/Card";
 
 export default function Login() {
-    const navigate = useNavigate();
-    const { loading, start, succeed, fail } = useRequestStatus();
+    const nav = useNavigate();
+    const { variant, flashSuccess, flashDanger } = useBorderFlash();
+    const [activeTab, setActiveTab] = useState("log");
+    const {item, loading, error, refresh, login, register, changePassword} = useAuth();
 
-    const [form, setForm] = useState({ name: "", password: "" });
-    const [err, setErr] = useState("");
+    function Log() {
+        const fields = [
+            { name: "name", placeholder: "Name", required: true },
+            { name: "password", placeholder: "Password", type: "password", required: true },
+        ];
 
-    const onChange = (e) => {
-        const { name, value } = e.target;
-        setForm((p) => ({ ...p, [name]: value }));
-    };
+        const OnSubmit = async (val) => {
+            try {
+                await login({ name: val.name.trim(), password: val.password })
+                flashSuccess(1200);
+                setTimeout(() => nav("/home"), 300);
+            } catch (err) {
+                flashDanger(1800);
+                throw new Error(err.message || "Login failed");
+            }
+        };
 
-    const onSubmit = async (e) => {
-        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return (
+            <Card variant={variant}
+                  header="Login"
+                  body={
+                      <GenericForm
+                          fields={fields}
+                          onSubmit={OnSubmit}
+                          customButton={({ onClick, loading }) => (
+                              <FlashButton onClickAsync={onClick} loading={loading}>Login</FlashButton> )}
+                      />
+                  }
 
-        setErr("");
-        start();
-        try {
-            await auth.login({ name: form.name.trim(), password: form.password });
-            succeed("Logged in");
-            navigate("/plants");
-        } catch (error) {
-            setErr(error.message || "Login failed");
-            fail(error);
+                  footer={
+                      <div className="footer-container">
+                          <h5>Forgot password? </h5>
+                          <button
+                              className="footer-btn"
+                              onClick={() => setActiveTab('change_password')}
+                          >
+                              Change Password
+                          </button>
+
+                          <h5>Not Register yet? </h5>
+                          <button
+                              className="footer-btn"
+                              onClick={() => setActiveTab(activeTab === "log" ? "register" : "log")}
+                          >
+                              {activeTab === "log" ? "Create account" : "Back to login"}
+                          </button>
+                      </div>
+                  }
+            />
+        );
+    }
+
+    function ChangePassword({ variant, user }) {
+        if (!user) {
+            return (
+                <Card variant={variant} title="Update Account">
+                    <div className="loading">Loading account…</div>
+                </Card>
+            );
         }
-    };
+        const fields = [
+            { name: "currentPassword", placeholder: `${user.currentPassword}`, required: true },
+            { name: "newPassword", placeholder: "New password", required: true },
+            { name: "newPasswordConfirm", placeholder: "Confirm New Password", required: true },
+        ]
+
+        const OnSubmit = async (val) => {
+            try {
+                if(val.password !== val.passwordConfirm) { throw new Error("Password not match!")}
+                await changePassword({
+                    currentPassword: val.currentPassword,
+                    newPassword: val.newPassword,
+                    newPasswordConfirm: val.newPasswordConfirm
+                });
+                flashSuccess(1200);
+                setTimeout(() => nav("/"), 300);
+            } catch (err) {
+                flashDanger(1800);
+                throw new Error(err.message || "password change failed");
+            }
+        };
+
+        return (
+            <Card
+                variant={variant}
+                header="Change Password"
+                body={
+                    <GenericForm
+                        fields={fields}
+                        onSubmit={OnSubmit}
+                        customButton={({ onClick, loading }) => (
+                            <FlashButton onClickAsync={onClick} loading={loading}>Change</FlashButton> )}
+                    />
+                }
+                footer={
+                <div className="footer-container">
+                    <button
+                        className="footer-btn"
+                        onClick={() => setActiveTab(activeTab === "change_password" ? "log" : "back")}
+                    >
+                        {"🢐 Back"}
+                    </button>
+                </div>
+                }
+            />
+        );
+    }
+
+    function Register() {
+        const fields = [
+            { name: "name", placeholder: "Name", required: true },
+            { name: "email", placeholder: "Email", type: "email", required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
+            { name: "password", placeholder: "Password", type: "password", required: true },
+            { name: "passwordConfirm", placeholder: "Confirm Password", type: "password", required: true },
+        ];
+
+        const OnSubmit = async (val) => {
+            if (val.password !== val.passwordConfirm) throw new Error("Passwords must match");
+            try {
+                await register({ name: val.name.trim(), email: String(val.email), password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
+                flashSuccess(1400);
+                setTimeout(() => setActiveTab("log"), 600);
+            } catch (err) {
+                flashDanger(2000);
+                throw new Error(err.message || "Register failed");
+            }
+        };
+
+        return (
+            <Card
+                variant={variant}
+                header="Register"
+                body={
+                    <GenericForm
+                        fields={fields}
+                        onSubmit={OnSubmit}
+                        customButton={({ onClick, loading }) => (
+                            <FlashButton onClickAsync={onClick} loading={loading}>Create</FlashButton>
+                        )}
+                    />
+                }
+                footer={
+                    <div className="footer-container">
+                    <button
+                        className="footer-btn"
+                        onClick={() => setActiveTab(activeTab === "register" ? "log" : "back")}
+                    >
+                        {"🢐 Back"}
+                    </button>
+                    </div>
+                }
+            />
+        );
+    }
+
     return (
         <div className="main-container">
-            <h3 className="title">Login</h3>
 
-            <Form className="grid" onSubmit={onSubmit}>
-                <label className="label">Name</label>
-                <input
-                    className="input"
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={onChange}
-                    placeholder="Your name or email"
-                    required
-                />
-
-                <label className="label">Password</label>
-                <input
-                    className="input"
-                    type="password"
-                    name="password"
-                    value={form.password}
-                    onChange={onChange}
-                    placeholder="Password"
-                    required
-                />
-
-                <div className="btn-container" style={{ marginTop: 12 }}>
-                    <FlashButton onClickAsync={onSubmit} loading={loading}>
-                        Sign In
-                    </FlashButton>
-                </div>
-
-                {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
-            </Form>
-
-            <div style={{ marginTop: 12 }}>
-                <small>Not registered yet?</small>
-                <button className="btn" onClick={() => navigate("Account/register")} style={{ marginLeft: 8 }}>
-                    Create account
-                </button>
-            </div>
+            {activeTab === "log" ? ( <Log variant={variant} /> ) :
+                activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
+                    activeTab === "register" ? ( <Register variant={variant} /> ) : null}
+            <Outlet />
         </div>
     );
 }

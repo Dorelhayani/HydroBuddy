@@ -2,22 +2,30 @@ import { useEffect, useState, useCallback } from "react";
 import { auth } from "../services/auth";
 
 export function useAuth() {
-    const [user, setUser] = useState(null);
+    const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError]   = useState(null);
 
-    const refresh = useCallback(async () => {
-        try { setLoading(true); setUser(await auth.me()); setError(null); }
-        catch (e) { setError(e); setUser(null); }
+    const fetchUser = useCallback(async () => {
+        try { setLoading(true); setItem(await auth.me()); setError(null); }
+        catch (e) { setError(e); setItem(null); }
         finally { setLoading(false); }
     }, []);
 
-    useEffect(() => { refresh(); }, [refresh]);
+    useEffect(() => { fetchUser(); }, [fetchUser]);
 
-    const login = async (payload)   => { await auth.login(payload); await refresh(); };
-    const register = async (payload)    => { await auth.register(payload);    /* לעיתים תרצה גם refresh */ };
-    const logout = async ()       => { await auth.logout(); setUser(null); };
-    const changePassword = async (id,payload) => { await auth.change_password(id,payload); };
+    const login = async (payload)=> { await auth.login(payload); await fetchUser(); };
+    const register = async (payload)=> { await auth.register(payload);    /* לעיתים תרצה גם refresh */ };
+    const logout = async ()=> { await auth.logout(); setItem(null); };
 
-    return { user, loading, error, refresh, login, register, logout, changePassword };
+    const changePassword = async ({ currentPassword, newPassword, newPasswordConfirm }) => {
+        if (!item?.id) throw new Error("Not authenticated");
+        await auth.change_password(item.id, { currentPassword, newPassword, newPasswordConfirm });
+        await fetchUser();
+        // אם השרת מאפס סשן אחרי שינוי סיסמה:
+        // await logout();
+        // אחרת, אפשר: await fetchUser();
+    };
+
+    return { item, setItem, loading, error, refresh: fetchUser, login, register, logout, changePassword };
 }

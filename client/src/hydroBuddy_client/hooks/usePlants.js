@@ -14,9 +14,9 @@ export function usePlants() {
 
     useEffect(() => { fetchList(); }, [fetchList]);
 
-    const add = async (payload) => { await plants.add(payload);   await fetchList(); };
-    const edit = async (id,p)   => { await plants.edit(id,p);     await fetchList(); };
-    const remove = async (id)   => { await plants.delete(id);     await fetchList(); };
+    const add = async (payload)=> { await plants.add(payload);   await fetchList(); };
+    const edit = async (id,p)=> { await plants.edit(id,p);     await fetchList(); };
+    const remove = async (id)=> { await plants.delete(id);     await fetchList(); };
 
-    return { list, loading, error, refetch: fetchList, add, edit, remove };
+    return { list, setList, loading, error, add, edit, remove , refetch: fetchList};
 }
