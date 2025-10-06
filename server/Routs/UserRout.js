@@ -57,22 +57,6 @@ router.get('/users_list', async (req, res) => {
     }
 });
 
-// router.patch('/change_password/:id', async (req, res) => {
-//     try {
-//         const paramId = String(req.params.id || '').trim();
-//         const authId = String(req.user_id || '').trim();
-//         if (!authId) return res.status(401).json({ error: 'Not authenticated' });
-//         if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
-//         if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
-//
-//         const { password } = req.body;
-//         await User.Update(paramId, { password });
-//         return res.status(200).json({ message: 'User password updated successfully' });
-//     } catch (err) {
-//         return handleError(res, err);
-//     }
-// });
-
 router.patch('/update/:id', async (req, res) => {
     try {
         const paramId = String(req.params.id || '').trim();

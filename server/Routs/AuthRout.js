@@ -3,6 +3,10 @@ const router = express.Router();
 const AuthModel = require('../models/Auth');
 const db = require('../models/database');
 
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+
 const authController = new AuthModel(db, {
     jwtSecret: process.env.JWT_SECRET,
     jwtExpireSec: process.env.JWT_EXPIRE_SEC ? Number(process.env.JWT_EXPIRE_SEC) : undefined,
@@ -10,6 +14,49 @@ const authController = new AuthModel(db, {
     singleSession: process.env.SINGLE_SESSION === 'true' || false,
     cookieName: process.env.AUTH_COOKIE_NAME || 'ImLogged',
 });
+
+const AVATAR_DIR = path.join(process.cwd(), 'uploads', 'avatars');
+fs.mkdirSync(AVATAR_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, AVATAR_DIR),
+    filename: (req, file, cb) => {
+        const ext =
+            file.mimetype === 'image/png' ? '.png' :
+                file.mimetype === 'image/webp' ? '.webp' :
+                    '.jpg';
+        cb(null, `${req.user_id}_${Date.now()}${ext}`);
+    }
+});
+
+
+const fileFilter = (req, file, cb) => {
+    const ok = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
+    cb(ok ? null : new multer.MulterError('LIMIT_UNEXPECTED_FILE', 'avatar'), ok);
+};
+
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
+
+router.post(
+    '/avatar', authController.isLogged.bind(authController), upload.single('avatar'),
+    async (req, res) => {
+        try {
+            if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+            const avatarUrl = `/uploads/avatars/${req.file.filename}`; // מה שהפרונט ישים ב-src
+            await authController.saveAvatarUrl(req.user_id, avatarUrl);
+
+            return res.status(200).json({ message: 'Avatar updated', avatarUrl });
+        } catch (error) {
+            console.error('Avatar upload error:', error);
+            return res.status(500).json({ error: 'Upload failed' });
+        }
+    }
+);
 
 // Redirect root to frontend
 router.get('/', (req, res) => res.redirect(process.env.FRONTEND_ORIGIN || 'http://localhost:3000/'));
@@ -64,25 +111,6 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-// password change
-// router.patch('/change_password/:id', async (req, res) => {
-//     try {
-//         const paramId = String(req.params.id || '').trim();
-//         const authId = String(req.user_id || '').trim();
-//         if (!authId) return res.status(401).json({ error: 'Not authenticated' });
-//         if (!paramId) return res.status(400).json({ error: 'Missing user id param' });
-//         if (paramId !== authId) return res.status(403).json({ error: 'Forbidden: can only update your own profile' });
-//
-//         const { password } = req.body;
-//         await User.Update(paramId, { password });
-//         return res.status(200).json({ message: 'User password updated successfully' });
-//     } catch (err) {
-//         return handleError(res, err);
-//     }
-// });
-
-// routes/AuthRout.js
 
 // password change
 router.patch(

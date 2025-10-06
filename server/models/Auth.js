@@ -179,7 +179,7 @@ class Auth {
             req.name = parts[1];
             try {
                 const [rows] = await this.DB.execute(
-                    `SELECT id, name, email, created_at FROM users WHERE id = ?`,
+                    `SELECT id, name, email, created_at, avatar_url  FROM users WHERE id = ?`,
                     [req.user_id]
                 );
                     if (!rows || rows.length === 0) return rows && rows.length ? rows[0] : 401;
@@ -222,6 +222,34 @@ class Auth {
             return res.json({ message: 'Logged out' });
         } catch (error) { return res.status(500).json({ error: 'Logout failed' }); }
     }
+
+
+    // save avatar
+    async saveAvatarUrl(userId, avatarUrl) {
+        const id = String(userId || '').trim();
+        if (!id || !avatarUrl) {
+            const err = new Error('Missing avatar params');
+            err.code = 'MISSING_AVATAR_PARAMS';
+            throw err;
+        }
+
+        // (אופציונלי) הבא ישן למחיקה
+        const [rows] = await this.DB.execute('SELECT avatar_url FROM users WHERE id = ? LIMIT 1', [id]);
+        const oldUrl = rows?.[0]?.avatar_url;
+
+        await this.DB.execute('UPDATE users SET avatar_url = ? WHERE id = ?', [avatarUrl, id]);
+
+        // (אופציונלי) מחיקת קובץ ישן אם הוא בתוך /uploads/avatars שלך
+        try {
+          if (oldUrl && oldUrl.startsWith('/uploads/avatars/')) {
+            const abs = path.join(process.cwd(), oldUrl.replace(/^\//, ''));
+            fs.unlink(abs, () => {});
+          }
+        } catch {}
+
+        return { id, avatarUrl };
+    }
+
 
     // cookieOptions: set cookie time
     static cookieOptions(reqIsSecure = false) {

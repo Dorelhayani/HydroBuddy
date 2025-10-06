@@ -3,9 +3,11 @@ const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 5050;
 const cookieParser = require('cookie-parser');
+
 
 const db = require('./models/database');
 const Auth = require('./models/Auth');
@@ -42,6 +44,7 @@ app.use('/auth', AuthRout); // public: register/login
 app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
 app.use('/PlantRout', authMiddleware.isLogged.bind(authMiddleware), PlantRout);
 app.use('/esp', authMiddleware.isLogged.bind(authMiddleware), EspRout);
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Start
 app.listen(port, () => {
