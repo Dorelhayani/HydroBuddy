@@ -44,7 +44,7 @@ app.use('/auth', AuthRout); // public: register/login
 app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
 app.use('/PlantRout', authMiddleware.isLogged.bind(authMiddleware), PlantRout);
 app.use('/esp', authMiddleware.isLogged.bind(authMiddleware), EspRout);
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use( '/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));
 
 // Start
 app.listen(port, () => {
