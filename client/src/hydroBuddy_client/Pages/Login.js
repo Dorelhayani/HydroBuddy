@@ -57,19 +57,16 @@ export default function Login() {
                   }
 
                   footer={
-                      <div className="footer-container">
-                          <div className="footer-container" style={{ display: "flex", alignItems: "center" }}>
+                      <div className="footer-row">
                               <small className="text-body-secondary">
                                   {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                               </small>
-                              <button className="btn ghost"
-                                      style={{ marginLeft: "auto" }}
+                              <button className="btn ghost ml-auto"
                                       onClick={() => { if (!authLoading)
                                           flip(); }}
                                       disabled={authLoading}>
                                   More ↪
                               </button>
-                          </div>
                       </div>
                   }
             />
@@ -126,9 +123,9 @@ export default function Login() {
                 </>
                 }
                 footer={
-                    <div className="footer-container">
+                    <div className="footer-row">
                         <button
-                            className="btn ghost"
+                            className="btn ghost ml-auto"
                                 onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
@@ -182,9 +179,9 @@ export default function Login() {
 
                 }
                 footer={
-                    <div className="footer-container">
+                    <div className="footer-row">
                         <button
-                            className="btn ghost"
+                            className="btn ghost ml-auto"
                             onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
@@ -212,7 +209,7 @@ export default function Login() {
                 variant={variant}
                 header="Account Actions"
                 body={
-                    <div className="btn-container" style={{ display: "grid", gap: 8 }}>
+                    <div className="btn-grid">
                         <h5>Forgot password?</h5>
                         <button
                             className="footer-btn"
@@ -231,6 +228,7 @@ export default function Login() {
                     </div>
                 }
                 footer={
+                    <div className="footer-row">
                     <button
                         className="btn ghost"
                         onClick={() => {
@@ -240,6 +238,7 @@ export default function Login() {
                     >
                         ↩ Back
                     </button>
+                    </div>
                 }
             />
         )

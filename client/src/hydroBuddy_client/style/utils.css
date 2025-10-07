@@ -1,4 +1,5 @@
 /* utils.css - helpers */
+
 .hidden { display: none !important; }
 .text-center { text-align: center; }
 .flex { display:flex; gap: var(--gap-md); align-items:center; }
@@ -7,3 +8,14 @@
 /* tiny helpers */
 .row { display:flex; gap: 8px; align-items:center; }
 .btn-row { display:flex; gap: 8px; justify-content:center; margin-top: 12px; }
+
+/* יישורים ו־helpers קטנים */
+.row            { display:flex; align-items:center; gap: 8px; }
+.row.center     { justify-content:center; }
+.ml-auto        { margin-left:auto; }
+.btn-grid       { display:grid; gap: 8px; }
+/* במידת הצורך לרוחב גדול יותר של כפתורים */
+.btn-grid.wide  { grid-template-columns: 1fr; }
+
+/* מרכז את כל התוכן בכרטיסיות/גריד */
+.centered       { display:flex; justify-content:center; align-items:center; }

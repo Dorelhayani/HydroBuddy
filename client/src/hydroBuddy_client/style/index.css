@@ -1,7 +1,10 @@
-@import "./variables.css";
+/*index.css*/
+
 @import "./base.css";
-@import "./layout.css";
 @import "./utils.css";
+@import "./layout.css";
+@import "./sidebar.css";
+@import "./variables.css";
 
 @import "./components/button.css";
 @import "./components/nav.css";

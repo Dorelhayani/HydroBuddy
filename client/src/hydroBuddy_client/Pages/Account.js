@@ -53,18 +53,17 @@ export default function Account() {
                 text={item?.email}
                 list={plantsListItems}
                 footer={
-                    <div className="footer-container" style={{ display: "flex", alignItems: "center" }}>
+                    <div className="footer-row">
                         <small className="text-body-secondary">
                             {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                         </small>
-                        <button className="btn ghost" style={{ marginLeft: "auto" }} onClick={flip}>
-                            More ↪
-                        </button>
+                        <button className="btn ghost ml-auto" onClick={flip}> More ↪ </button>
                     </div>
                 }
             />
         );
     }
+
     function AvatarControl({ item, avatarUpload }) {
         const inputRef = React.useRef(null);
         const [preview, setPreview] = React.useState(null);
@@ -109,7 +108,7 @@ export default function Account() {
                     aria-label="Upload avatar"
                     onClick={openPicker}
                     onKeyDown={onKey}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    className="avatar-img"
                 />
                 <input
                     ref={inputRef}
@@ -182,17 +181,12 @@ export default function Account() {
 
                   }
                   footer={
-                      <button
-                          className="btn"
-                          onClick={() => setActiveTab("account")}
-
-                      >
-                          {"🢐 Back"}
-                      </button>
+                      <div className="footer-row">
+                          <button className="btn" onClick={() => setActiveTab("account")}> {"🢐 Back"} </button>
+                      </div>
                   }
             />
         );
-
     }
 
     function DeleteAccount({ variant, item, onCancel }) {
@@ -211,7 +205,7 @@ export default function Account() {
         return (
             <Card variant={variant} title="Delete Account">
                 <p className="txt">This action is permanent. All your plants and data may be removed.</p>
-                <div className="btn-container" style={{display: "flex", gap: 8 }}>
+                <div className="btn-row">
                     <button className="btn ghost" onClick={onCancel}>Cancel</button>
                     <FlashButton onClickAsync={handleDelete}>Delete</FlashButton>
                 </div>
@@ -233,7 +227,7 @@ export default function Account() {
                 variant={variant}
                 header="Account Actions"
                 body={
-                    <div className="btn-container" style={{ display: "grid", gap: 8 }}>
+                    <div className="btn-grid">
 
                         <button className="footer-btn" onClick={() => setActiveTab("update_account")} >
                             Update Account

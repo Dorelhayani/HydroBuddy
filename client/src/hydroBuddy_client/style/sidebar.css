@@ -1,0 +1,42 @@
+/*sidebar.css*/
+
+/* helper: hide burger on wide screens and show horizontal header nav */
+.burger { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor:pointer; }
+/*@media (min-width: 768px) {*/
+/*    .header-nav { display: none; } !* we keep header nav hidden; sidebar used on wide screens *!*/
+/*    .burger { display: none; }*/
+/*}*/
+
+@media (min-width: 768px) {
+    .burger { display: none; }
+}
+
+/* Sidebar בסיסי */
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    transition: transform 180ms ease, opacity 150ms ease;
+}
+
+/* כשסגור—שייצא החוצה לגמרי (במקום "שתי קוביות") */
+.sidebar.collapsed {
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* שמירה על ריווח טקסט וקישורים */
+.side-nav { display:flex; flex-direction: column; gap:8px; padding: 8px; }
+.side-nav a {
+    color: var(--text);
+    text-decoration:none;
+    padding: 10px 12px;      /* מונע "בריחה" לקצוות */
+    border-radius: 8px;
+    display:inline-block;
+    word-break: break-word;
+}
+
+@media (max-width: 767px) {
+    /* במסכים קטנים: sidebar יהיה דרואר, ו"collapsed" יסתיר אותו לגמרי */
+    .sidebar { width: 100%; min-width: auto; }
+}
