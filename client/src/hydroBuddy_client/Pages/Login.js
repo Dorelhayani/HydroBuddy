@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import {useAuth} from "../hooks/useAuth";
+import {useAuth} from "../services/useAuth";
 import GenericForm from "../components/FormGenerate";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
+import {formatDateDDMMYYYY} from "../domain/formatters";
+import FlipCard from "../components/FlipCard";
 
 export default function Login() {
     const nav = useNavigate();
-    const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const [activeTab, setActiveTab] = useState("log");
-    const {item, loading, error, refresh, login, register, changePassword} = useAuth();
 
-    function Log() {
+    const { variant, flashSuccess, flashDanger } = useBorderFlash();
+    const {item, login, register, changePassword} = useAuth();
+
+    const [activeTab, setActiveTab] = useState("log");
+    const [flipped, setFlipped] = useState(false);
+
+
+    function Log({flip}) {
         const fields = [
             { name: "name", placeholder: "Name", required: true },
             { name: "password", placeholder: "Password", type: "password", required: true },
@@ -43,21 +49,14 @@ export default function Login() {
 
                   footer={
                       <div className="footer-container">
-                          <h5>Forgot password? </h5>
-                          <button
-                              className="footer-btn"
-                              onClick={() => setActiveTab('change_password')}
-                          >
-                              Change Password
-                          </button>
-
-                          <h5>Not Register yet? </h5>
-                          <button
-                              className="footer-btn"
-                              onClick={() => setActiveTab(activeTab === "log" ? "register" : "log")}
-                          >
-                              {activeTab === "log" ? "Create account" : "Back to login"}
-                          </button>
+                          <div className="footer-container" style={{ display: "flex", alignItems: "center" }}>
+                              <small className="text-body-secondary">
+                                  {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
+                              </small>
+                              <button className="btn ghost" style={{ marginLeft: "auto" }} onClick={flip}>
+                                  More ↪
+                              </button>
+                          </div>
                       </div>
                   }
             />
@@ -107,14 +106,14 @@ export default function Login() {
                     />
                 }
                 footer={
-                <div className="footer-container">
-                    <button
-                        className="footer-btn"
-                        onClick={() => setActiveTab(activeTab === "change_password" ? "log" : "back")}
-                    >
-                        {"🢐 Back"}
-                    </button>
-                </div>
+                    <div className="footer-container">
+                        <button
+                            className="footer-btn"
+                            onClick={() => setActiveTab("log")}
+                        >
+                            {"🢐 Back"}
+                        </button>
+                    </div>
                 }
             />
         );
@@ -131,7 +130,8 @@ export default function Login() {
         const OnSubmit = async (val) => {
             if (val.password !== val.passwordConfirm) throw new Error("Passwords must match");
             try {
-                await register({ name: val.name.trim(), email: String(val.email), password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
+                await register({ name: val.name.trim(), email: String(val.email),
+                    password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
                 flashSuccess(1400);
                 setTimeout(() => setActiveTab("log"), 600);
             } catch (err) {
@@ -155,24 +155,79 @@ export default function Login() {
                 }
                 footer={
                     <div className="footer-container">
-                    <button
-                        className="footer-btn"
-                        onClick={() => setActiveTab(activeTab === "register" ? "log" : "back")}
-                    >
-                        {"🢐 Back"}
-                    </button>
+                        <button
+                            className="footer-btn"
+                            onClick={() => setActiveTab("log")}
+                        >
+                            {"🢐 Back"}
+                        </button>
                     </div>
                 }
             />
         );
     }
 
+
+    const front = ({ flip }) => (
+        <>
+            <Log flip={() => { if (!flipped) flip(); }} />
+        </>
+    );
+
+    const back = ({ unflip }) => (
+        activeTab === "change_password" ? (
+            <ChangePassword variant={variant} user={item} />
+        ) : activeTab === "register" ? (
+            <Register variant={variant} />
+        ) : (
+            <Card
+                variant={variant}
+                header="Account Actions"
+                body={
+                    <div className="btn-container" style={{ display: "grid", gap: 8 }}>
+                        <h5>Forgot password?</h5>
+                        <button
+                            className="footer-btn"
+                            onClick={() => setActiveTab("change_password")}
+                        >
+                            Change Password
+                        </button>
+
+                        <h5>Not Register yet?</h5>
+                        <button
+                            className="footer-btn"
+                            onClick={() => setActiveTab("register")}
+                        >
+                            Create account
+                        </button>
+                    </div>
+                }
+                footer={
+                    <button
+                        className="btn"
+                        onClick={() => {
+                            setActiveTab("log");
+                            unflip();
+                        }}
+                    >
+                        ↩ Back
+                    </button>
+                }
+            />
+        )
+    );
     return (
         <div className="main-container">
 
-            {activeTab === "log" ? ( <Log variant={variant} /> ) :
-                activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
-                    activeTab === "register" ? ( <Register variant={variant} /> ) : null}
+            <div className="cards-grid">
+                <FlipCard
+                    front={front}
+                    back={back}
+                    flippable
+                    isFlipped={flipped}
+                    onFlip={setFlipped}
+                />
+            </div>
             <Outlet />
         </div>
     );

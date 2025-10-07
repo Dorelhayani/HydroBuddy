@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { plants } from "../services/plants";
+import { plants } from "./plants";
 
 export function usePlants() {
     const [list, setList] = useState([]);

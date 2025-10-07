@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { auth } from "../services/auth";
+import { auth } from "./auth";
 
 export function useAuth() {
     const [item, setItem] = useState(null);
@@ -14,6 +14,7 @@ export function useAuth() {
 
     useEffect(() => { fetchUser(); }, [fetchUser]);
 
+    const avatarUpload = async (formData) => { await auth.avatarUpload(formData); }
     const login = async (payload)=> { await auth.login(payload); await fetchUser(); };
     const register = async (payload)=> { await auth.register(payload);    /* לעיתים תרצה גם refresh */ };
     const logout = async ()=> { await auth.logout(); setItem(null); };
@@ -27,5 +28,5 @@ export function useAuth() {
         // אחרת, אפשר: await fetchUser();
     };
 
-    return { item, setItem, loading, error, refresh: fetchUser, login, register, logout, changePassword };
+    return { item, setItem, loading, error, refresh: fetchUser, avatarUpload, login, register, logout, changePassword };
 }

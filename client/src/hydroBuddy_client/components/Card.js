@@ -26,11 +26,11 @@ export default function Card({
             {imgsrc ? (
                 <div className="card-body">
                     <div className="card-img-top">
-                        <img
-                            src={imgsrc}
-                            alt={title || "card-image"}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
+                        {typeof imgsrc === "string" ? (
+                            <img src={imgsrc} alt={title || "card-image"}
+                                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                 onClick={onClick}
+                            />) : imgsrc}
                     </div>
                 </div>
             ) : null}

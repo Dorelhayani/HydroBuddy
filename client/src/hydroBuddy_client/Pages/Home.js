@@ -2,8 +2,8 @@ import React, {useEffect, useMemo} from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import {useModData} from "../hooks/ModLoad";
-import {usePlants} from "../hooks/usePlants";
-import {useAuth} from "../hooks/useAuth";
+import {usePlants} from "../services/usePlants";
+import {useAuth} from "../services/useAuth";
 import Card, { useBorderFlash } from "../components/Card";
 
 export default function Home(){

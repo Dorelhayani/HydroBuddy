@@ -1,6 +1,6 @@
 import {Outlet, Form, useNavigate} from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { FlashButton } from "../hooks/Components";
+import FlashButton from "../components/ButtonGenerate";
 import {ToggleSwitch} from "../domain/formatters";
 import {
     useModData,

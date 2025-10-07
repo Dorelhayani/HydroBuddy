@@ -3,42 +3,155 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { formatDateDDMMYYYY } from "../domain/formatters";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
+import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 
-import {useAuth} from "../hooks/useAuth";
-import {usePlants} from "../hooks/usePlants";
-import {useAccount} from "../hooks/useAccount";
+import {useAuth} from "../services/useAuth";
+import {usePlants} from "../services/usePlants";
+import {useAccount} from "../services/useAccount";
 
 export default function Account() {
     const nav = useNavigate();
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("account");
 
-    const {setItems, error, update, remove} = useAccount();
-    const {list, setList,fetchList} = usePlants();
-    const {item, fetchUser,logout } = useAuth();
+    const { setItems, update, remove } = useAccount();
+    const { list, setList, fetchList } = usePlants();
+    const { item, fetchUser, avatarUpload, logout } = useAuth();
 
+    const [flipped, setFlipped] = useState(false);
 
-    useEffect(() => {
-        (async () => {
+    function AccountInfo({flip}){
+
+        useEffect(() => {
+            (async () => {
+                try {
+                    const [usr, plnts] = await Promise.all([fetchUser(), fetchList()]);
+                    setItems(usr);
+                    setList(plnts);
+                } catch (e) {
+                    // error;
+                }
+            })();
+        }, []);
+
+        const plantsListItems = useMemo(() => {
+            if (!list || list.length === 0) return <li className="list-group-item">No plants yet</li>;
+            return list.map((p) => (
+                <li key={p.id} className="list-group-item">
+                    <h6>{p.planttype_name}</h6>
+                </li>
+            ));
+        }, [list]);
+
+        return (
+            <Card
+                variant={variant}
+                header="Account"
+                title={item?.name}
+                imgsrc={
+                    item && (
+                        <AvatarControl
+                            item={item}
+                            avatarUpload={avatarUpload}   // או {avatarUpload} אם אתה מוציא מה־useAuth
+                            fetchUser={fetchUser}
+                        />
+                    )
+                }
+                text={item?.email}
+                list={plantsListItems}
+                footer={
+                    <div className="footer-container" style={{ display: "flex", alignItems: "center" }}>
+                        <small className="text-body-secondary">
+                            {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
+                        </small>
+                        <button className="btn ghost" style={{ marginLeft: "auto" }} onClick={flip}>
+                            More ↪
+                        </button>
+                    </div>
+                }
+            />
+        );
+    }
+
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //             const [usr, plnts] = await Promise.all([fetchUser(), fetchList()]);
+    //             setItems(usr);
+    //             setList(plnts);
+    //         } catch (e) {
+    //             // error;
+    //         }
+    //     })();
+    // }, []);
+    //
+    // const plantsListItems = useMemo(() => {
+    //     if (!list || list.length === 0) return <li className="list-group-item">No plants yet</li>;
+    //     return list.map((p) => (
+    //         <li key={p.id} className="list-group-item">
+    //             <h6>{p.planttype_name}</h6>
+    //         </li>
+    //     ));
+    // }, [list]);
+
+    function AvatarControl({ item, avatarUpload }) {
+        const inputRef = React.useRef(null);
+        const [preview, setPreview] = React.useState(null);
+
+        // חישוב ה-src כולל cache-busting
+        const src = preview || item?.avatar_url || "/img/avatar-placeholder.png";
+
+        // פתיחת דיאלוג הקובץ בלחיצה על התמונה / מקלדת
+        const openPicker = () => inputRef.current?.click();
+        const onKey = (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPicker(); }
+        };
+
+        // שינוי קובץ + preview + העלאה + רענון user
+        const onChange = async (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (!f) return;
+
+            // Preview מיידי
+            const reader = new FileReader();
+            reader.onload = () => setPreview(reader.result);
+            reader.readAsDataURL(f);
+
+            // העלאה
+            const form = new FormData();
+            form.append("avatar", f); // השם "avatar" חייב להתאים ל-upload.single('avatar') בשרת
             try {
-                const [usr, plnts] = await Promise.all([fetchUser, fetchList]);
-                setItems(usr);
-                setList(plnts);
-            } catch (e) { error(e.message); }
-        })();
-    }, []);
+                await avatarUpload(form);
+                setPreview(null); // אחרי רענון, נעבור ל־URL האמיתי
+            } finally {
+                // מאפשר לבחור שוב אותו קובץ אם צריך
+                e.target.value = "";
+            }
+        };
 
-    const plantsListItems = useMemo(() => {
-        if (!list || list.length === 0) {
-            return <li className="list-group-item">No plants yet</li>;
-        }
-        return list.map((p) => (
-            <li key={p.id} className="list-group-item">
-                <h6>{p.planttype_name}</h6>
-            </li>
-        ));
-    }, [list]);
+        return (
+            <>
+                <img
+                    src={src}
+                    alt="avatar"
+                    tabIndex={0}
+                    role="button"
+                    aria-label="Upload avatar"
+                    onClick={openPicker}
+                    onKeyDown={onKey}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onChange}
+                    hidden
+                />
+            </>
+        );
+    }
 
     async function onLogout() {
         if (!window.confirm("Are you sure you want to Log Out?.")) return;
@@ -46,22 +159,7 @@ export default function Account() {
         nav("/");
     }
 
-    function Main({ variant, item, plantsListItems }) {
-        if (!item) return null;
-        return (
-            <Card
-                variant={variant}
-                header="Account"
-                title={item.name}
-                imgsrc=""
-                text={item.email}
-                list={plantsListItems}
-                footer={`Joined: ${formatDateDDMMYYYY(item.created_at)}`}
-            />
-        );
-    }
-
-    function UpdateAccount({ variant, item }) {
+        function UpdateAccount({ variant }) {
         if (!item) {
             return (
                 <Card variant={variant} title="Update Account">
@@ -89,7 +187,7 @@ export default function Account() {
                 setActiveTab('account');
             }catch(err){
                 flashDanger(2000);
-                (error(err.message))
+                // error
             }
         };
 
@@ -109,7 +207,9 @@ export default function Account() {
                   footer={
                       <button
                           className="btn"
-                          onClick={() => setActiveTab(activeTab === "Update" ? "Back" : "account")}
+                          // onClick={() => setActiveTab(activeTab === "Update" ? "Back" : "account")}
+                          onClick={() => setActiveTab("account")}
+
                       >
                           {"🢐 Back"}
                       </button>
@@ -128,7 +228,7 @@ export default function Account() {
                 await remove(item.id);
                 await logout();
                 nav("/");
-            } catch (err) {error(err.message)}
+            } catch (err) {}
 
         };
 
@@ -143,40 +243,60 @@ export default function Account() {
         );
     }
 
+    const front = ({ flip }) => (
+        <>
+            <AccountInfo flip={() => { if (!flipped) flip(); }} />
+        </>
+    );
+
+    const back = ({ unflip }) => (
+        activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
+            activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
+                (
+            <Card
+                variant={variant}
+                header="Account Actions"
+                body={
+                    <div className="btn-container" style={{ display: "grid", gap: 8 }}>
+
+                        <button className="footer-btn" onClick={() => setActiveTab("update_account")} >
+                            Update Account
+                        </button>
+
+                        <button className="footer-btn" onClick={onLogout} > Log Out </button>
+
+                        <button className="footer-btn" onClick={() => setActiveTab("delete_account")} >
+                            Delete
+                        </button>
+                    </div>
+                }
+                footer={
+                    <button
+                        className="btn"
+                        onClick={() => {
+                            setActiveTab("account");
+                            unflip();
+                        }}
+                    >
+                        ↩ Back
+                    </button>
+                }
+            />
+        )
+    );
+
     return (
         <div className="main-container">
-
-            {activeTab === "account" ? (
-                <Main variant={variant} item={item} plantsListItems={plantsListItems} />
-            ) : activeTab === "update_account" ? (
-                <UpdateAccount variant={variant} item={item} />
-            ) : activeTab === "delete_account" ? (
-                <DeleteAccount variant={variant} item={item} onCancel={() => setActiveTab('account')} />
-            ) : null}
-
-
-            <div style={{ marginTop: 12 }}>
-                <button
-                    className="btn ghost"
-                    style={{ marginLeft: 8 }}
-                    onClick={() => setActiveTab('update_account')}
-                >
-                    Update Account
-                </button>
-
-
-                <button className="btn ghost" style={{ marginLeft: 8 }} onClick={onLogout}>
-                    Log Out
-                </button>
-
-                <button
-                    className="btn ghost"
-                    style={{ marginLeft: 8 }}
-                    onClick={() => setActiveTab('delete_account')}
-                >
-                    Delete Account
-                </button>
+            <div className="cards-grid">
+                <FlipCard
+                    front={front}
+                    back={back}
+                    flippable
+                    isFlipped={flipped}
+                    onFlip={setFlipped}
+                />
             </div>
+
             <Outlet />
         </div>
     );
