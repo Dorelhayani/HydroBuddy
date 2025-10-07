@@ -1,6 +1,6 @@
-import { account } from "./account";
+import { account } from "../services/account";
 import {useState } from "react";
-import { useRequestStatus } from "../hooks/RequestStatus";
+import { useRequestStatus } from "./RequestStatus";
 
 export function useAccount() {
     const [items, setItems] = useState([]);

@@ -1,6 +1,6 @@
-import { auth } from "./auth";
+import { auth } from "../services/auth";
 import { useEffect, useState, useCallback } from "react";
-import { useRequestStatus } from "../hooks/RequestStatus";
+import { useRequestStatus } from "./RequestStatus";
 
 export function useAuth() {
     const [item, setItem] = useState(null);

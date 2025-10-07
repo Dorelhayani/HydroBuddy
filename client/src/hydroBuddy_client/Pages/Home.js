@@ -2,15 +2,15 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import { useModData } from "../hooks/ModLoad";
-import { usePlants } from "../services/usePlants";
-import { useAuth } from "../services/useAuth";
+import { usePlants } from "../hooks/usePlants";
+import { useAuth } from "../hooks/useAuth";
 import Card, { useBorderFlash } from "../components/Card";
 
 export default function Home(){
     const { variant } = useBorderFlash();
     const nav = useNavigate();
 
-    const { plantsListItems, setPlantList, fetchPlants } = usePlants();
+    const { plantsListItems, setPlant, fetchPlants } = usePlants();
     const { item, setItem, fetchUser } = useAuth();
 
     const go = (path) => () => nav(path);
@@ -32,7 +32,7 @@ export default function Home(){
                 try {
                     const [usr, plnts] = await Promise.all([fetchUser, fetchPlants]);
                     setItem(usr);
-                    setPlantList(plnts);
+                    setPlant(plnts);
                 } catch (e) {
                     console.error(e);
                 }

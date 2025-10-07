@@ -1,11 +1,12 @@
 import React, { useState, Suspense } from "react";
 import { Link, Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
-import {AuthProvide} from "../hooks/AuthProvider";
+import {AuthProvide} from "../context/AuthProvider";
 import { ModDataProvider } from "../hooks/ModLoad";
 
 import Home from "../Pages/Home";
 import Login from "../Pages/Login";
-import Plants, { AddPlant, EditPlant, DeletePlant } from "../Pages/Plants";
+// import Plants, { AddPlant, EditPlant, DeletePlant } from "../Pages/Plants";
+import Plants from "../Pages/Plants";
 import Account from "../Pages/Account";
 import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../Pages/Mod";
 function Layout() {
@@ -100,11 +101,11 @@ const router = createBrowserRouter([
             {
                 path: "plants",
                 element: <Plants />,
-                children: [
-                    { path: "add", element: <AddPlant /> },
-                    { path: "edit", element: <EditPlant /> },
-                    { path: "delete", element: <DeletePlant /> },
-                ],
+                // children: [
+                //     { path: "add", element: <AddPlant /> },
+                //     { path: "edit", element: <EditPlant /> },
+                //     { path: "delete", element: <DeletePlant /> },
+                // ],
             },
             {
                 path: "Account",

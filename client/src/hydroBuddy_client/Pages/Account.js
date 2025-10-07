@@ -5,11 +5,11 @@ import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
-import {RequestBanner} from "../hooks/RequestStatus";
+import RequestBanner from "../components/RequestBanner";
 
-import {useAuth} from "../services/useAuth";
-import {usePlants} from "../services/usePlants";
-import {useAccount} from "../services/useAccount";
+import {useAuth} from "../hooks/useAuth";
+import {usePlants} from "../hooks/usePlants";
+import {useAccount} from "../hooks/useAccount";
 
 export default function Account() {
     const nav = useNavigate();
@@ -17,7 +17,7 @@ export default function Account() {
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
-    const { plantsListItems, setPlantList, fetchPlants } = usePlants();
+    const { plantsListItems, setPlant, fetchPlants } = usePlants();
     const { item, fetchUser, avatarUpload, logout, loading: authLoading, err: authErr} = useAuth();
 
     const [flipped, setFlipped] = useState(false);
@@ -29,7 +29,7 @@ export default function Account() {
                 try {
                     const [usr, plnts] = await Promise.all([fetchUser(), fetchPlants()]);
                     setItems(usr);
-                    setPlantList(plnts);
+                    setPlant(plnts);
                 } catch (e) {
                     // error;
                 }
@@ -135,6 +135,7 @@ export default function Account() {
                 </Card>
             );
         }
+
         const fields = [
             { name: "name", placeholder: `${item.name}`|| "Name", required: true },
             {
