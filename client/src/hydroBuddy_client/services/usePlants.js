@@ -15,14 +15,14 @@ export function usePlants() {
 
     }, []);
 
-    // const plantsListItems = useMemo(() => {
-    //     if (!plantList || plantList.length === 0) return <li className="list-group-item">No plants yet</li>;
-    //     return plantList.map((p) => (
-    //         <li key={p.id} className="list-group-item">
-    //             <h6>{p.planttype_name}</h6>
-    //         </li>
-    //     ));
-    // }, [plantList]);
+    const plantsListItems = useMemo(() => {
+        if (!plantList || plantList.length === 0) return <li className="list-group-item">No plants yet</li>;
+        return plantList.map((p) => (
+            <li key={p.id} className="list-group-item">
+                <h6>{p.planttype_name}</h6>
+            </li>
+        ));
+    }, [plantList]);
 
 
     useEffect(() => { fetchPlants(); }, [fetchPlants]);
@@ -31,7 +31,7 @@ export function usePlants() {
     const remove_plant = async (id)    => status.run(async () => { await plants.delete(id);     await fetchPlants(); });
 
     return{
-        plantList, setPlantList,
+        plantList, setPlantList,plantsListItems,
         add_plant, update_plant, remove_plant,
         refetch: fetchPlants, err: status.err, error: status.error, loading: status.loading,
     };

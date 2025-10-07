@@ -5,8 +5,9 @@ import {useAuth} from "../services/useAuth";
 import GenericForm from "../components/FormGenerate";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
-import {formatDateDDMMYYYY} from "../domain/formatters";
 import FlipCard from "../components/FlipCard";
+import {formatDateDDMMYYYY} from "../domain/formatters";
+import {RequestBanner} from "../hooks/RequestStatus";
 
 export default function Login() {
     const nav = useNavigate();
@@ -40,12 +41,17 @@ export default function Login() {
                   header="Login"
                   body={
                 <>
+                    <RequestBanner loading={authLoading} errorText={authErr} />
                     {authErr && <div style={{color:"salmon", marginBottom:8}}>{authErr}</div>}
                     <GenericForm
                         fields={fields}
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
-                            <FlashButton onClickAsync={onClick} loading={loading}>Login</FlashButton> )}
+                            <FlashButton
+                                onClickAsync={onClick}
+                                loading={loading || authLoading}
+                                disabled={authLoading}
+                            >Login</FlashButton> )}
                     />
                 </>
                   }
@@ -56,7 +62,11 @@ export default function Login() {
                               <small className="text-body-secondary">
                                   {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                               </small>
-                              <button className="btn ghost" style={{ marginLeft: "auto" }} onClick={flip}>
+                              <button className="btn ghost"
+                                      style={{ marginLeft: "auto" }}
+                                      onClick={() => { if (!authLoading)
+                                          flip(); }}
+                                      disabled={authLoading}>
                                   More ↪
                               </button>
                           </div>
@@ -101,18 +111,25 @@ export default function Login() {
                 variant={variant}
                 header="Change Password"
                 body={
+                <>
+                    <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
                         fields={fields}
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
-                            <FlashButton onClickAsync={onClick} loading={loading}>Change</FlashButton> )}
+                            <FlashButton
+                                onClickAsync={onClick}
+                                loading={loading || authLoading}
+                                disabled={authLoading}
+                            >Change</FlashButton> )}
                     />
+                </>
                 }
                 footer={
                     <div className="footer-container">
                         <button
                             className="btn ghost"
-                            onClick={() => setActiveTab("log")}
+                                onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
                         </button>
@@ -148,13 +165,21 @@ export default function Login() {
                 variant={variant}
                 header="Register"
                 body={
+                <>
+                    <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
                         fields={fields}
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
-                            <FlashButton onClickAsync={onClick} loading={loading}>Create</FlashButton>
+                            <FlashButton
+                                onClickAsync={onClick}
+                                loading={loading || authLoading}
+                                disabled={authLoading}
+                            >Create</FlashButton>
                         )}
                     />
+                </>
+
                 }
                 footer={
                     <div className="footer-container">

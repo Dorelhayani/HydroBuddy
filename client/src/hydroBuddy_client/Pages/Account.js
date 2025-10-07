@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { formatDateDDMMYYYY } from "../domain/formatters";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
+import {RequestBanner} from "../hooks/RequestStatus";
 
 import {useAuth} from "../services/useAuth";
 import {usePlants} from "../services/usePlants";
@@ -16,8 +17,8 @@ export default function Account() {
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
-    const { plantList, setPlantList, fetchPlants } = usePlants();
-    const { item, fetchUser, avatarUpload, logout } = useAuth();
+    const { plantsListItems, setPlantList, fetchPlants } = usePlants();
+    const { item, fetchUser, avatarUpload, logout, loading: authLoading, err: authErr} = useAuth();
 
     const [flipped, setFlipped] = useState(false);
 
@@ -34,15 +35,6 @@ export default function Account() {
                 }
             })();
         }, []);
-
-        const plantsListItems = useMemo(() => {
-            if (!plantList || plantList.length === 0) return <li className="list-group-item">No plants yet</li>;
-            return plantList.map((p) => (
-                <li key={p.id} className="list-group-item">
-                    <h6>{p.planttype_name}</h6>
-                </li>
-            ));
-        }, [plantList]);
 
         return (
             <Card
@@ -76,13 +68,8 @@ export default function Account() {
     function AvatarControl({ item, avatarUpload }) {
         const inputRef = React.useRef(null);
         const [preview, setPreview] = React.useState(null);
-
-        // חישוב ה-src כולל cache-busting
-        // const src = preview || item?.avatar_url || "/img/avatar-placeholder.png";
-
         const src = preview || (item?.avatar_url ? `${item.avatar_url}?t=${item?.avatar_updated_at 
         || Date.now()}` : "/img/avatar-placeholder.png");
-
 
         // פתיחת דיאלוג הקובץ בלחיצה על התמונה / מקלדת
         const openPicker = () => inputRef.current?.click();
@@ -177,14 +164,22 @@ export default function Account() {
             <Card variant={variant}
                   header="Update Account"
                   body={
-                      <GenericForm
-                          fields={fields}
-                          initialValues={{ name: item.name, email: item.email }}
-                          onSubmit={OnSubmit}
-                          customButton={({ onClick, loading }) => (
-                              <FlashButton onClickAsync={onClick} loading={loading}>Update</FlashButton>
-                          )}
-                      />
+                <>
+                    <RequestBanner loading={authLoading} errorText={authErr} />
+                    <GenericForm
+                        fields={fields}
+                        initialValues={{ name: item.name, email: item.email }}
+                        onSubmit={OnSubmit}
+                        customButton={({ onClick, loading }) => (
+                            <FlashButton
+                                onClickAsync={onClick}
+                                loading={loading || authLoading}
+                                disabled={authLoading}
+                            >Update</FlashButton>
+                        )}
+                    />
+                </>
+
                   }
                   footer={
                       <button

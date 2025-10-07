@@ -1,16 +1,16 @@
-import React, {useEffect, useMemo} from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import {useModData} from "../hooks/ModLoad";
-import {usePlants} from "../services/usePlants";
-import {useAuth} from "../services/useAuth";
+import { useModData } from "../hooks/ModLoad";
+import { usePlants } from "../services/usePlants";
+import { useAuth } from "../services/useAuth";
 import Card, { useBorderFlash } from "../components/Card";
 
 export default function Home(){
     const { variant } = useBorderFlash();
     const nav = useNavigate();
 
-    const { plantList, setPlantList, fetchPlants } = usePlants();
+    const { plantsListItems, setPlantList, fetchPlants } = usePlants();
     const { item, setItem, fetchUser } = useAuth();
 
     const go = (path) => () => nav(path);
@@ -39,16 +39,6 @@ export default function Home(){
             })();
         }, []);
 
-        const plantsListItems = useMemo(() => {
-            if (!plantList || plantList.length === 0) {
-                return <li className="list-group-item">No plants yet</li>;
-            }
-            return plantList.map((p) => (
-                <li key={p.id} className="list-group-item">
-                    <h6>{p.planttype_name}</h6>
-                </li>
-            ));
-        }, [plantList]);
 
     if (!item) return null;
     return (
