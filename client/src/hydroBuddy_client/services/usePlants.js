@@ -1,22 +1,38 @@
-import { useEffect, useState, useCallback } from "react";
 import { plants } from "./plants";
+import React, {useEffect, useState, useCallback, useMemo} from "react";
+import { useRequestStatus } from "../hooks/RequestStatus";
 
 export function usePlants() {
-    const [list, setList] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]   = useState(null);
+    const [plantList, setPlantList] = useState([]);
+    const status = useRequestStatus();
 
-    const fetchList = useCallback(async () => {
-        try { setLoading(true); setList(await plants.myPlants()); setError(null); }
-        catch (e) { setError(e); }
-        finally { setLoading(false); }
+    const fetchPlants = useCallback(async () => {
+        await status.run(async () => {
+            const rows = await plants.myPlants();
+            setPlantList(rows);
+            return rows;
+        });
+
     }, []);
 
-    useEffect(() => { fetchList(); }, [fetchList]);
+    // const plantsListItems = useMemo(() => {
+    //     if (!plantList || plantList.length === 0) return <li className="list-group-item">No plants yet</li>;
+    //     return plantList.map((p) => (
+    //         <li key={p.id} className="list-group-item">
+    //             <h6>{p.planttype_name}</h6>
+    //         </li>
+    //     ));
+    // }, [plantList]);
 
-    const add = async (payload)=> { await plants.add(payload);   await fetchList(); };
-    const edit = async (id,p)=> { await plants.edit(id,p);     await fetchList(); };
-    const remove = async (id)=> { await plants.delete(id);     await fetchList(); };
 
-    return { list, setList, loading, error, add, edit, remove , refetch: fetchList};
+    useEffect(() => { fetchPlants(); }, [fetchPlants]);
+    const add_plant = async (payload)  => status.run(async () => { await plants.add(payload);   await fetchPlants(); });
+    const update_plant = async (id, p)   => status.run(async () => { await plants.edit(id, p);    await fetchPlants(); });
+    const remove_plant = async (id)    => status.run(async () => { await plants.delete(id);     await fetchPlants(); });
+
+    return{
+        plantList, setPlantList,
+        add_plant, update_plant, remove_plant,
+        refetch: fetchPlants, err: status.err, error: status.error, loading: status.loading,
+    };
 }

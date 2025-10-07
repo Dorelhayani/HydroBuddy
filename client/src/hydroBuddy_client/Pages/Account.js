@@ -15,8 +15,8 @@ export default function Account() {
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("account");
 
-    const { setItems, update, remove } = useAccount();
-    const { list, setList, fetchList } = usePlants();
+    const { setItems, update_account, remove_account } = useAccount();
+    const { plantList, setPlantList, fetchPlants } = usePlants();
     const { item, fetchUser, avatarUpload, logout } = useAuth();
 
     const [flipped, setFlipped] = useState(false);
@@ -26,9 +26,9 @@ export default function Account() {
         useEffect(() => {
             (async () => {
                 try {
-                    const [usr, plnts] = await Promise.all([fetchUser(), fetchList()]);
+                    const [usr, plnts] = await Promise.all([fetchUser(), fetchPlants()]);
                     setItems(usr);
-                    setList(plnts);
+                    setPlantList(plnts);
                 } catch (e) {
                     // error;
                 }
@@ -36,13 +36,13 @@ export default function Account() {
         }, []);
 
         const plantsListItems = useMemo(() => {
-            if (!list || list.length === 0) return <li className="list-group-item">No plants yet</li>;
-            return list.map((p) => (
+            if (!plantList || plantList.length === 0) return <li className="list-group-item">No plants yet</li>;
+            return plantList.map((p) => (
                 <li key={p.id} className="list-group-item">
                     <h6>{p.planttype_name}</h6>
                 </li>
             ));
-        }, [list]);
+        }, [plantList]);
 
         return (
             <Card
@@ -73,34 +73,16 @@ export default function Account() {
             />
         );
     }
-
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             const [usr, plnts] = await Promise.all([fetchUser(), fetchList()]);
-    //             setItems(usr);
-    //             setList(plnts);
-    //         } catch (e) {
-    //             // error;
-    //         }
-    //     })();
-    // }, []);
-    //
-    // const plantsListItems = useMemo(() => {
-    //     if (!list || list.length === 0) return <li className="list-group-item">No plants yet</li>;
-    //     return list.map((p) => (
-    //         <li key={p.id} className="list-group-item">
-    //             <h6>{p.planttype_name}</h6>
-    //         </li>
-    //     ));
-    // }, [list]);
-
     function AvatarControl({ item, avatarUpload }) {
         const inputRef = React.useRef(null);
         const [preview, setPreview] = React.useState(null);
 
         // חישוב ה-src כולל cache-busting
-        const src = preview || item?.avatar_url || "/img/avatar-placeholder.png";
+        // const src = preview || item?.avatar_url || "/img/avatar-placeholder.png";
+
+        const src = preview || (item?.avatar_url ? `${item.avatar_url}?t=${item?.avatar_updated_at 
+        || Date.now()}` : "/img/avatar-placeholder.png");
+
 
         // פתיחת דיאלוג הקובץ בלחיצה על התמונה / מקלדת
         const openPicker = () => inputRef.current?.click();
@@ -182,7 +164,7 @@ export default function Account() {
             try{
                 const nextName  = (val.name?.trim?.() || item.name).trim();
                 const nextEmail = String(val.email ?? item.email).trim();
-                await update(item.id, { name: nextName, email: nextEmail });
+                await update_account(item.id, { name: nextName, email: nextEmail });
                 flashSuccess();
                 setActiveTab('account');
             }catch(err){
@@ -207,7 +189,6 @@ export default function Account() {
                   footer={
                       <button
                           className="btn"
-                          // onClick={() => setActiveTab(activeTab === "Update" ? "Back" : "account")}
                           onClick={() => setActiveTab("account")}
 
                       >
@@ -225,7 +206,7 @@ export default function Account() {
         const handleDelete = async () => {
             try{
                 if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
-                await remove(item.id);
+                await remove_account(item.id);
                 await logout();
                 nav("/");
             } catch (err) {}

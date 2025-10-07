@@ -1,14 +1,19 @@
-import {useState } from "react";
 import { account } from "./account";
+import {useState } from "react";
+import { useRequestStatus } from "../hooks/RequestStatus";
 
 export function useAccount() {
     const [items, setItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError]   = useState(null);
+    const status = useRequestStatus();
 
 
-    const update  = async (id,p)=> { await account.update(id,p);};
-    const remove= async (id)=> { await account.delete(id);};
+    const update_account = async (id, p) => status.run(async () => { await account.update(id, p); });
+    const remove_account = async (id)    => status.run(async () => { await account.delete(id); });
 
-    return { items, setItems, setLoading, setError, loading, error, update, remove};
+
+    return {
+        items, setItems,
+        update_account, remove_account,
+        loading: status.loading,error: status.error,err: status.err
+    };
 }

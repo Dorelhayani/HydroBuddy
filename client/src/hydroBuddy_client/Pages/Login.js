@@ -12,7 +12,7 @@ export default function Login() {
     const nav = useNavigate();
 
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const {item, login, register, changePassword} = useAuth();
+    const { item, login, register, changePassword, loading: authLoading, err: authErr } = useAuth();
 
     const [activeTab, setActiveTab] = useState("log");
     const [flipped, setFlipped] = useState(false);
@@ -39,12 +39,15 @@ export default function Login() {
             <Card variant={variant}
                   header="Login"
                   body={
-                      <GenericForm
-                          fields={fields}
-                          onSubmit={OnSubmit}
-                          customButton={({ onClick, loading }) => (
-                              <FlashButton onClickAsync={onClick} loading={loading}>Login</FlashButton> )}
-                      />
+                <>
+                    {authErr && <div style={{color:"salmon", marginBottom:8}}>{authErr}</div>}
+                    <GenericForm
+                        fields={fields}
+                        onSubmit={OnSubmit}
+                        customButton={({ onClick, loading }) => (
+                            <FlashButton onClickAsync={onClick} loading={loading}>Login</FlashButton> )}
+                    />
+                </>
                   }
 
                   footer={
@@ -79,7 +82,7 @@ export default function Login() {
 
         const OnSubmit = async (val) => {
             try {
-                if(val.password !== val.passwordConfirm) { throw new Error("Password not match!")}
+                if(val.newPassword !== val.newPasswordConfirm) { throw new Error("Password not match!")}
                 await changePassword({
                     currentPassword: val.currentPassword,
                     newPassword: val.newPassword,
@@ -108,7 +111,7 @@ export default function Login() {
                 footer={
                     <div className="footer-container">
                         <button
-                            className="footer-btn"
+                            className="btn ghost"
                             onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
@@ -156,7 +159,7 @@ export default function Login() {
                 footer={
                     <div className="footer-container">
                         <button
-                            className="footer-btn"
+                            className="btn ghost"
                             onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
@@ -204,7 +207,7 @@ export default function Login() {
                 }
                 footer={
                     <button
-                        className="btn"
+                        className="btn ghost"
                         onClick={() => {
                             setActiveTab("log");
                             unflip();

@@ -10,8 +10,8 @@ export default function Home(){
     const { variant } = useBorderFlash();
     const nav = useNavigate();
 
-    const {list, setList, fetchList} = usePlants();
-    const {item, setItems, fetchUser } = useAuth();
+    const { plantList, setPlantList, fetchPlants } = usePlants();
+    const { item, setItem, fetchUser } = useAuth();
 
     const go = (path) => () => nav(path);
     const onKeyGo = (path) => (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nav(path); } };
@@ -30,9 +30,9 @@ export default function Home(){
         useEffect(() => {
             (async () => {
                 try {
-                    const [usr, plnts] = await Promise.all([fetchUser, fetchList]);
-                    setItems(usr);
-                    setList(plnts);
+                    const [usr, plnts] = await Promise.all([fetchUser, fetchPlants]);
+                    setItem(usr);
+                    setPlantList(plnts);
                 } catch (e) {
                     console.error(e);
                 }
@@ -40,15 +40,15 @@ export default function Home(){
         }, []);
 
         const plantsListItems = useMemo(() => {
-            if (!list || list.length === 0) {
+            if (!plantList || plantList.length === 0) {
                 return <li className="list-group-item">No plants yet</li>;
             }
-            return list.map((p) => (
+            return plantList.map((p) => (
                 <li key={p.id} className="list-group-item">
                     <h6>{p.planttype_name}</h6>
                 </li>
             ));
-        }, [list]);
+        }, [plantList]);
 
     if (!item) return null;
     return (
