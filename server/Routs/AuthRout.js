@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
             file.mimetype === 'image/png' ? '.png' :
                 file.mimetype === 'image/webp' ? '.webp' :
                     '.jpg';
-        cb(null, `${req.user_id}_${Date.now()}${ext}`);
+        cb(null, `${req.user_id}${ext}`);
     }
 });
 
@@ -41,6 +41,20 @@ const upload = multer({
     limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
 });
 
+// Redirect root to frontend
+router.get('/', (req, res) => res.redirect(process.env.FRONTEND_ORIGIN || 'http://localhost:3000/'));
+
+router.get('/me', authController.isLogged.bind(authController), (req, res) => {
+    const origin = process.env.API_PUBLIC_ORIGIN
+        || `${req.secure ? 'https' : 'http'}://${req.get('host')}`;
+
+    const user = { ...req.user };
+    if (user?.avatar_url && !String(user.avatar_url).startsWith('http')) {
+        user.avatar_url = `${origin}${user.avatar_url}`;
+    }
+    return res.status(200).json(user);
+});
+
 router.post(
     '/avatar', authController.isLogged.bind(authController), upload.single('avatar'),
     async (req, res) => {
@@ -50,21 +64,18 @@ router.post(
             const avatarUrl = `/uploads/avatars/${req.file.filename}`; // מה שהפרונט ישים ב-src
             await authController.saveAvatarUrl(req.user_id, avatarUrl);
 
-            return res.status(200).json({ message: 'Avatar updated', avatarUrl });
+            const origin = process.env.API_PUBLIC_ORIGIN || `${req.secure ? 'https' : 'http'}://${req.get('host')}`;
+            const absolute = `${origin}${avatarUrl}`;
+
+            res.status(200).json({ message: 'Avatar updated', avatarUrl: absolute });
+
+            // return res.status(200).json({ message: 'Avatar updated', avatarUrl });
         } catch (error) {
             console.error('Avatar upload error:', error);
             return res.status(500).json({ error: 'Upload failed' });
         }
     }
 );
-
-// Redirect root to frontend
-router.get('/', (req, res) => res.redirect(process.env.FRONTEND_ORIGIN || 'http://localhost:3000/'));
-
-// Return The Current User Info
-router.get('/me', authController.isLogged.bind(authController), (req, res) => {
-    return res.status(200).json(req.user);
-});
 
 // Register
 router.post('/register', async (req, res) => {

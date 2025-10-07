@@ -233,18 +233,17 @@ class Auth {
             throw err;
         }
 
-        // (אופציונלי) הבא ישן למחיקה
         const [rows] = await this.DB.execute('SELECT avatar_url FROM users WHERE id = ? LIMIT 1', [id]);
         const oldUrl = rows?.[0]?.avatar_url;
 
         await this.DB.execute('UPDATE users SET avatar_url = ? WHERE id = ?', [avatarUrl, id]);
 
-        // (אופציונלי) מחיקת קובץ ישן אם הוא בתוך /uploads/avatars שלך
         try {
-          if (oldUrl && oldUrl.startsWith('/uploads/avatars/')) {
-            const abs = path.join(process.cwd(), oldUrl.replace(/^\//, ''));
-            fs.unlink(abs, () => {});
-          }
+            if (oldUrl && oldUrl.startsWith('/uploads/avatars/') && oldUrl !== avatarUrl) {
+                const abs = path.join(process.cwd(), oldUrl.replace(/^\//, ''));
+                fs.unlink(abs, () => {
+                });
+            }
         } catch {}
 
         return { id, avatarUrl };
