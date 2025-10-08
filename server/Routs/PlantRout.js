@@ -1,3 +1,5 @@
+// PlantRout.js
+
 const express = require('express');
 const router = express.Router();
 const PlantData = require('../models/PlantMode');
@@ -80,7 +82,7 @@ router.post('/add', async (req, res) => {
 
 
 // Update plant type name (owned by user)
-router.patch('/update', async (req, res) => {
+router.patch('/update/:id', async (req, res) => {
     try {
         const user_id = req.user_id;
         if (!user_id) return res.status(401).json({ error: 'Not authenticated' });
@@ -97,7 +99,7 @@ router.patch('/update', async (req, res) => {
 });
 
 // Delete plant type (owned by user)
-router.delete('/delete', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
     try {
         const user_id = req.user_id;
         if (!user_id) return res.status(401).json({ error: 'Not authenticated' });

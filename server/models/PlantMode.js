@@ -1,3 +1,5 @@
+// PlantMode.js
+
 class PlantData {
     constructor(db) {
         this.DB = db;
@@ -92,17 +94,11 @@ class PlantData {
         if (!userId) throw new Error('Missing user id');
         if (!newName || String(newName).trim() === '') throw new Error('Missing new name');
 
-        const [rows] = await this.DB.execute(
-            `SELECT ID FROM planttype WHERE ID = ? AND user_id = ? LIMIT 1`,
-            [plantTypeId, userId]
-        );
+        const [rows] = await this.DB.execute( `SELECT ID FROM planttype WHERE ID = ? AND user_id = ? LIMIT 1`,
+            [plantTypeId, userId] );
         if (!rows || rows.length === 0) throw new Error('Plant type not found or not owned by user');
 
-        await this.DB.execute(
-            `UPDATE planttype SET name = ? WHERE ID = ?`,
-            [String(newName).trim(), plantTypeId]
-        );
-
+        await this.DB.execute( `UPDATE planttype SET name = ? WHERE ID = ?`, [String(newName).trim(), plantTypeId] );
         return true;
     }
 
