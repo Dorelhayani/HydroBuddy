@@ -18,6 +18,7 @@ export default function Home(){
     const go = (path) => () => nav(path);
     const onKeyGo = (path) => (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nav(path); } };
 
+
     function DisplayMod(){
         const { state } = useModData();
         const labelMap = {61:"Temperature Mod", 62:"Moisture Mod", 63:"Saturday Mod", 64:"Manual Mod"};

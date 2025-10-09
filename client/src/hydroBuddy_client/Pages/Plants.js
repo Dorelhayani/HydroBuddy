@@ -35,6 +35,7 @@ export default function Plants() {
         setActiveTab("update_plant");
     };
 
+    // Plant Information card
     function PlnatInfo({flip}){
         useEffect(() => {
             (async () => {
@@ -51,18 +52,20 @@ export default function Plants() {
                 variant={variant}
                 header="Plant Info"
                 body=" "
-                list={ClickablePlantList(handlePlantClick, renderPlant)}
+                list={ <ul className="plant-list">{ClickablePlantList(handlePlantClick, renderPlant)}</ul> }
                 footer={
                     <div className="footer-row">
-                        <small className="text-body-secondary">Add Plant
-                            <button className="btn ghost ml-auto" onClick={flip}> + </button>
-                        </small>
+                        <div className="plant-footer-add">
+                            <small className="text-body-secondary">Add Plant</small>
+                            <button className="btn ghost" onClick={flip}>+</button>
+                        </div>
                     </div>
                 }
             />
         );
     }
 
+    // Add Plant card
     function AddPlant({ variant, unflip }){
         const fields = [
             { name: "name", placeholder: "Plant", required: true },
@@ -108,6 +111,7 @@ export default function Plants() {
         );
     }
 
+    // Update Plant card
     function UpdatePlant({ variant }){
         if (!selectedPlant) {
             return (
@@ -136,7 +140,7 @@ export default function Plants() {
         };
 
         const handleDelete = async () => {
-            if (!window.confirm("Are you sure you want to delete this plant?")) return;
+            if (!window.confirm(`Are you sure you want to delete ${selectedPlant.planttype_name} ?`)) return;
             try {
                 await remove_plant(selectedPlant.PlantTypeID);
                 setSelectedPlant(null);
@@ -169,7 +173,8 @@ export default function Plants() {
                   footer={
                       <div className="footer-row">
                           <button className="btn" onClick={() => setActiveTab("plant_info")}> {"🢐 Back"} </button>
-                          <button className="footer-btn" onClick={handleDelete} >
+                          {/*<button className="footer-btn" onClick={handleDelete} >*/}
+                          <button className="footer-btn" onClick={() => setActiveTab("delete_plant")} >
                               Delete Plant
                           </button>
                       </div>
@@ -178,21 +183,19 @@ export default function Plants() {
         );
     }
 
-    function DeletePlant({ variant, plant, onCancel }) {
-        const nav = useNavigate();
-
+    // Delete Plant card
+    function DeletePlant({ variant, onCancel }) {
         const handleDelete = async () => {
             try{
-                if (!window.confirm("Are you sure you want to delete your plant? This cannot be undone.")) return;
-                await remove_plant(plant.id);
-                nav("/plant_info");
+                if (!window.confirm(`Are you sure you want to delete ${selectedPlant.planttype_name} ? This cannot be undone.`)) return;
+                await remove_plant(selectedPlant.PlantTypeID);
             } catch (err) {}
 
         };
 
         return (
-            <Card variant={variant} title="Delete Account">
-                <p className="txt">This action is permanent. All your plants and data may be removed.</p>
+            <Card variant={variant}>
+                <small className="txt"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
                     <button className="btn ghost" onClick={onCancel}>Cancel</button>
                     <FlashButton onClickAsync={handleDelete}>Delete</FlashButton>
@@ -208,6 +211,7 @@ export default function Plants() {
         <div className="main-container">
             <div className="cards-grid">
                 { activeTab === "update_plant" ? (<UpdatePlant variant={variant} />) :
+                    activeTab === "delete_plant" ? (<DeletePlant variant={variant} onCancel={() => setActiveTab("update_plant")}/>):
                 (
                 <FlipCard
                     front={front}

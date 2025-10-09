@@ -19,13 +19,13 @@ export default function Account() {
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
-    const { plantsListItems, setPlant, fetchPlants,ClickablePlantList } = usePlants();
+    const { plantsListItems, setPlant, fetchPlants } = usePlants();
     const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
 
     const [flipped, setFlipped] = useState(false);
 
+    // Account Information card
     function AccountInfo({flip}){
-
         useEffect(() => {
             (async () => {
                 try {
@@ -67,6 +67,7 @@ export default function Account() {
         );
     }
 
+    // Avatar Control function
     function AvatarControl({ item, avatarUpload }) {
         const inputRef = React.useRef(null);
         const [preview, setPreview] = React.useState(null);
@@ -110,7 +111,8 @@ export default function Account() {
         );
     }
 
-        function UpdateAccount({ variant }) {
+    // Update Account card
+     function UpdateAccount({ variant }) {
         if (!item) {
             return (
                 <Card variant={variant} title="Update Account">
@@ -173,7 +175,7 @@ export default function Account() {
         );
     }
 
-
+    // Change Password card
     function ChangePassword({ variant, user }) {
         if (!user) {
             return (
@@ -237,7 +239,7 @@ export default function Account() {
         );
     }
 
-
+    // Delete Account card
     function DeleteAccount({ variant, item, onCancel }) {
         const nav = useNavigate();
 

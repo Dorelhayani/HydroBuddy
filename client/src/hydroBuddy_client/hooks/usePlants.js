@@ -32,13 +32,19 @@ export function usePlants() {
         if (!plant || plant.length === 0) return <li className="list-group-item">No plants yet</li>;
         return (
                 plant.map( p => (
+                    // <li
+                    //     key={p.ID}
+                    //     onClick={()=> { setSelectedPlant(p); onItemClick && onItemClick(p) }}
+                    //     className="list-group-item">
+                    //     {renderContent ? renderContent(p) : <h6>{p.planttype_name}</h6>}
+                    // </li>
+
                     <li
                         key={p.ID}
-                        onClick={()=> {
-                            setSelectedPlant(p);
-                            onItemClick && onItemClick(p)
-                        }}
-                        className="list-group-item">
+                        onClick={()=> { setSelectedPlant(p); onItemClick && onItemClick(p) }}
+                        className="plant-item"
+                        role="button"
+                        tabIndex={0}>
                         {renderContent ? renderContent(p) : <h6>{p.planttype_name}</h6>}
                     </li>
                 ))

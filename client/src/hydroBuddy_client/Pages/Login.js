@@ -20,7 +20,7 @@ export default function Login() {
     const [activeTab, setActiveTab] = useState("log");
     const [flipped, setFlipped] = useState(false);
 
-
+    // Log card
     function Log({flip}) {
         const fields = [
             { name: "name", placeholder: "Name", required: true },
@@ -70,6 +70,7 @@ export default function Login() {
         );
     }
 
+    // Register card
     function Register() {
         const fields = [
             { name: "name", placeholder: "Name", required: true },

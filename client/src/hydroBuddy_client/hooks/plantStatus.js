@@ -1,3 +1,5 @@
+// plantStatus.js
+
 import React from "react";
 import { formatDateDDMMYYYY } from "../domain/formatters";
 
@@ -61,12 +63,11 @@ export function plantRenderer({ espState, espLoading }) {
 
         return (
             <>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <PlantIcon name={p.planttype_name} size={20} fill={1} weight={400} />
-                    <h6>{p.planttype_name}</h6>
+                <div  className="plant-left">
+                    <PlantIcon name={p.planttype_name} size={20} fill={1} weight={400} className="plant-icon"/>
+                    <h6 className="plant-name">{p.planttype_name}</h6>
                 </div>
-
-                <div className={`badge ${level}`} aria-busy={espLoading ? "true" : "false"}>
+                <div className={`badge badge-lg ${level} plant-right`} aria-busy={espLoading ? "true" : "false"}>
                     {espLoading || espState == null ? (
                         <>…</>
                     ) : (

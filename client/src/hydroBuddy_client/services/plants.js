@@ -9,3 +9,4 @@ export const plants = {
     edit: (plantTypeId,payload) => http(`/PlantRout/update/${plantTypeId}`, { method: "PATCH", body: {plantTypeId,...payload} }),
     delete: (plantTypeId,payload) => http(`/PlantRout/delete/${plantTypeId}`, { method: "DELETE", body: {plantTypeId} }),
 };
+

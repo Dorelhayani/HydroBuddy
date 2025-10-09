@@ -49,12 +49,6 @@ export default function Card({
             {list ? (
                 <div className="card-body">
                     <ul className="list-group list-group-flush">
-                        {/*
-              `list` can be:
-                - an array of nodes (e.g. [<li>...</li>, <li>...</li>])
-                - a single node (<li>...</li> or <div>...</div>)
-              We render it directly so caller can supply <li> items or a ready-made node.
-            */}
                         {list}
                     </ul>
                 </div>
