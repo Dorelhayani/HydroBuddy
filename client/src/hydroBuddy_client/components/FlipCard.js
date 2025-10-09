@@ -1,3 +1,5 @@
+// FlipCard.js
+
 import React from "react";
 
 // Controlled: העדיפות ל-isFlipped + onFlip. אם לא תעביר, זה יהיה Uncontrolled פנימי.

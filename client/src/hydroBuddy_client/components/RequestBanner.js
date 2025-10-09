@@ -1,3 +1,4 @@
+// RequestBanner.js
 
 export default function RequestBanner({ loading, errorText, message }) {
     if (!loading && !errorText && !message) return null;

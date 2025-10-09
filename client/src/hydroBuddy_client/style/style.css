@@ -1,94 +1,17 @@
-.main-container{
-    margin: auto;
+/*stylr.css*/
 
-    font-family: Helvetica, serif;
-    background: #1f1f1f;
-    color: #eaeaea;
-    padding: 18px;
-    border-radius: 16px;
-    max-width: 640px;
-    align-items: center;
-}
-
-
-.grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.navbar {
-    overflow: auto;
-}
-
-.navbar a {
-    float: left;
-    padding: 12px;
-    color: white;
-    text-decoration: none;
-    font-size: 17px;
-}
-
-.navbar a:hover {
-    background-color: #000;
-}
-
-.active {
-    background-color: #04AA6D;
-}
-
-/*@media screen and (max-width: 500px) {*/
-/*    .navbar a {*/
-/*        float: none;*/
-/*        display: block;*/
-/*    }*/
-/*}*/
-
-.main-title{
-    padding: 10px;
-    margin: 20px;
-    text-align: center;
-    font-weight: bold;
-}
-
-
-.title, .description, .sub-title, .description{
+.card-title{
     font-weight: bold;
     padding: 10px;
     text-align: center;
 }
 
-.label{
-    margin-bottom: 6px;
-}
-
-.txt{
+.card-text{
     text-decoration-style: double;
     justify-content: space-between;
     font-size: 16px;
     text-align: center;
     margin-bottom: 6px;
-}
-
-.sub-valueBox{
-    background: #2a2a2a;
-    color: #eaeaea;
-    border: 1px solid #3a3a3a;
-    border-radius: 12px;
-    padding: 10px 20px;
-    margin: 5%;
-    width: 160%;
-}
-
-.valueBox{
-    background: #2a2a2a;
-    color: #eaeaea;
-    border: 1px solid #3a3a3a;
-    border-radius: 12px;
-    padding: 8px 10px;
-    width: 80%;
 }
 
 .input{
@@ -110,69 +33,7 @@
     marginBottom: 10px;
 }
 
-.link{
-    text-align: center;
-    text-decoration: none;
-    background: #e6c229;
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    cursor: pointer;
-}
-
-.link-container{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-.mod-btn-container{
-    /*align-items: center;*/
-}
-.btn-container{
-    margin: auto;
-    /*display: grid;*/
-    /*grid-template-columns: 1fr 1fr;*/
-    /*gap: 12px;*/
-    /*align-items: center;*/
-    /*margin-bottom: 10px;*/
-    /*align-items: center;*/
-}
-.btn{
-    background: #ADE2F4;
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    cursor: pointer;
-    transition: background 160ms ease, opacity 120ms ease;
-
-}
-
-.btn.is-success,
-.btn.is-success:hover,
-.btn.is-success:focus {
-    background: #C1E9F7 !important;
-    color: #000;
-}
-
-button.btn[disabled] {
-    opacity: 0.65;
-    cursor: not-allowed;
-    pointer-events: none;  /* מונע לחיצות */
-}
-
-.btn:hover{
-    background: #7AAFC1;
-}
-
-.btn:active{
-    box-shadow: 0 5px #666;
-    transform: translateY(4px);
-}
-
+/* מצב ידני - חשוב */
 .toggle {
     width: 64px;
     height: 34px;
@@ -193,7 +54,6 @@ button.btn[disabled] {
     opacity: 0.7;
 }
 
-/* הכפתורון */
 .toggle .knob {
     position: absolute;
     top: 3px;
@@ -214,6 +74,7 @@ button.btn[disabled] {
     margin-left: 12px;
     opacity: .85;
 }
+
 .toggle-container{
     display: flex;
     align-items: center;
@@ -221,16 +82,39 @@ button.btn[disabled] {
     margin-top: 16px;
 }
 
-.saving, .msg{
-    margin-top: 8px;
+/* Badge בסיסי */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #3a3a3a;
+    background: #2a2a2a;
+    color: #eaeaea;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.loading{
-    font-family: Helvetica, serif;
-    color: #bbb;
+/* נקודה קטנה שמחליפה צבע לפי סטטוס */
+.badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #777;
 }
 
-.sensors{
-    font-family: Helvetica, serif;
-    color: salmon;
-}
+/* מצבים */
+.badge.ok    { background: #233a2b; border-color: #2e7d32; }   /* ירקרק כהה */
+.badge.warn  { background: #3a331e; border-color: #e6c229; }   /* צהוב theme */
+.badge.alert { background: #3a2323; border-color: #e53e3e; }   /* אדום theme */
+.badge.neutral { background: #2a2a2a; border-color: #3a3a3a; } /* ברירת מחדל */
+
+/* צבע נקודה לפי מצב */
+.badge.ok .dot    { background: #2ecc71; }  /* ירוק toggle-ON */
+.badge.warn .dot  { background: #e6c229; }  /* צהוב link */
+.badge.alert .dot { background: #e53e3e; }  /* אדום toggle-OFF */
+
+/* טקסט pump קטן */
+.badge .sep { margin: 0 6px; opacity: .75; }

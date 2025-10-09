@@ -1,431 +1,39 @@
-// import { plants } from "../services/plants";
-// import { Link, Outlet, Form, useOutletContext } from "react-router-dom";
-// import React, { useEffect, useState, useCallback  } from "react";
-// import {FlashButton} from "../hooks/Components" ;
-// import { useRequestStatus } from "../hooks/RequestStatus";
-//
-// export default function Plants() {
-//     const [plantsList, setPlantsList] = useState([]);
-//     const [listLoading, setListLoading] = useState(true);
-//     const [err, setErr] = useState("");
-//
-//     const refresh = useCallback(async () => {
-//         setListLoading(true);
-//         setErr("");
-//         try {
-//             const opts = await plants.getOptions();
-//             setPlantsList(opts);
-//         } catch (e) {
-//             setErr(e.message || "Failed to load plants");
-//         } finally {
-//             setListLoading(false);
-//         }
-//     }, []);
-//
-//     useEffect(() => { refresh(); }, [refresh]);
-//
-//     return (
-//         <div className="main-container">
-//             <div className="main-title">Plant Page</div>
-//
-//             <div className="link-container">
-//                 <Link className="link" to="./add">Add Plant</Link>
-//                 <Link className="link" to="./edit">Edit Plant</Link>
-//                 <Link className="link" to="./delete">Delete Plant</Link>
-//             </div>
-//
-//             {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
-//
-//             <Outlet context={{ plantsList, listLoading, refresh }} />
-//             <Link className="link" to='/home'>Home Page</Link>
-//         </div>
-//     );
-// }
-//
-// export function AddPlant() {
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//     const { refresh } = useOutletContext();
-//     const [plant, setPlant] = useState({ name: "", user_id: "" });
-//
-//     const onChange = (e) => {
-//         const { name, value } = e.target;
-//         setPlant((prev) => ({ ...prev, [name]: value }));
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             // await plants.add({ name: plant.name.trim(), user_id: Number(plant.user_id) });
-//             await plants.add({ name: plant.name.trim() });
-//             succeed("Plant added successfully.");
-//             setPlant({ name: "", user_id: "" });
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Add Plant</div>
-//
-//             <Form method="post" onSubmit={(e) => e.preventDefault()}>
-//                 <input className="input" type="text" name="name" value={plant.name}
-//                        onChange={onChange} placeholder="Plant" />
-//
-//                 <input className="input" type="number" name="user_id" value={plant.user_id}
-//                        onChange={onChange} placeholder="User Id" />
-//
-//                 <div className="btn-container">
-//                     <FlashButton onClickAsync={onSubmit} loading={loading}>Add Plant</FlashButton>
-//                 </div>
-//             </Form>
-//         </div>
-//     );
-// }
-//
-//
-// export function EditPlant() {
-//     const { plantsList, listLoading, refresh } = useOutletContext();
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//     const [editPlant, setEditPlant] = useState({ ID: "", name: "" });
-//
-//     const onSelectChange = (e) => {
-//         const val = e.target.value;
-//         const chosen = plantsList.find((p) => String(p.id) === val);
-//         setEditPlant({
-//             ID: val,
-//             name: chosen?.name ?? "",
-//         });
-//     };
-//
-//     const onFieldChange = (e) => {
-//         const { name, value } = e.target;
-//         setEditPlant(prev => ({ ...prev, [name]: value }));
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             const payload = { ID: Number(editPlant.ID), name: editPlant.name.trim() };
-//             if (!payload.ID || !payload.name) throw new Error("Please choose a plant and enter a name");
-//             await plants.edit(payload);
-//             succeed("Plant updated successfully.");
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Edit Plant</div>
-//
-//             {listLoading ? ( <div>Loading plants…</div> ) :
-//                 (
-//                 <Form method="patch" onSubmit={(e) => e.preventDefault()}>
-//                     <div className="label">
-//                         <select className="input" name="ID" value={editPlant.ID} onChange={onSelectChange}>
-//                             <option className="opt" value="" >— Select Plant—</option>
-//                             {plantsList.map((p) => (
-//                                 <option key={p.id} value={p.id}> {p.name} </option>
-//                             ))}
-//                         </select>
-//                     </div>
-//
-//                     <div className="label">
-//                         <input className="input" type="text" name="name" value={editPlant.name} onChange={onFieldChange}
-//                             placeholder="Enter new plant name" required />
-//                     </div>
-//
-//                     <div className = "btn-container">
-//                         <FlashButton onClickAsync={onSubmit} loading={loading}>Edit Plant</FlashButton>
-//                     </div>
-//                 </Form>
-//             )}
-//         </div>
-//     );
-// }
-//
-//
-// export function DeletePlant() {
-//     const { plantsList, listLoading, refresh } = useOutletContext();
-//     const [selectedID, setSelectedID] = useState("");
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//
-//     const onSelectChange = (e) => {
-//         setSelectedID(e.target.value);
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             const payload = { ID: parseInt(selectedID) };
-//             if (!payload.ID) throw new Error("Please choose a plant");
-//             await plants.delete(payload);
-//             succeed("Plant deleted successfully.");
-//             setSelectedID("");
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Delete Plant</div>
-//
-//             {listLoading ? (
-//                 <div>Loading plants…</div>
-//             ) : (
-//                 <Form method="delete" onSubmit={(e) => e.preventDefault()}>
-//                     <select className="input" name="ID" value={selectedID} onChange={onSelectChange}>
-//                         <option value="">— Select Plant —</option>
-//                         {plantsList.map((p) => (
-//                             <option key={p.id} value={p.id}>
-//                                 {p.name}
-//                             </option>
-//                         ))}
-//                     </select>
-//
-//                     <div className = "btn-container">
-//                         <FlashButton onClickAsync={onSubmit} loading={loading}>Delete Plant</FlashButton>
-//                     </div>
-//                 </Form>
-//             )}
-//         </div>
-//     );
-// }
-
-// import { plants } from "../services/plants";
-// import { Link, Outlet, Form, useOutletContext } from "react-router-dom";
-// import React, { useEffect, useState, useCallback  } from "react";
-// import FlashButton from "../components/ButtonGenerate" ;
-// import { useRequestStatus } from "../hooks/RequestStatus";
-//
-// export default function Plants() {
-//     const [plantsList, setPlantsList] = useState([]);
-//     const [listLoading, setListLoading] = useState(true);
-//     const [err, setErr] = useState("");
-//
-//     const refresh = useCallback(async () => {
-//         setListLoading(true);
-//         setErr("");
-//         try {
-//             const opts = await plants.getOptions();
-//             setPlantsList(opts);
-//         } catch (e) {
-//             setErr(e.message || "Failed to load plants");
-//         } finally {
-//             setListLoading(false);
-//         }
-//     }, []);
-//
-//     useEffect(() => { refresh(); }, [refresh]);
-//
-//     return (
-//         <div className="main-container">
-//             <div className="main-title">Plant Page</div>
-//
-//             <div className="link-container">
-//                 <Link className="link" to="./add">Add Plant</Link>
-//                 <Link className="link" to="./edit">Edit Plant</Link>
-//                 <Link className="link" to="./delete">Delete Plant</Link>
-//             </div>
-//
-//             {err && <div style={{ color: "red", marginTop: 8 }}>Error: {err}</div>}
-//
-//             <Outlet context={{ plantsList, listLoading, refresh }} />
-//         </div>
-//     );
-// }
-//
-// export function AddPlant() {
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//     const { refresh } = useOutletContext();
-//     const [plant, setPlant] = useState({ name: "", user_id: "" });
-//
-//     const onChange = (e) => {
-//         const { name, value } = e.target;
-//         setPlant((prev) => ({ ...prev, [name]: value }));
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             // await plants.add({ name: plant.name.trim(), user_id: Number(plant.user_id) });
-//             await plants.add({ name: plant.name.trim() });
-//             succeed("Plant added successfully.");
-//             setPlant({ name: "", user_id: "" });
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Add Plant</div>
-//
-//             <Form method="post" onSubmit={(e) => e.preventDefault()}>
-//                 <input className="input" type="text" name="name" value={plant.name}
-//                        onChange={onChange} placeholder="Plant" />
-//
-//                 {/*<input className="input" type="number" name="user_id" value={plant.user_id}*/}
-//                 {/*       onChange={onChange} placeholder="User Id" />*/}
-//
-//                 <div className="btn-container">
-//                     <FlashButton onClickAsync={onSubmit} loading={loading}>Add Plant</FlashButton>
-//                 </div>
-//             </Form>
-//         </div>
-//     );
-// }
-//
-//
-// export function EditPlant() {
-//     const { plantsList, listLoading, refresh } = useOutletContext();
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//     const [editPlant, setEditPlant] = useState({ ID: "", name: "" });
-//
-//     const onSelectChange = (e) => {
-//         const val = e.target.value;
-//         const chosen = plantsList.find((p) => String(p.id) === val);
-//         setEditPlant({
-//             ID: val,
-//             name: chosen?.name ?? "",
-//         });
-//     };
-//
-//     const onFieldChange = (e) => {
-//         const { name, value } = e.target;
-//         setEditPlant(prev => ({ ...prev, [name]: value }));
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             const payload = { ID: Number(editPlant.ID), name: editPlant.name.trim() };
-//             if (!payload.ID || !payload.name) throw new Error("Please choose a plant and enter a name");
-//             await plants.edit(payload);
-//             succeed("Plant updated successfully.");
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Edit Plant</div>
-//
-//             {listLoading ? ( <div>Loading plants…</div> ) :
-//                 (
-//                     <Form method="patch" onSubmit={(e) => e.preventDefault()}>
-//                         <div className="label">
-//                             <select className="input" name="ID" value={editPlant.ID} onChange={onSelectChange}>
-//                                 <option className="opt" value="" >— Select Plant—</option>
-//                                 {plantsList.map((p) => (
-//                                     <option key={p.id} value={p.id}> {p.name} </option>
-//                                 ))}
-//                             </select>
-//                         </div>
-//
-//                         <div className="label">
-//                             <input className="input" type="text" name="name" value={editPlant.name} onChange={onFieldChange}
-//                                    placeholder="Enter new plant name" required />
-//                         </div>
-//
-//                         <div className = "btn-container">
-//                             <FlashButton onClickAsync={onSubmit} loading={loading}>Edit Plant</FlashButton>
-//                         </div>
-//                     </Form>
-//                 )}
-//         </div>
-//     );
-// }
-//
-//
-// export function DeletePlant() {
-//     const { plantsList, listLoading, refresh } = useOutletContext();
-//     const [selectedID, setSelectedID] = useState("");
-//     const { loading, start, succeed, fail } = useRequestStatus();
-//
-//     const onSelectChange = (e) => {
-//         setSelectedID(e.target.value);
-//     };
-//
-//     const onSubmit = async () => {
-//         start();
-//         try {
-//             const payload = { ID: parseInt(selectedID) };
-//             if (!payload.ID) throw new Error("Please choose a plant");
-//             await plants.delete(payload);
-//             succeed("Plant deleted successfully.");
-//             setSelectedID("");
-//             await refresh();
-//         } catch (e) {
-//             fail(e);
-//             throw e;
-//         }
-//     };
-//
-//     return (
-//         <div className="main-container">
-//             <div className="title">Delete Plant</div>
-//
-//             {listLoading ? (
-//                 <div>Loading plants…</div>
-//             ) : (
-//                 <Form method="delete" onSubmit={(e) => e.preventDefault()}>
-//                     <select className="input" name="ID" value={selectedID} onChange={onSelectChange}>
-//                         <option value="">— Select Plant —</option>
-//                         {plantsList.map((p) => (
-//                             <option key={p.id} value={p.id}>
-//                                 {p.name}
-//                             </option>
-//                         ))}
-//                     </select>
-//
-//                     <div className = "btn-container">
-//                         <FlashButton onClickAsync={onSubmit} loading={loading}>Delete Plant</FlashButton>
-//                     </div>
-//                 </Form>
-//             )}
-//         </div>
-//     );
-// }
+// Plants.js
 
 import React, { useEffect, useState } from "react";
 import {Outlet, useNavigate} from "react-router-dom";
-import { formatDateDDMMYYYY } from "../domain/formatters";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
+import {useEsp} from "../hooks/useEsp";
 import {useAuth} from "../hooks/useAuth";
 import {usePlants} from "../hooks/usePlants";
-import {plants} from "../services/plants";
-// import {useAccount} from "../hooks/useAccount";
+import { plantRenderer } from "../hooks/plantStatus";
 
 export default function Plants() {
-
-    const nav = useNavigate();
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const [activeTab, setActiveTab] = useState("account");
+    const [activeTab, setActiveTab] = useState("plant_info");
 
-    // const { setItems, update_account, remove_account } = useAccount();
-    const { plant, setPlant, plantsListItems, fetchPlants, add_plant, update_plant, remove_plant} = usePlants();
-    const { item, fetchUser, avatarUpload, logout, loading: authLoading, err: authErr} = useAuth();
+    const {
+        plantList:plant,
+        setPlantList: setPlant,
+        selectedPlant,setSelectedPlant, fetchPlants,
+        add_plant, update_plant, remove_plant, ClickablePlantList
+    } = usePlants();
+
+    const {loading: authLoading, err: authErr} = useAuth();
+    const { state: espState, loading: espLoading } = useEsp();
+    const renderPlant = plantRenderer({ espState, espLoading });
 
     const [flipped, setFlipped] = useState(false);
+
+    const handlePlantClick = (p) => {
+        setSelectedPlant(p);
+        setActiveTab("update_plant");
+    };
 
     function PlnatInfo({flip}){
         useEffect(() => {
@@ -438,35 +46,24 @@ export default function Plants() {
                 }
             })();
         }, []);
-
         return (
             <Card
                 variant={variant}
-                header="Plant"
-                title={plant?.name}
-                // imgsrc={
-                //     item && (
-                //         <AvatarControl
-                //             item={item}
-                //             avatarUpload={avatarUpload}   // או {avatarUpload} אם אתה מוציא מה־useAuth
-                //             fetchUser={fetchUser}
-                //         />
-                //     )
-                // }
-                list={plantsListItems}
+                header="Plant Info"
+                body=" "
+                list={ClickablePlantList(handlePlantClick, renderPlant)}
                 footer={
                     <div className="footer-row">
-                        <small className="text-body-secondary">
-                            {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
+                        <small className="text-body-secondary">Add Plant
+                            <button className="btn ghost ml-auto" onClick={flip}> + </button>
                         </small>
-                        <button className="btn ghost ml-auto" onClick={flip}> More ↪ </button>
                     </div>
                 }
             />
         );
     }
 
-    function AddPlant({ variant }){
+    function AddPlant({ variant, unflip }){
         const fields = [
             { name: "name", placeholder: "Plant", required: true },
         ];
@@ -481,7 +78,6 @@ export default function Plants() {
                 throw new Error(err.message || "Plant Add failed");
             }
         };
-
         return (
             <Card
                 variant={variant}
@@ -505,12 +101,7 @@ export default function Plants() {
                 }
                 footer={
                     <div className="footer-row">
-                        <button
-                            className="btn ghost ml-auto"
-                            onClick={() => setActiveTab("log")}
-                        >
-                            {"🢐 Back"}
-                        </button>
+                        <button className="btn ghost ml-auto" onClick= {unflip}> {"🢐 Back"} </button>
                     </div>
                 }
             />
@@ -518,35 +109,51 @@ export default function Plants() {
     }
 
     function UpdatePlant({ variant }){
-        if (!plant) {
+        if (!selectedPlant) {
             return (
-                <Card variant={variant} title="Update Account">
-                    <div className="loading">Loading Plants…</div>
+                <Card variant={variant} title="Update Plant">
+                    <div className="loading">Select a plant from the list…</div>
+                    <div className="footer-row">
+                        <button className="btn" onClick={() => setActiveTab("plant_info")}>
+                            {"🢐 Back"}
+                        </button>
+                    </div>
                 </Card>
             );
         }
-        const fields = [ { name: "name", placeholder: `${plant.name}`|| "Plant", required: true } ];
+
+        const fields = [ { name: "name", placeholder: selectedPlant.planttype_name  || "Plant", required: true } ];
         const OnSubmit = async (val) => {
             try{
-                const nextName  = (val.name?.trim?.() || item.name).trim();
-                await update_plant(item.id, { name: nextName });
+                const nextName  = (val.name?.trim?.() || selectedPlant.planttype_name).trim();
+                await update_plant(selectedPlant.PlantTypeID, { name: nextName });
                 flashSuccess();
-                setActiveTab('account');
+                setActiveTab('plant_info');
             }catch(err){
                 flashDanger(2000);
                 // error
             }
         };
 
+        const handleDelete = async () => {
+            if (!window.confirm("Are you sure you want to delete this plant?")) return;
+            try {
+                await remove_plant(selectedPlant.PlantTypeID);
+                setSelectedPlant(null);
+                setActiveTab("plant_info");
+            } catch {}
+        };
+
+
         return (
             <Card variant={variant}
-                  header="Update Plant"
+                  header="Edit Plant"
                   body={
                       <>
                           <RequestBanner loading={authLoading} errorText={authErr} />
                           <GenericForm
                               fields={fields}
-                              initialValues={{ name: item.name }}
+                              initialValues={{ name: selectedPlant.planttype_name }}
                               onSubmit={OnSubmit}
                               customButton={({ onClick, loading }) => (
                                   <FlashButton
@@ -561,7 +168,10 @@ export default function Plants() {
                   }
                   footer={
                       <div className="footer-row">
-                          <button className="btn" onClick={() => setActiveTab("plant")}> {"🢐 Back"} </button>
+                          <button className="btn" onClick={() => setActiveTab("plant_info")}> {"🢐 Back"} </button>
+                          <button className="footer-btn" onClick={handleDelete} >
+                              Delete Plant
+                          </button>
                       </div>
                   }
             />
@@ -575,7 +185,7 @@ export default function Plants() {
             try{
                 if (!window.confirm("Are you sure you want to delete your plant? This cannot be undone.")) return;
                 await remove_plant(plant.id);
-                nav("/plant");
+                nav("/plant_info");
             } catch (err) {}
 
         };
@@ -591,54 +201,14 @@ export default function Plants() {
         );
     }
 
-    const front = ({ flip }) => (
-        <>
-            <PlnatInfo flip={() => { if (!flipped) flip(); }} />
-        </>
-    );
-
-    const back = ({ unflip }) => (
-        activeTab === "add_plant" ? ( <AddPlant variant={variant} user={item} />) :
-        activeTab === "update_plant" ? ( <UpdatePlant variant={variant} user={item} />) :
-            activeTab === "delete_plant" ? ( <DeletePlant variant={variant} onCancel={() => setActiveTab("plant")}/> ) :
-                (
-                    <Card
-                        variant={variant}
-                        header="Account Actions"
-                        body={
-                            <div className="btn-grid">
-
-                                <button className="footer-btn" onClick={() => setActiveTab("add_plant")} >
-                                    Add Plant
-                                </button>
-
-                                <button className="footer-btn" onClick={() => setActiveTab("update_plant")} >
-                                    Update Plant
-                                </button>
-
-                                <button className="footer-btn" onClick={() => setActiveTab("delete_plant")} >
-                                    Delete
-                                </button>
-                            </div>
-                        }
-                        footer={
-                            <button
-                                className="btn"
-                                onClick={() => {
-                                    setActiveTab("plant");
-                                    unflip();
-                                }}
-                            >
-                                ↩ Back
-                            </button>
-                        }
-                    />
-                )
-    );
+    const front = ({flip})=> ( activeTab === "plant_info" && (<PlnatInfo flip={() => { if (!flipped) flip(); }}/>) );
+    const back = ({unflip})=> ( <AddPlant variant={variant}  plnt={plant} unflip={() => { if (flipped) unflip(); }}/> );
 
     return (
         <div className="main-container">
             <div className="cards-grid">
+                { activeTab === "update_plant" ? (<UpdatePlant variant={variant} />) :
+                (
                 <FlipCard
                     front={front}
                     back={back}
@@ -646,10 +216,9 @@ export default function Plants() {
                     isFlipped={flipped}
                     onFlip={setFlipped}
                 />
+                )}
             </div>
             <Outlet />
         </div>
     );
 }
-
-

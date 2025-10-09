@@ -1,3 +1,5 @@
+// auth.js
+
 import {http} from "./http";
 
 export const auth = {

@@ -10,7 +10,7 @@ export function useSensors() {
     const refreshSensors = useCallback(async () => {
         start();
         try {
-            const res = await esp.getSensors();
+            const res = await esp.StateData();
             setSensors(res);
             succeed();
         } catch (e) { fail(e); }

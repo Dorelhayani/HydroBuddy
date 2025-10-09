@@ -26,6 +26,8 @@
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
+
+/*.card:hover, .flip-card:hover { box-shadow: 0 8px 16px 0 rgb(255,255,255); }*/
 .card:hover { box-shadow: 0 8px 16px 0 rgb(255,255,255); }
 
 /* Flip */

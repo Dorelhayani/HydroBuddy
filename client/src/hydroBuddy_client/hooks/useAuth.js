@@ -1,3 +1,5 @@
+// useAuth.js
+
 import { auth } from "../services/auth";
 import { useEffect, useState, useCallback } from "react";
 import { useRequestStatus } from "./RequestStatus";
@@ -20,6 +22,11 @@ export function useAuth() {
 
     useEffect(() => { fetchUser(); }, [fetchUser]);
 
+    async function onLogout() {
+        if (!window.confirm("Are you sure you want to Log Out?.")) return;
+        await logout();
+    }
+
     const avatarUpload = async (formData) => status.run(async () => { await auth.avatarUpload(formData); });
     const login = async (payload) => status.run(async () => { await auth.login(payload); await fetchUser(); });
     const register = async (payload) => status.run(async () => { await auth.register(payload); await fetchUser();});
@@ -39,6 +46,6 @@ export function useAuth() {
         err: status.err,
         message: status.message,
         refresh: fetchUser,
-        avatarUpload, login, register, logout, changePassword
+        avatarUpload, login, register, logout,onLogout, changePassword
     };
 }

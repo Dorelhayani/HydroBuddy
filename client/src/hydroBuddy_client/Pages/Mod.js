@@ -1,3 +1,5 @@
+// Mod.js
+
 import {Outlet, Form, useNavigate} from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import FlashButton from "../components/ButtonGenerate";

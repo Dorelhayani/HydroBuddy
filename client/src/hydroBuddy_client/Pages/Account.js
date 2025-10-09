@@ -1,3 +1,5 @@
+// Account.js
+
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { formatDateDDMMYYYY } from "../domain/formatters";
@@ -17,8 +19,8 @@ export default function Account() {
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
-    const { plantsListItems, setPlant, fetchPlants } = usePlants();
-    const { item, fetchUser, avatarUpload, logout, loading: authLoading, err: authErr} = useAuth();
+    const { plantsListItems, setPlant, fetchPlants,ClickablePlantList } = usePlants();
+    const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
 
     const [flipped, setFlipped] = useState(false);
 
@@ -45,13 +47,14 @@ export default function Account() {
                     item && (
                         <AvatarControl
                             item={item}
-                            avatarUpload={avatarUpload}   // או {avatarUpload} אם אתה מוציא מה־useAuth
+                            avatarUpload={avatarUpload}
                             fetchUser={fetchUser}
                         />
                     )
                 }
                 text={item?.email}
                 list={plantsListItems}
+                // list={ClickablePlantList()}
                 footer={
                     <div className="footer-row">
                         <small className="text-body-secondary">
@@ -100,31 +103,11 @@ export default function Account() {
 
         return (
             <>
-                <img
-                    src={src}
-                    alt="avatar"
-                    tabIndex={0}
-                    role="button"
-                    aria-label="Upload avatar"
-                    onClick={openPicker}
-                    onKeyDown={onKey}
-                    className="avatar-img"
-                />
-                <input
-                    ref={inputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={onChange}
-                    hidden
-                />
+                <img src={src} alt="avatar" tabIndex={0} role="button" aria-label="Upload avatar" onClick={openPicker}
+                    onKeyDown={onKey} className="avatar-img" />
+                <input ref={inputRef} type="file" accept="image/*" onChange={onChange} hidden/>
             </>
         );
-    }
-
-    async function onLogout() {
-        if (!window.confirm("Are you sure you want to Log Out?.")) return;
-        await logout();
-        nav("/");
     }
 
         function UpdateAccount({ variant }) {
@@ -137,11 +120,11 @@ export default function Account() {
         }
 
         const fields = [
-            { name: "name", placeholder: `${item.name}`|| "Name", required: true },
+            { name: "name", placeholder: item.name|| "Name", required: true },
             {
                 name: "email",
                 value: item.email,
-                placeholder: `${item.email}` || "Email",
+                placeholder: item.email || "Email",
                 type: "email",
                 required: true,
                 validate: (v) => (!v.includes("@") ? "Invalid email" : null),
@@ -190,6 +173,71 @@ export default function Account() {
         );
     }
 
+
+    function ChangePassword({ variant, user }) {
+        if (!user) {
+            return (
+                <Card variant={variant} title="Update Account">
+                    <div className="loading">Loading account…</div>
+                </Card>
+            );
+        }
+        const fields = [
+            { name: "currentPassword", placeholder: "Your current Password", type:"password", required: true },
+            { name: "newPassword", placeholder: "New password", type:"password", required: true },
+            { name: "newPasswordConfirm", placeholder: "Confirm New Password", type:"password", required: true },
+        ]
+
+        const OnSubmit = async (val) => {
+            try {
+                if(val.newPassword !== val.newPasswordConfirm) { throw new Error("Password not match!")}
+                await changePassword({
+                    currentPassword: val.currentPassword,
+                    newPassword: val.newPassword,
+                    newPasswordConfirm: val.newPasswordConfirm
+                });
+                flashSuccess(1200);
+                setTimeout(() => nav("/"), 300);
+            } catch (err) {
+                flashDanger(1800);
+                throw new Error(err.message || "password change failed");
+            }
+        };
+
+        return (
+            <Card
+                variant={variant}
+                header="Change Password"
+                body={
+                    <>
+                        <RequestBanner loading={authLoading} errorText={authErr} />
+                        <GenericForm
+                            fields={fields}
+                            onSubmit={OnSubmit}
+                            customButton={({ onClick, loading }) => (
+                                <FlashButton
+                                    onClickAsync={onClick}
+                                    loading={loading || authLoading}
+                                    disabled={authLoading}
+                                >Change</FlashButton> )}
+                        />
+                    </>
+                }
+                footer={
+                    <div className="footer-row">
+                        <button
+                            className="btn ghost ml-auto"
+                            onClick={() => setActiveTab("log")}
+                        >
+                            {"🢐 Back"}
+                        </button>
+                    </div>
+                }
+            />
+        );
+    }
+
+
     function DeleteAccount({ variant, item, onCancel }) {
         const nav = useNavigate();
 
@@ -222,6 +270,7 @@ export default function Account() {
 
     const back = ({ unflip }) => (
         activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
+            activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
             activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
                 (
             <Card
@@ -234,7 +283,9 @@ export default function Account() {
                             Update Account
                         </button>
 
-                        <button className="footer-btn" onClick={onLogout} > Log Out </button>
+                        <button className="footer-btn" onClick={() => setActiveTab("change_password")} >
+                            Change Password
+                        </button>
 
                         <button className="footer-btn" onClick={() => setActiveTab("delete_account")} >
                             Delete

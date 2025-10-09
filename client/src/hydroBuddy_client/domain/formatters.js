@@ -1,3 +1,4 @@
+// formatters.js
 
 export function validateClient(p) {
     const dateOk = /^\d{2}\/\d{2}\/\d{4}$/.test(p.dateAct);

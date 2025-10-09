@@ -1,3 +1,5 @@
+// Home.js
+
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 

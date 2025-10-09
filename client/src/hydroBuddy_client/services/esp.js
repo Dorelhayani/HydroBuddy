@@ -47,7 +47,7 @@ import {http} from "./http";
 export const esp = {
     dataMode: () => http("/esp/dataMode", { method:"GET" }),
 
-    getSensors: () => http("/esp/sendJSON", { method:"GET" }),
+    StateData: () => http("/esp/sendJSON", { method:"GET" }),
 
     setState: (payload) =>  http("/esp/state", { method: "PATCH",  body: payload }),
 

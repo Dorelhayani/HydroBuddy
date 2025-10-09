@@ -1,3 +1,5 @@
+// Login.js
+
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -13,7 +15,7 @@ export default function Login() {
     const nav = useNavigate();
 
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const { item, login, register, changePassword, loading: authLoading, err: authErr } = useAuth();
+    const { item, login, register, loading: authLoading, err: authErr } = useAuth();
 
     const [activeTab, setActiveTab] = useState("log");
     const [flipped, setFlipped] = useState(false);
@@ -47,11 +49,8 @@ export default function Login() {
                         fields={fields}
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
-                            <FlashButton
-                                onClickAsync={onClick}
-                                loading={loading || authLoading}
-                                disabled={authLoading}
-                            >Login</FlashButton> )}
+                            <FlashButton onClickAsync={onClick} loading={loading || authLoading} disabled={authLoading}>
+                                Login</FlashButton> )}
                     />
                 </>
                   }
@@ -61,77 +60,12 @@ export default function Login() {
                               <small className="text-body-secondary">
                                   {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                               </small>
-                              <button className="btn ghost ml-auto"
-                                      onClick={() => { if (!authLoading)
-                                          flip(); }}
-                                      disabled={authLoading}>
-                                  More ↪
-                              </button>
+
+
+                              <button className="btn ghost ml-auto" onClick={() => { if (!authLoading) flip(); }}
+                                      disabled={authLoading}><small>Not Register yet? </small></button>
                       </div>
                   }
-            />
-        );
-    }
-
-    function ChangePassword({ variant, user }) {
-        if (!user) {
-            return (
-                <Card variant={variant} title="Update Account">
-                    <div className="loading">Loading account…</div>
-                </Card>
-            );
-        }
-        const fields = [
-            { name: "currentPassword", placeholder: `${user.currentPassword}`, required: true },
-            { name: "newPassword", placeholder: "New password", required: true },
-            { name: "newPasswordConfirm", placeholder: "Confirm New Password", required: true },
-        ]
-
-        const OnSubmit = async (val) => {
-            try {
-                if(val.newPassword !== val.newPasswordConfirm) { throw new Error("Password not match!")}
-                await changePassword({
-                    currentPassword: val.currentPassword,
-                    newPassword: val.newPassword,
-                    newPasswordConfirm: val.newPasswordConfirm
-                });
-                flashSuccess(1200);
-                setTimeout(() => nav("/"), 300);
-            } catch (err) {
-                flashDanger(1800);
-                throw new Error(err.message || "password change failed");
-            }
-        };
-
-        return (
-            <Card
-                variant={variant}
-                header="Change Password"
-                body={
-                <>
-                    <RequestBanner loading={authLoading} errorText={authErr} />
-                    <GenericForm
-                        fields={fields}
-                        onSubmit={OnSubmit}
-                        customButton={({ onClick, loading }) => (
-                            <FlashButton
-                                onClickAsync={onClick}
-                                loading={loading || authLoading}
-                                disabled={authLoading}
-                            >Change</FlashButton> )}
-                    />
-                </>
-                }
-                footer={
-                    <div className="footer-row">
-                        <button
-                            className="btn ghost ml-auto"
-                                onClick={() => setActiveTab("log")}
-                        >
-                            {"🢐 Back"}
-                        </button>
-                    </div>
-                }
             />
         );
     }
@@ -180,10 +114,7 @@ export default function Login() {
                 }
                 footer={
                     <div className="footer-row">
-                        <button
-                            className="btn ghost ml-auto"
-                            onClick={() => setActiveTab("log")}
-                        >
+                        <button  className="btn ghost ml-auto" onClick={() => setActiveTab("log")} >
                             {"🢐 Back"}
                         </button>
                     </div>
@@ -200,42 +131,21 @@ export default function Login() {
     );
 
     const back = ({ unflip }) => (
-        activeTab === "change_password" ? (
-            <ChangePassword variant={variant} user={item} />
-        ) : activeTab === "register" ? (
-            <Register variant={variant} />
-        ) : (
+            activeTab === "register" ? ( <Register variant={variant} /> ) :
+                (
             <Card
                 variant={variant}
                 header="Account Actions"
                 body={
                     <div className="btn-grid">
-                        <h5>Forgot password?</h5>
-                        <button
-                            className="footer-btn"
-                            onClick={() => setActiveTab("change_password")}
-                        >
-                            Change Password
-                        </button>
-
-                        <h5>Not Register yet?</h5>
-                        <button
-                            className="footer-btn"
-                            onClick={() => setActiveTab("register")}
-                        >
+                        <button className="footer-btn" onClick={() => setActiveTab("register")}>
                             Create account
                         </button>
                     </div>
                 }
                 footer={
                     <div className="footer-row">
-                    <button
-                        className="btn ghost"
-                        onClick={() => {
-                            setActiveTab("log");
-                            unflip();
-                        }}
-                    >
+                    <button  className="btn ghost" onClick={() => { setActiveTab("log"); unflip(); }} >
                         ↩ Back
                     </button>
                     </div>

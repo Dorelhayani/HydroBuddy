@@ -1,3 +1,5 @@
+// ButtonGenerate.js
+
 import React, {useState, useCallback, useRef, useEffect } from "react";
 
 export function useFlashButton(ms = 3000) {
