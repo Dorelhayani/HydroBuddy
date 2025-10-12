@@ -1,5 +1,3 @@
-// DeviceRout.js
-
 const express = require('express');
 const router = express.Router();
 
@@ -7,8 +5,11 @@ const db = require('../models/database');
 const AuthModel = require('../models/Auth');
 const auth = new AuthModel(db);
 
-const DeviceModel = require('../models/DeviceMode');
-const Devices = new DeviceModel(db, { useBindings: false }); // חשוב!
+// 👇 ייבוא נכון מהקובץ המאוחד
+const { DeviceModel } = require('../models/DeviceHandler');
+
+// 👇 יצירה עם המודל המאוחד
+const Devices = new DeviceModel(db, { useBindings: false });
 
 function handleError(res, err) {
     const status = typeof err.code === 'number' ? err.code : 500;
@@ -17,7 +18,6 @@ function handleError(res, err) {
 
 router.post('/', auth.isLogged.bind(auth), async (req, res) => {
     try {
-        // מקבל גם device_key וגם device_key_plain
         const { device_uid, device_key, device_key_plain, name, user_id } = req.body;
         const result = await Devices.createDevice({
             device_uid,

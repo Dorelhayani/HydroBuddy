@@ -7,8 +7,6 @@ const PlantData = require('../models/PlantMode');
 const db = require('../models/database');
 const Plants = new PlantData(db);
 
-const {EspPerUser} = require('../models/EspPerUser');
-
 // error handling
 function handleError(res, err) {
     const msg = err && err.message ? err.message : 'Internal server error';
@@ -41,21 +39,23 @@ router.get("/plantList", async (req, res) => {
     }
 });
 
-// Store Sensors Value To Datasensors
-router.post('/StoreToDatasensors',EspPerUser(), async (req, res) => {
+
+router.post('/StoreToDatasensors', async (req, res) => {
     try {
-        const user_id = req.user_id;
-        if (!user_id) return res.status(401).json({ error: 'Not authenticated' });
+        const userId = req.user_id || req.device?.user_id;
+        if (!userId) return res.status(401).json({ error: 'Not authenticated' });
 
         const { temp, light, moisture, isPumpON } = req.body;
         const t = Number(temp);
         const l = Number(light);
         const m = Number(moisture);
-        const running = Number(isPumpON);
+        const running = isPumpON ? 1 : 0;
 
-        if (![t, l, m].every(Number.isFinite)) return res.status(400).json({ error: 'Invalid sensor values' });
+        if (![t, l, m].every(Number.isFinite)) {
+            return res.status(400).json({ error: 'Invalid sensor values' });
+        }
 
-        const result = await Plants.storeESPData(user_id, t, l, m, running ? 1 : 0);
+        const result = await Plants.storeESPData(userId, t, l, m, running);
         return res.status(200).json(result);
     } catch (err) {
         return handleError(res, err);

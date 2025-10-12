@@ -4,10 +4,13 @@ const express = require('express');
 const router = express.Router();
 
 const db = require('../models/database');
-const AuthModel = require('../models/Auth');
-const auth = new AuthModel(db);
+// const { EspPerUser } = require('../models/EspPerUser');
 
-const { EspPerUser } = require('../models/EspPerUser');
+const EspData = require('../models/EspMode');
+const { EspPerUser } = require('../models/DeviceHandler');
+
+const { EspPerUser: EspPerUserFactory } = require('../models/DeviceHandler');
+const espPerUser = EspPerUserFactory(db, EspData);
 
 // error handling
 function handleError(res, err) {
@@ -15,44 +18,51 @@ function handleError(res, err) {
     return res.status(status).json({ error: err.message || 'Internal server error' });
 }
 
+// בריאות
 router.get('/', (req, res) => res.send('ESP root route reached.'));
 
-router.get('/sendJSON', EspPerUser(), async (req, res) => {
+// JSON מלא
+router.get('/sendJSON', espPerUser, async (req, res) => {
     try {
         const data = await req.esp._readJson();
         return res.status(200).json(data);
     } catch (err) { return handleError(res, err); }
 });
 
-router.get('/dataMode', EspPerUser(), async (req, res) => {
+// DataMode
+router.get('/dataMode', espPerUser, async (req, res) => {
     try {
-        const result = await req.esp.DataMode(req.query);
+        const result = await req.esp.DataMode(req.query); // { state: 'TEMP_MODE' } אופציונלי
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-router.patch('/state', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
+// עדכון state כללי (גם ESP עם headers, גם UI עם קוקי)
+router.patch('/state', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.EspState(req.body); // { state }
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-router.patch('/temp', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
+// קונפיג טמפ׳
+router.patch('/temp', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.TemperatureMode(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-router.patch('/moisture', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
+// קונפיג לחות אדמה
+router.patch('/moisture', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.MoistureMode(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-router.patch('/saturday', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
+// קונפיג שבת
+router.patch('/saturday', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.SaturdayMode(req.body);
         return res.status(200).json(result);
@@ -60,31 +70,29 @@ router.patch('/saturday', auth.isLogged.bind(auth), EspPerUser(), async (req, re
 });
 
 // מצב ידני (בוליאני enabled)
-router.patch('/manual', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
+router.patch('/manual', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.ManualMode(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-// עדכון קריאת טמפרטורה (payload יכול להיות {temp} או {TEMP_MODE:{temp}})
-router.patch('/temp-config', EspPerUser(), async (req, res) => {
+// עדכוני סנסורים (payload יכול להיות {temp} / {light} / {moisture} או אובייקט מצב)
+router.patch('/temp-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateTemp(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-// עדכון קריאת אור (payload {light} או {TEMP_MODE:{light}})
-router.patch('/light-config', EspPerUser(), async (req, res) => {
+router.patch('/light-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateLight(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
-// עדכון קריאת לחות (payload {moisture} או {SOIL_MOISTURE_MODE:{moisture}})
-router.patch('/moist-config', EspPerUser(), async (req, res) => {
+router.patch('/moist-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateMoisture(req.body);
         return res.status(200).json(result);
@@ -95,7 +103,6 @@ module.exports = router;
 
 
 // =====================================================================================================================
-
 // sendJSON => return to the user full JSON (TEMP_MODE, SOIL_MOISTURE_MODE, SATURDAY_MODE, MANUAL_MODE, state)
 // dataMode => return the system state , { CurrentStatus }, state=KEY
 // state => system mode change

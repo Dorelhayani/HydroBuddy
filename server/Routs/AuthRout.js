@@ -9,12 +9,14 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 
+const COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'ImLogged';
+
 const authController = new AuthModel(db, {
     jwtSecret: process.env.JWT_SECRET,
     jwtExpireSec: process.env.JWT_EXPIRE_SEC ? Number(process.env.JWT_EXPIRE_SEC) : undefined,
     saltRounds: process.env.SALT_ROUNDS ? Number(process.env.SALT_ROUNDS) : undefined,
     singleSession: process.env.SINGLE_SESSION === 'true' || false,
-    cookieName: process.env.AUTH_COOKIE_NAME || 'ImLogged',
+    cookieName: process.env.AUTH_COOKIE_NAME || COOKIE_NAME,
 });
 
 const AVATAR_DIR = path.join(process.cwd(), 'uploads', 'avatars');
@@ -30,6 +32,7 @@ const storage = multer.diskStorage({
         cb(null, `${req.user_id}${ext}`);
     }
 });
+
 
 const fileFilter = (req, file, cb) => {
     const ok = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
@@ -164,6 +167,7 @@ router.patch(
         }
     }
 );
+
 
 // Logout
 router.post('/logout', async (req, res) => {

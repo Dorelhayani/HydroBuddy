@@ -6,14 +6,14 @@ const cors = require('cors');
 require('dotenv').config();
 
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 5050;
-const cookieParser = require('cookie-parser');
 
 const db = require('./models/database');
 const Auth = require('./models/Auth');
 
-// Auth instance (options from env)
+// אינסטנס יחיד של Auth (ליוזרים)
 const authMiddleware = new Auth(db, {
     singleSession: process.env.SINGLE_SESSION === 'true',
     jwtSecret: process.env.JWT_SECRET,
@@ -23,24 +23,45 @@ const authMiddleware = new Auth(db, {
 });
 
 // Middlewares
-app.use(morgan('dev'));
 app.use(cookieParser());
-app.use( cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',  credentials: true, }) );
+app.use(morgan('dev'));
+app.use(cors({
+    origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
-const AuthRout = require('./Routs/AuthRout');
-const UserRout = require('./Routs/UserRout');
-const PlantRout = require('./Routs/PlantRout');
-const EspRout = require('./Routs/espRout');
+const AuthRout   = require('./Routs/AuthRout');
+const UserRout   = require('./Routs/UserRout');
+const PlantRout  = require('./Routs/PlantRout');
+const EspRout    = require('./Routs/espRout');
 const deviceRouter = require('./Routs/DeviceRout');
 
-app.use('/esp', EspRout);
-app.use('/auth', AuthRout);
-app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
-app.use('/PlantRout', authMiddleware.isLogged.bind(authMiddleware), PlantRout);
-app.use( '/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));
+const deviceOrUserAuthFactory = require('./models/deviceOrUserAuth');
+const deviceOrUserAuth = deviceOrUserAuthFactory({ db, auth: authMiddleware });
+
+// Static
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));
+
+// Mount
+app.use('/auth',   AuthRout);
+// app.use('/esp',    deviceOrUserAuth, EspRout);
+
+app.use('/esp', (req, res, next) => {
+    if (req.method === 'GET' && /\?Temp:\d/.test(req.originalUrl)) {
+        return res.status(410).json({ error: 'Deprecated endpoint. Use POST /PlantRout/StoreToDatasensors' });
+    }
+    next();
+});
+
+// ואז:
+app.use('/esp', deviceOrUserAuth, EspRout);
+
+app.use('/users',  authMiddleware.isLogged.bind(authMiddleware), UserRout);
+// app.use('/PlantRout', authMiddleware.isLogged.bind(authMiddleware), PlantRout);
+app.use('/PlantRout', deviceOrUserAuth, PlantRout);
 app.use('/devices', deviceRouter);
 
 // Start
@@ -51,5 +72,5 @@ app.listen(port, () => {
     }
 });
 
-
+module.exports = { authMiddleware };
 

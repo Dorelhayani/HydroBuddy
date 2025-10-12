@@ -205,6 +205,7 @@ class Auth {
         } catch (error) { return res.status(500).json({ error: 'Auth middleware error' }); }
     }
 
+
     // logout: clear cookie and current_token if enabled
     async logout(req, res) {
         try {
@@ -223,6 +224,7 @@ class Auth {
             return res.json({ message: 'Logged out' });
         } catch (error) { return res.status(500).json({ error: 'Logout failed' }); }
     }
+
 
     // save avatar
     async saveAvatarUrl(userId, avatarUrl) {
@@ -249,6 +251,7 @@ class Auth {
         return { id, avatarUrl };
     }
 
+
     // cookieOptions: set cookie time
     static cookieOptions(reqIsSecure = false) {
         const isProd = process.env.NODE_ENV === 'production';
@@ -256,7 +259,7 @@ class Auth {
             httpOnly: true,
             path: '/',
             maxAge: (Number(process.env.JWT_EXPIRE_SEC) || 31 * 24 * 60 * 60) * 1000,
-            sameSite: 'Lax',
+            sameSite: 'lax',
             secure: isProd || reqIsSecure,
         };
     }
