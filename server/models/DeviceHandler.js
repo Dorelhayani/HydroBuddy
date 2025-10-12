@@ -3,27 +3,36 @@
 const bcrypt = require('bcryptjs');
 
 class DeviceStore {
-    constructor(db) { this.DB = db; }
+    constructor(db) {
+        this.DB = db;
+    }
 
-    async read({ deviceId }) {
+    async read({deviceId}) {
         if (!deviceId) return null;
         const [rows] = await this.DB.execute(
-            `SELECT doc FROM esp_device_state WHERE device_id = ? LIMIT 1`,
+            `SELECT doc
+             FROM esp_device_state
+             WHERE device_id = ?
+             ORDER BY updated_at DESC
+             LIMIT 1`,
             [deviceId]
         );
         if (!rows.length) return null;
-        try { return JSON.parse(rows[0].doc); } catch { return null; }
+        try {
+            return JSON.parse(rows[0].doc);
+        } catch {
+            return null;
+        }
     }
 
-    async write({ deviceId }, obj) {
+    async write({deviceId}, obj) {
         if (!deviceId) throw new Error('Missing deviceId');
-        const json = JSON.stringify(obj);
+        const json = JSON.stringify(obj ?? {});
         await this.DB.execute(
             `INSERT INTO esp_device_state (device_id, doc)
-       VALUES (?, CAST(? AS JSON))
-       ON DUPLICATE KEY UPDATE
-         doc = VALUES(doc),
-         updated_at = CURRENT_TIMESTAMP`,
+             VALUES (?, CAST(? AS JSON))
+             ON DUPLICATE KEY UPDATE doc        = VALUES(doc),
+                                     updated_at = CURRENT_TIMESTAMP`,
             [deviceId, json]
         );
         return true;
@@ -110,29 +119,66 @@ class DeviceModel {
 }
 
 // Middleware that attaches EspData for the correct user/device
+// function EspPerUser(db, EspData) {
+//     const Devices = new DeviceModel(db);
+//     const store = new DeviceStore(db);
+//     return async (req, res, next) => {
+//         try {
+//             let userId = req.user_id || req?.user?.id || null;
+//             let deviceId = null;
+//
+//             if (req.get('X-Device-Id') && req.get('X-Device-Key')) {
+//                 const ident = await Devices.deviceIdentityFromHeaders(req);
+//                 if (ident) {
+//                     deviceId = ident.device_id || null;
+//                     if (!userId && ident.user_id) userId = String(ident.user_id);
+//                 }
+//             }
+//
+//             if (!deviceId && userId) {
+//                 const dev = await Devices.getDeviceByUserId(userId);
+//                 if (dev) deviceId = dev.id;
+//             }
+//
+//             if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+//             if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
+//
+//             req.user_id   = String(userId);
+//             req.device_id = deviceId;
+//             req.esp = new EspData(db, { userId: String(userId), deviceId }, store);
+//             next();
+//         } catch (e) { next(e); }
+//     };
+// }
+
 function EspPerUser(db, EspData) {
     const Devices = new DeviceModel(db);
     const store = new DeviceStore(db);
+
     return async (req, res, next) => {
         try {
-            let userId = req.user_id || req?.user?.id || null;
+            const hasDevHeaders = Boolean(req.get('X-Device-Id') && req.get('X-Device-Key'));
+            let userId  = req.user_id || req?.user?.id || null;
             let deviceId = null;
 
-            if (req.get('X-Device-Id') && req.get('X-Device-Key')) {
+            if (hasDevHeaders) {
+                // אם יש headers – חייבים לאמת. אם נכשל → 401. אין "נפילה" ל-device אחר.
                 const ident = await Devices.deviceIdentityFromHeaders(req);
-                if (ident) {
-                    deviceId = ident.device_id || null;
-                    if (!userId && ident.user_id) userId = String(ident.user_id);
-                }
-            }
-
-            if (!deviceId && userId) {
+                if (!ident) return res.status(401).json({ error: 'Invalid device credentials' });
+                deviceId = ident.device_id || null;
+                if (!userId && ident.user_id) userId = String(ident.user_id);
+                if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
+            } else {
+                // אין headers → UI. חייב userId, ואז שולפים את המכשיר המשויך למשתמש.
+                if (!userId) return res.status(401).json({ error: 'Unauthorized' });
                 const dev = await Devices.getDeviceByUserId(userId);
-                if (dev) deviceId = dev.id;
+                if (!dev)   return res.status(400).json({ error: 'Missing deviceId' });
+                deviceId = dev.id;
             }
 
-            if (!userId) return res.status(401).json({ error: 'Unauthorized' });
-            if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
+            if (process.env.DEBUG_ESP === '1') {
+                console.log(`[EspPerUser] authType=${hasDevHeaders ? 'device' : 'user'} userId=${userId} deviceId=${deviceId} url=${req.method} ${req.originalUrl}`);
+            }
 
             req.user_id   = String(userId);
             req.device_id = deviceId;

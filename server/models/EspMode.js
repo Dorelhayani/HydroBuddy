@@ -16,7 +16,7 @@ class EspData {
             TEMP_MODE: { temp: 0, tempLVL: 0, minTime: 0, maxTime: 0, light: 0, lightThresHold: 0, minLight: 0, maxLight: 0 },
             SOIL_MOISTURE_MODE: { minMoisture: 0, maxMoisture: 0, moistureLVL: 0, moisture: 0 },
             SATURDAY_MODE: { dateAct: "", timeAct: "", duration: 0 },
-            MANUAL_MODE: { enabled: false, manualActions: [] }
+            MANUAL_MODE: { enabled: false }
         };
         await this.store.write(this.ids, init);
         return init;
