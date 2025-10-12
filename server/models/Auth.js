@@ -205,7 +205,6 @@ class Auth {
         } catch (error) { return res.status(500).json({ error: 'Auth middleware error' }); }
     }
 
-
     // logout: clear cookie and current_token if enabled
     async logout(req, res) {
         try {
@@ -224,7 +223,6 @@ class Auth {
             return res.json({ message: 'Logged out' });
         } catch (error) { return res.status(500).json({ error: 'Logout failed' }); }
     }
-
 
     // save avatar
     async saveAvatarUrl(userId, avatarUrl) {
@@ -250,7 +248,6 @@ class Auth {
 
         return { id, avatarUrl };
     }
-
 
     // cookieOptions: set cookie time
     static cookieOptions(reqIsSecure = false) {

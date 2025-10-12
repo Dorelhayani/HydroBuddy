@@ -2,11 +2,14 @@
 
 const express = require('express');
 const router = express.Router();
+
 const PlantData = require('../models/PlantMode');
 const db = require('../models/database');
-
 const Plants = new PlantData(db);
 
+const {EspPerUser} = require('../models/EspPerUser');
+
+// error handling
 function handleError(res, err) {
     const msg = err && err.message ? err.message : 'Internal server error';
     if (err && err.code && typeof err.code === 'number') return res.status(err.code).json({ error: msg });
@@ -38,9 +41,8 @@ router.get("/plantList", async (req, res) => {
     }
 });
 
-
 // Store Sensors Value To Datasensors
-router.post('/StoreToDatasensors', async (req, res) => {
+router.post('/StoreToDatasensors',EspPerUser(), async (req, res) => {
     try {
         const user_id = req.user_id;
         if (!user_id) return res.status(401).json({ error: 'Not authenticated' });
@@ -79,7 +81,6 @@ router.post('/add', async (req, res) => {
         return handleError(res, err);
     }
 });
-
 
 // Update plant type name (owned by user)
 router.patch('/update/:id', async (req, res) => {

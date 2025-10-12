@@ -10,7 +10,6 @@ const app = express();
 const port = process.env.PORT || 5050;
 const cookieParser = require('cookie-parser');
 
-
 const db = require('./models/database');
 const Auth = require('./models/Auth');
 
@@ -26,27 +25,23 @@ const authMiddleware = new Auth(db, {
 // Middlewares
 app.use(morgan('dev'));
 app.use(cookieParser());
+app.use( cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',  credentials: true, }) );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(
-    cors({
-        origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
-        credentials: true,
-    })
-);
-
 
 // Routes
 const AuthRout = require('./Routs/AuthRout');
 const UserRout = require('./Routs/UserRout');
 const PlantRout = require('./Routs/PlantRout');
 const EspRout = require('./Routs/espRout');
+const deviceRouter = require('./Routs/DeviceRout');
 
-app.use('/auth', AuthRout); // public: register/login
+app.use('/esp', EspRout);
+app.use('/auth', AuthRout);
 app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
 app.use('/PlantRout', authMiddleware.isLogged.bind(authMiddleware), PlantRout);
-app.use('/esp', authMiddleware.isLogged.bind(authMiddleware), EspRout);
 app.use( '/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));
+app.use('/devices', deviceRouter);
 
 // Start
 app.listen(port, () => {
@@ -55,3 +50,6 @@ app.listen(port, () => {
         console.log('SINGLE_SESSION is enabled (tokens will be stored/checked in DB).');
     }
 });
+
+
+

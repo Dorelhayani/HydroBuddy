@@ -31,7 +31,6 @@ const storage = multer.diskStorage({
     }
 });
 
-
 const fileFilter = (req, file, cb) => {
     const ok = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
     cb(ok ? null : new multer.MulterError('LIMIT_UNEXPECTED_FILE', 'avatar'), ok);
@@ -165,7 +164,6 @@ router.patch(
         }
     }
 );
-
 
 // Logout
 router.post('/logout', async (req, res) => {

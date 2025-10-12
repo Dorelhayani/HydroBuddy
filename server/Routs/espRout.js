@@ -2,122 +2,125 @@
 
 const express = require('express');
 const router = express.Router();
-const EspData = require('../models/EspMode');
+
 const db = require('../models/database');
-const path = require('path');
-const fs = require('fs').promises;
+const AuthModel = require('../models/Auth');
+const auth = new AuthModel(db);
 
-const jsonPath = path.join(process.cwd(), 'Inside_Information.json');
-const Esp = new EspData(db);
+const { EspPerUser } = require('../models/EspPerUser');
 
+// error handling
 function handleError(res, err) {
     const status = typeof err.code === 'number' ? err.code : 500;
     return res.status(status).json({ error: err.message || 'Internal server error' });
 }
 
-router.get('/', (req, res) => {
-    res.send('ESP root route reached.');
+router.get('/', (req, res) => res.send('ESP root route reached.'));
+
+router.get('/sendJSON', EspPerUser(), async (req, res) => {
+    try {
+        const data = await req.esp._readJson();
+        return res.status(200).json(data);
+    } catch (err) { return handleError(res, err); }
 });
 
-// Read JSON file (raw)
-router.get('/sendJSON', async (req, res) => {
+router.get('/dataMode', EspPerUser(), async (req, res) => {
     try {
-        const raw = await fs.readFile(jsonPath, 'utf8');
-        const json = JSON.parse(raw);
-        return res.status(200).json(json);
-    } catch (err) {
-        return handleError(res, err);
-    }
-});
-
-// ESP state (get / set)
-router.patch('/state', async (req, res) => {
-    try {
-        const result = await Esp.EspState(req.body);
+        const result = await req.esp.DataMode(req.query);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Data mode (query param or default)
-router.get('/dataMode', async (req, res) => {
+router.patch('/state', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.DataMode(req.query);
+        const result = await req.esp.EspState(req.body); // { state }
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Temperature mode (set config)
-router.patch('/temp', async (req, res) => {
+router.patch('/temp', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.TemperatureMode(req.body);
+        const result = await req.esp.TemperatureMode(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Update temperature reading
-router.patch('/temp-config', async (req, res) => {
+router.patch('/moisture', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.UpdateTemp(req.body);
+        const result = await req.esp.MoistureMode(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Update light reading
-router.patch('/light-config', async (req, res) => {
+router.patch('/saturday', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.UpdateLight(req.body);
+        const result = await req.esp.SaturdayMode(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Moisture mode (set config)
-router.patch('/moisture', async (req, res) => {
+// מצב ידני (בוליאני enabled)
+router.patch('/manual', auth.isLogged.bind(auth), EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.MoistureMode(req.body);
+        const result = await req.esp.ManualMode(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Update moisture reading
-router.patch('/moist-config', async (req, res) => {
+// עדכון קריאת טמפרטורה (payload יכול להיות {temp} או {TEMP_MODE:{temp}})
+router.patch('/temp-config', EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.UpdateMoisture(req.body);
+        const result = await req.esp.UpdateTemp(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Saturday mode
-router.patch('/saturday', async (req, res) => {
+// עדכון קריאת אור (payload {light} או {TEMP_MODE:{light}})
+router.patch('/light-config', EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.SaturdayMode(req.body);
+        const result = await req.esp.UpdateLight(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
-// Manual mode (get/set)
-router.patch('/manual', async (req, res) => {
+// עדכון קריאת לחות (payload {moisture} או {SOIL_MOISTURE_MODE:{moisture}})
+router.patch('/moist-config', EspPerUser(), async (req, res) => {
     try {
-        const result = await Esp.ManualMode(req.body);
+        const result = await req.esp.UpdateMoisture(req.body);
         return res.status(200).json(result);
-    } catch (err) {
-        return handleError(res, err);
-    }
+    } catch (err) { return handleError(res, err); }
 });
 
 module.exports = router;
+
+
+// =====================================================================================================================
+
+// sendJSON => return to the user full JSON (TEMP_MODE, SOIL_MOISTURE_MODE, SATURDAY_MODE, MANUAL_MODE, state)
+// dataMode => return the system state , { CurrentStatus }, state=KEY
+// state => system mode change
+
+// temp =>
+// temp (temp-config = sensor reading)
+// tempLVL (setting the temperature level for the pump to be activated)
+// minTime (setting the temperature level for the pump to be activated)
+// maxTime (setting the temperature level for the pump to be activated)
+// light ( light-config = sensor reading)
+// lightThresHold (setting light threshold)
+// minLight (setting the minimum light value for the pump to be activated)
+// maxLight (setting the maximum light value for the pump to be activated)
+
+// moisture =>
+// minMoisture (setting the minimum moisture value for the pump to be activated)
+// maxMoisture (setting the minimum moisture value for the pump to be activated)
+// moistureLVL (setting the moisture level for the pump to be activated)
+// moisture (moist-config = sensor reading)
+
+// saturday =>
+// dateAct (setting the date for the pump activation)
+// timeAct (setting the time for the pump activation)
+// duration (setting the duration for the pump activation)
+
+// manual =>
+// enabled (boolean state => {true = pump on}, {false = pump off})
+// =====================================================================================================================
