@@ -4,16 +4,20 @@ class EspData {
     constructor(db, ids, store) {
         this.DB = db;
         this.ids = ids;       // { userId, deviceId }
-        this.store = store;   // EspStateStoreDeviceDB
+        this.store = store;   // DeviceStore (DB-based)
     }
 
-    // JSON file reading
+    // --- קריאה ---
     async _readJson() {
         let data = await this.store.read(this.ids);
-        if (data) return data;
+        if (data && typeof data === 'object') return data;
+
         const init = {
             state: 61,
-            TEMP_MODE: { temp: 0, tempLVL: 0, minTime: 0, maxTime: 0, light: 0, lightThresHold: 0, minLight: 0, maxLight: 0 },
+            TEMP_MODE: {
+                temp: 0, tempLVL: 0, minTime: 0, maxTime: 0,
+                light: 0, lightThresHold: 0, minLight: 0, maxLight: 0
+            },
             SOIL_MOISTURE_MODE: { minMoisture: 0, maxMoisture: 0, moistureLVL: 0, moisture: 0 },
             SATURDAY_MODE: { dateAct: "", timeAct: "", duration: 0 },
             MANUAL_MODE: { enabled: false }
@@ -22,9 +26,31 @@ class EspData {
         return init;
     }
 
-    // writing to JSON document
-    async _writeJson(obj) { await this.store.write(this.ids, obj); }
 
+    // --- כתיבה (עם מיזוג נתונים) ---
+    async _writeJson(obj) {
+        const existing = await this.store.read(this.ids);
+        const merged = existing ? this._deepMerge(existing, obj) : obj;
+        console.log("💾 writing merged JSON:", JSON.stringify(merged, null, 2));
+        await this.store.write(this.ids, merged);
+        return merged;
+    }
+
+    // --- פונקציית עזר למיזוג עמוק ---
+    _deepMerge(target, source) {
+        if (typeof target !== 'object' || target === null) return source;
+        const output = { ...target };
+        for (const key of Object.keys(source)) {
+            if (typeof source[key] === 'object' && source[key] !== null) {
+                output[key] = this._deepMerge(target[key] || {}, source[key]);
+            } else {
+                output[key] = source[key];
+            }
+        }
+        return output;
+    }
+
+    // --- עוזרים ---
     _ensureFiniteNumber(value, name) {
         const n = Number(value);
         if (!Number.isFinite(n)) {
@@ -35,7 +61,7 @@ class EspData {
         return n;
     }
 
-    // reading esp state &&  data mod (return {"state": })
+    // --- שליטה כללית ---
     async EspState(payload) {
         const data = await this._readJson();
         if (payload && typeof payload.state !== 'undefined') {
@@ -60,7 +86,7 @@ class EspData {
         return { CurrentStatus: data.state };
     }
 
-    // mods handling - { temperature, moisture, saturday, manual }
+    // --- מצבי הפעלה ---
     async TemperatureMode(payload) {
         const tempLVL = this._ensureFiniteNumber(payload?.tempLVL, 'tempLVL');
         const minTime = this._ensureFiniteNumber(payload?.minTime, 'minTime');
@@ -76,8 +102,11 @@ class EspData {
         }
 
         const data = await this._readJson();
-        data.TEMP_MODE = { ...(data.TEMP_MODE || {}), tempLVL, minTime, maxTime, lightThresHold, minLight, maxLight };
-        await this._writeJson(data);
+        data.TEMP_MODE = {
+            ...(data.TEMP_MODE || {}),
+            tempLVL, minTime, maxTime, lightThresHold, minLight, maxLight
+        };
+        await this._writeJson({ TEMP_MODE: data.TEMP_MODE });
         return { TEMP_MODE: data.TEMP_MODE };
     }
 
@@ -94,7 +123,7 @@ class EspData {
 
         const data = await this._readJson();
         data.SOIL_MOISTURE_MODE = { minMoisture, maxMoisture, moistureLVL };
-        await this._writeJson(data);
+        await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
         return { message: 'Moisture mode updated', SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
     }
 
@@ -109,9 +138,10 @@ class EspData {
             err.code = 400;
             throw err;
         }
+
         const data = await this._readJson();
         data.SATURDAY_MODE = { dateAct: payload.dateAct, timeAct: payload.timeAct, duration };
-        await this._writeJson(data);
+        await this._writeJson({ SATURDAY_MODE: data.SATURDAY_MODE });
         return { message: 'Saturday mode updated', SATURDAY_MODE: data.SATURDAY_MODE };
     }
 
@@ -122,17 +152,16 @@ class EspData {
         }
         const enabled = payload.enabled === true || payload.enabled === 'true';
         data.MANUAL_MODE = { ...(data.MANUAL_MODE || {}), enabled };
-        await this._writeJson(data);
+        await this._writeJson({ MANUAL_MODE: data.MANUAL_MODE });
         return { message: 'Manual mode updated', MANUAL_MODE: data.MANUAL_MODE };
     }
 
-
-    // Sensor's reading
+    // --- קריאות חיישנים ---
     async UpdateTemp(payload) {
         const t = this._ensureFiniteNumber(payload?.temp ?? payload?.TEMP_MODE?.temp, 'temp');
         const data = await this._readJson();
         data.TEMP_MODE = { ...(data.TEMP_MODE || {}), temp: t };
-        await this._writeJson(data);
+        await this._writeJson({ TEMP_MODE: data.TEMP_MODE });
         return { message: 'Temp sensor updated', temp: t, TEMP_MODE: data.TEMP_MODE };
     }
 
@@ -140,7 +169,7 @@ class EspData {
         const l = this._ensureFiniteNumber(payload?.light ?? payload?.TEMP_MODE?.light, 'light');
         const data = await this._readJson();
         data.TEMP_MODE = { ...(data.TEMP_MODE || {}), light: l };
-        await this._writeJson(data);
+        await this._writeJson({ TEMP_MODE: data.TEMP_MODE });
         return { message: 'Light sensor updated', light: l, TEMP_MODE: data.TEMP_MODE };
     }
 
@@ -148,23 +177,21 @@ class EspData {
         const m = this._ensureFiniteNumber(payload?.moisture ?? payload?.SOIL_MOISTURE_MODE?.moisture, 'moisture');
         const data = await this._readJson();
         data.SOIL_MOISTURE_MODE = { ...(data.SOIL_MOISTURE_MODE || {}), moisture: m };
-        await this._writeJson(data);
+        await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
         return { message: 'Moisture sensor updated', moisture: m, SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
     }
 
-
-    // parse date && time
+    // --- עוזרים לזמן ותאריך ---
     _parseDate(dateStr) {
-        const parts = (dateStr || '').split('/').map((p) => parseInt(p, 10));
+        const parts = (dateStr || '').split('/').map(p => parseInt(p, 10));
         if (parts.length !== 3) return null;
         const [day, month, year] = parts;
         if (![day, month, year].every(Number.isInteger)) return null;
         return { day, month, year };
     }
 
-
     _parseTime(timeStr) {
-        const parts = (timeStr || '').split(':').map((p) => parseInt(p, 10));
+        const parts = (timeStr || '').split(':').map(p => parseInt(p, 10));
         if (parts.length !== 2) return null;
         const [hour, minute] = parts;
         if (![hour, minute].every(Number.isInteger)) return null;
