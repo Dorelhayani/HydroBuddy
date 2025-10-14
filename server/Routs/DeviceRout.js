@@ -5,11 +5,8 @@ const db = require('../models/database');
 const AuthModel = require('../models/Auth');
 const auth = new AuthModel(db);
 
-// 👇 ייבוא נכון מהקובץ המאוחד
-const { DeviceModel } = require('../models/DeviceHandler');
-
-// 👇 יצירה עם המודל המאוחד
-const Devices = new DeviceModel(db, { useBindings: false });
+const { DeviceModel } = require('../models/DeviceHandler'); // import unite file
+const Devices = new DeviceModel(db, { useBindings: false }); // unit model creat
 
 function handleError(res, err) {
     const status = typeof err.code === 'number' ? err.code : 500;

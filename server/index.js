@@ -45,6 +45,11 @@ const EspRout = require('./Routs/EspRout');
 const deviceOrUserAuthFactory = require('./models/deviceOrUserAuth');
 const deviceOrUserAuth = deviceOrUserAuthFactory({ db, auth: authMiddleware });
 
+// Log Handeling
+const { requestTag } = require('./utils/logger');
+const LogRout = require('./Routs/LogRout');
+app.use(requestTag());
+app.use('/logs', LogRout);
 
 // Static
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));

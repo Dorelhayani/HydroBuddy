@@ -1,4 +1,6 @@
 // Routs/espRout.js
+
+const { info } = require('../utils/logger');
 const express = require('express');
 const router = express.Router();
 
@@ -78,21 +80,21 @@ router.patch('/manual', espPerUser, async (req, res) => {
 // עדכוני קריאות סנסורים (מה־ESP או ידני)
 router.patch('/temp-config', espPerUser, async (req, res) => {
     try {
-        const result = await req.esp.UpdateTemp(req.body); // { temp } או { TEMP_MODE:{temp} }
+        const result = await req.esp.UpdateTemp(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
 router.patch('/light-config', espPerUser, async (req, res) => {
     try {
-        const result = await req.esp.UpdateLight(req.body); // { light } או { TEMP_MODE:{light} }
+        const result = await req.esp.UpdateLight(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
 
 router.patch('/moist-config', espPerUser, async (req, res) => {
     try {
-        const result = await req.esp.UpdateMoisture(req.body); // { moisture } או { SOIL_MOISTURE_MODE:{moisture} }
+        const result = await req.esp.UpdateMoisture(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });

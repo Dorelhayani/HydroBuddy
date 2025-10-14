@@ -1,6 +1,7 @@
 // DeviceHandler.js
 
 const bcrypt = require('bcryptjs');
+const { info, warn } = require('../utils/logger');
 
 class DeviceStore {
     constructor(db) {
@@ -134,43 +135,45 @@ function EspPerUser(db, EspData) {
 
     return async (req, res, next) => {
         try {
-            const hasDevHeaders = Boolean(req.get('X-Device-Id') && req.get('X-Device-Key'));
-            let userId  = req.user_id || req?.user?.id || null;
+            let userId = req.user_id || req?.user?.id || null;
             let deviceId = null;
 
-            if (hasDevHeaders) {
-                // אם יש headers – חייבים לאמת. אם נכשל → 401. אין "נפילה" ל-device אחר.
+            if (req.get('X-Device-Id') && req.get('X-Device-Key')) {
                 const ident = await Devices.deviceIdentityFromHeaders(req);
-                if (!ident) return res.status(401).json({ error: 'Invalid device credentials' });
-                deviceId = ident.device_id || null;
-                if (!userId && ident.user_id) userId = String(ident.user_id);
-                if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
-            } else {
-                // אין headers → UI. חייב userId, ואז שולפים את המכשיר המשויך למשתמש.
-                if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+                if (ident) {
+                    deviceId = ident.device_id || null;
+                    if (!userId && ident.user_id) userId = String(ident.user_id);
+                }
+            }
+
+            if (!deviceId && userId) {
                 const dev = await Devices.getDeviceByUserId(userId);
-                if (!dev)   return res.status(400).json({ error: 'Missing deviceId' });
-                deviceId = dev.id;
+                if (dev) deviceId = dev.id;
             }
 
-            //
+            // if (!userId)  return res.status(401).json({ error: 'Unauthorized' });
+            // if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
+
+            if (!userId) { warn('ESP','no userId'); return res.status(401).json({ error:'Unauthorized' }); }
             if (!deviceId) {
-                console.warn("⚠️ No deviceId found for user:", userId);
-                return res.status(400).json({ error: 'Missing deviceId' });
-            }
-            console.log("✅ EspPerUser connected:", { userId, deviceId });
-            //
-
-            if (process.env.DEBUG_ESP === '1') {
-                console.log(`[EspPerUser] authType=${hasDevHeaders ? 'device' : 'user'} userId=${userId} deviceId=${deviceId} url=${req.method} ${req.originalUrl}`);
+                warn('ESP','no deviceId for user',{ userId });
+                return res.status(400).json({ error:'Missing deviceId' });
             }
 
             req.user_id   = String(userId);
             req.device_id = deviceId;
-            req.esp = new EspData(db, { userId: String(userId), deviceId }, store);
+
+            // info ('✅ EspPerUser connected:', { userId: req.user_id, deviceId: req.device_id });
+            info('ESP','attached esp context',{ userId, deviceId }, req.reqId);
+
+
+            // console.log('✅ EspPerUser connected:', { userId: req.user_id, deviceId: req.device_id });
+
+            req.esp = new EspData(db, { userId: req.user_id, deviceId: req.device_id }, store);
             next();
         } catch (e) { next(e); }
     };
+
 }
 
 module.exports = { DeviceModel, DeviceStore, EspPerUser };
