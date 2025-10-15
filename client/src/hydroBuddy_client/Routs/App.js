@@ -4,15 +4,13 @@ import React, { useState, Suspense } from "react";
 import { Link, Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
-import { ModDataProvider } from "../hooks/ModLoad";
 import {AuthProvide} from "../context/AuthProvider";
 
-
+import Mod from "../Pages/Mod";
 import Home from "../Pages/Home";
 import Login from "../Pages/Login";
 import Plants from "../Pages/Plants";
 import Account from "../Pages/Account";
-import Mod, { TemperatureMode, MoistureMode, SaturdayMode, Manual } from "../Pages/Mod";
 
 function Layout() {
     const { onLogout } = useAuth();
@@ -30,6 +28,7 @@ function Layout() {
                             {sidebarCollapsed ? "▸" : "▾"}
                         </button>
                     </div>
+                    <Link className="brand" to="/home">⌂</Link>
                     <div className="brand" >HydroBuddy</div>
                 </div>
             </header>
@@ -45,7 +44,6 @@ function Layout() {
                                         <Link to="/plants">My Plants</Link>
                                         <Link to="/mod">Modes</Link>
                                         <Link to="/Account">Account</Link>
-                                        <button className="footer-btn" onClick={onLogout} > Log Out </button>
                                     </nav>
                                 </div>
                             </div>
@@ -55,8 +53,7 @@ function Layout() {
                             <div className="card">
                                 <div className="card-title">Quick Actions</div>
                                 <div className="card-body">
-                                    <button className="btn">Add plant</button>
-                                    <button className="btn ghost" style={{ marginLeft: 8 }}>Settings</button>
+                                    <button className="flash-btn" onClick={onLogout} > Log Out </button>
                                 </div>
                             </div>
                         </div>
@@ -88,22 +85,8 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [
             { index: true, element: <Login /> },
-            // { path: "home", element: <Home /> },
-            { path: "home", element:(<ModDataProvider><Home /></ModDataProvider>)},
-            {
-                path: "mod",
-                element: (
-                    <ModDataProvider>
-                        <Mod />
-                    </ModDataProvider>
-                ),
-                children: [
-                    { path: "temperature", element: <TemperatureMode /> },
-                    { path: "moisture", element: <MoistureMode /> },
-                    { path: "saturday", element: <SaturdayMode /> },
-                    { path: "manual", element: <Manual /> },
-                ],
-            },
+            { path: "home", element: <Home /> },
+            { path: "mod", element: <Mod/>},
             { path: "plants",  element: <Plants /> },
             { path: "Account", element: <Account /> },
         ],

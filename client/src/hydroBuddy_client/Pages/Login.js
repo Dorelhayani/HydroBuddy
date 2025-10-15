@@ -60,10 +60,8 @@ export default function Login() {
                               <small className="text-body-secondary">
                                   {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                               </small>
-
-
-                              <button className="btn ghost ml-auto" onClick={() => { if (!authLoading) flip(); }}
-                                      disabled={authLoading}><small>Not Register yet? </small></button>
+                          <FlashButton className="btn ghost ml-auto" onClick={() => { if (!authLoading) flip(); }}
+                                       disabled={authLoading}><small>Not Register yet? </small></FlashButton>
                       </div>
                   }
             />
@@ -115,9 +113,9 @@ export default function Login() {
                 }
                 footer={
                     <div className="footer-row">
-                        <button  className="btn ghost ml-auto" onClick={() => setActiveTab("log")} >
-                            {"🢐 Back"}
-                        </button>
+                        <FlashButton className="btn ghost ml-auto" onClick={() => setActiveTab("log")}>
+                            🢐 Back
+                        </FlashButton>
                     </div>
                 }
             />
@@ -139,16 +137,16 @@ export default function Login() {
                 header="Account Actions"
                 body={
                     <div className="btn-grid">
-                        <button className="footer-btn" onClick={() => setActiveTab("register")}>
+                        <FlashButton className="flash-btn" onClick={() => setActiveTab("register")}>
                             Create account
-                        </button>
+                        </FlashButton>
                     </div>
                 }
                 footer={
                     <div className="footer-row">
-                    <button  className="btn ghost" onClick={() => { setActiveTab("log"); unflip(); }} >
+                    <FlashButton  className="btn ghost" onClick={() => { setActiveTab("log"); unflip(); }} >
                         ↩ Back
-                    </button>
+                    </FlashButton>
                     </div>
                 }
             />
@@ -164,6 +162,7 @@ export default function Login() {
                     flippable
                     isFlipped={flipped}
                     onFlip={setFlipped}
+                    autoHeight
                 />
             </div>
             <Outlet />

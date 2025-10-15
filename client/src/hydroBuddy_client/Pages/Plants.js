@@ -1,7 +1,7 @@
 // Plants.js
 
 import React, { useEffect, useState } from "react";
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet} from "react-router-dom";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
@@ -12,31 +12,28 @@ import {useEsp} from "../hooks/useEsp";
 import {useAuth} from "../hooks/useAuth";
 import {usePlants} from "../hooks/usePlants";
 import { plantRenderer } from "../hooks/plantStatus";
+import ClickableList from "../components/ClickableList";
+import {formatDateDDMMYYYY} from "../domain/formatters";
 
 export default function Plants() {
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("plant_info");
+    const [pendingValue, setPendingValue] = useState(null);
 
     const {
         plantList:plant,
         setPlantList: setPlant,
         selectedPlant,setSelectedPlant, fetchPlants,
-        add_plant, update_plant, remove_plant, ClickablePlantList
-    } = usePlants();
+        add_plant, update_plant, remove_plant } = usePlants();
 
     const {loading: authLoading, err: authErr} = useAuth();
-    const { state: espState, loading: espLoading } = useEsp();
-    const renderPlant = plantRenderer({ espState, espLoading });
+    const { state: currentState, loading: espLoading } = useEsp();
+    const renderPlant = plantRenderer({ currentState, espLoading });
 
     const [flipped, setFlipped] = useState(false);
 
-    const handlePlantClick = (p) => {
-        setSelectedPlant(p);
-        setActiveTab("update_plant");
-    };
-
     // Plant Information card
-    function PlnatInfo({flip}){
+    function PlnatInfo({flip, onItemClick}){
         useEffect(() => {
             (async () => {
                 try {
@@ -52,13 +49,34 @@ export default function Plants() {
                 variant={variant}
                 header="Plant Info"
                 body=" "
-                list={ <ul className="plant-list">{ClickablePlantList(handlePlantClick, renderPlant)}</ul> }
+                list={
+                <ClickableList
+                    items={plant}
+                    itemKey="ID"
+                    onItemClick={(p) => {
+                        setSelectedPlant(p);
+                        onItemClick && onItemClick(p);
+                        setActiveTab("update_plant");
+                    }}
+                    renderItem={(p) => (
+
+                        <div
+                            className={["list-card", pendingValue === p.value ? "is-pending" : ""].join(" ")}
+                            aria-busy={pendingValue === p.value ? "true" : "false"}>
+
+                            <div className="list-card__title">{p.planttype_name}</div>
+                            {pendingValue === p.value && <div className="mod-card__spinner" />}
+                        </div>
+                    )}
+                    emptyContent="No plants yet"
+                    ariaLabel="Plants list"
+                    className="plant-list"
+                />
+                }
                 footer={
                     <div className="footer-row">
-                        <div className="plant-footer-add">
                             <small className="text-body-secondary">Add Plant</small>
-                            <button className="btn ghost" onClick={flip}>+</button>
-                        </div>
+                        <FlashButton className="btn ghost ml-auto"  onClickAsync={flip}>+</FlashButton>
                     </div>
                 }
             />
@@ -104,7 +122,7 @@ export default function Plants() {
                 }
                 footer={
                     <div className="footer-row">
-                        <button className="btn ghost ml-auto" onClick= {unflip}> {"🢐 Back"} </button>
+                        <FlashButton className="btn ghost ml-auto" onClick= {unflip}> {"🢐 Back"} </FlashButton>
                     </div>
                 }
             />
@@ -118,9 +136,9 @@ export default function Plants() {
                 <Card variant={variant} title="Update Plant">
                     <div className="loading">Select a plant from the list…</div>
                     <div className="footer-row">
-                        <button className="btn" onClick={() => setActiveTab("plant_info")}>
+                        <FlashButton className="btn" onClick={() => setActiveTab("plant_info")}>
                             {"🢐 Back"}
-                        </button>
+                        </FlashButton>
                     </div>
                 </Card>
             );
@@ -138,16 +156,6 @@ export default function Plants() {
                 // error
             }
         };
-
-        const handleDelete = async () => {
-            if (!window.confirm(`Are you sure you want to delete ${selectedPlant.planttype_name} ?`)) return;
-            try {
-                await remove_plant(selectedPlant.PlantTypeID);
-                setSelectedPlant(null);
-                setActiveTab("plant_info");
-            } catch {}
-        };
-
 
         return (
             <Card variant={variant}
@@ -172,11 +180,10 @@ export default function Plants() {
                   }
                   footer={
                       <div className="footer-row">
-                          <button className="btn" onClick={() => setActiveTab("plant_info")}> {"🢐 Back"} </button>
-                          {/*<button className="footer-btn" onClick={handleDelete} >*/}
-                          <button className="footer-btn" onClick={() => setActiveTab("delete_plant")} >
+                          <FlashButton className="btn" onClick={() => setActiveTab("plant_info")}> {"🢐 Back"} </FlashButton>
+                          <FlashButton className="flash-btn" onClick={() => setActiveTab("delete_plant")} >
                               Delete Plant
-                          </button>
+                          </FlashButton>
                       </div>
                   }
             />
@@ -197,7 +204,7 @@ export default function Plants() {
             <Card variant={variant}>
                 <small className="txt"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
-                    <button className="btn ghost" onClick={onCancel}>Cancel</button>
+                    <FlashButton className="btn ghost" onClick={onCancel}>Cancel</FlashButton>
                     <FlashButton onClickAsync={handleDelete}>Delete</FlashButton>
                 </div>
             </Card>
@@ -219,6 +226,7 @@ export default function Plants() {
                     flippable
                     isFlipped={flipped}
                     onFlip={setFlipped}
+                    autoHeight
                 />
                 )}
             </div>

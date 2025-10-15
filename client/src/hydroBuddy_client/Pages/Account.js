@@ -32,9 +32,7 @@ export default function Account() {
                     const [usr, plnts] = await Promise.all([fetchUser(), fetchPlants()]);
                     setItems(usr);
                     setPlant(plnts);
-                } catch (e) {
-                    // error;
-                }
+                } catch (e) { }
             })();
         }, []);
 
@@ -60,7 +58,7 @@ export default function Account() {
                         <small className="text-body-secondary">
                             {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                         </small>
-                        <button className="btn ghost ml-auto" onClick={flip}> More ↪ </button>
+                        <FlashButton className="btn ghost ml-auto" onClick={flip}> More ↪ </FlashButton>
                     </div>
                 }
             />
@@ -145,6 +143,7 @@ export default function Account() {
             }
         };
 
+
         return (
             <Card variant={variant}
                   header="Update Account"
@@ -168,7 +167,7 @@ export default function Account() {
                   }
                   footer={
                       <div className="footer-row">
-                          <button className="btn" onClick={() => setActiveTab("account")}> {"🢐 Back"} </button>
+                          <FlashButton className="btn" onClick={() => setActiveTab("account")}> {"🢐 Back"} </FlashButton>
                       </div>
                   }
             />
@@ -227,12 +226,12 @@ export default function Account() {
                 }
                 footer={
                     <div className="footer-row">
-                        <button
+                        <FlashButton
                             className="btn ghost ml-auto"
                             onClick={() => setActiveTab("log")}
                         >
                             {"🢐 Back"}
-                        </button>
+                        </FlashButton>
                     </div>
                 }
             />
@@ -257,7 +256,7 @@ export default function Account() {
             <Card variant={variant} title="Delete Account">
                 <p className="txt">This action is permanent. All your plants and data may be removed.</p>
                 <div className="btn-row">
-                    <button className="btn ghost" onClick={onCancel}>Cancel</button>
+                    <FlashButton className="btn ghost" onClick={onCancel}>Cancel</FlashButton>
                     <FlashButton onClickAsync={handleDelete}>Delete</FlashButton>
                 </div>
             </Card>
@@ -280,30 +279,25 @@ export default function Account() {
                 header="Account Actions"
                 body={
                     <div className="btn-grid">
-
-                        <button className="footer-btn" onClick={() => setActiveTab("update_account")} >
+                        <FlashButton onClick={() => setActiveTab("update_account")} >
                             Update Account
-                        </button>
+                        </FlashButton>
 
-                        <button className="footer-btn" onClick={() => setActiveTab("change_password")} >
+                        <FlashButton onClick={() => setActiveTab("change_password")} >
                             Change Password
-                        </button>
+                        </FlashButton>
 
-                        <button className="footer-btn" onClick={() => setActiveTab("delete_account")} >
+                        <FlashButton onClick={() => setActiveTab("delete_account")} >
                             Delete
-                        </button>
+                        </FlashButton>
                     </div>
                 }
                 footer={
-                    <button
-                        className="btn"
-                        onClick={() => {
-                            setActiveTab("account");
-                            unflip();
-                        }}
-                    >
-                        ↩ Back
-                    </button>
+                    <div className="footer-row left">
+                        <FlashButton className="btn ghost" onClick={() => { setActiveTab("account"); unflip(); }} >
+                            ↩ Back
+                        </FlashButton>
+                    </div>
                 }
             />
         )
@@ -318,6 +312,7 @@ export default function Account() {
                     flippable
                     isFlipped={flipped}
                     onFlip={setFlipped}
+                    autoHeight
                 />
             </div>
 

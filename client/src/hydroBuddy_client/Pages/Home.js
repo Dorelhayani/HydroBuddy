@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import { useModData } from "../hooks/ModLoad";
+// import { useModData } from "../hooks/ModLoad";
 import { usePlants } from "../hooks/usePlants";
 import { useAuth } from "../hooks/useAuth";
 import Card, { useBorderFlash } from "../components/Card";
@@ -20,12 +20,10 @@ export default function Home(){
 
 
     function DisplayMod(){
-        const { state } = useModData();
-        const labelMap = {61:"Temperature Mod", 62:"Moisture Mod", 63:"Saturday Mod", 64:"Manual Mod"};
 
         return (
                 <div className="sub-title">
-                    <small>Current Mod:{labelMap[state]}</small>
+                    {/*<small>Current Mod:{labelMap[state]}</small>*/}
                 </div>
         )
     }
