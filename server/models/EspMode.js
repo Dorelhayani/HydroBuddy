@@ -143,7 +143,7 @@ class EspData {
         const data = await this._readJson();
         data.SOIL_MOISTURE_MODE = {
             ...(data.SOIL_MOISTURE_MODE || {}),
-            minMoisture, maxMoisture, moistureLVL
+            moistureLVL, minMoisture, maxMoisture
         };
         await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
         info('ESP', 'SOIL_MOISTURE_MODE config updated', { deviceId: this.ids.deviceId });
