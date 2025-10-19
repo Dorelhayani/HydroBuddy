@@ -1,6 +1,5 @@
-// Routs/espRout.js
+// espRout.js
 
-const { info } = require('../utils/logger');
 const express = require('express');
 const router = express.Router();
 
@@ -20,8 +19,15 @@ function handleError(res, err) {
 // Root
 router.get('/', (req, res) => res.send('ESP root route reached.'));
 
+router.get('/state', espPerUser, async (req, res) => {
+    try {
+        const data = await req.esp.getState();
+        return res.status(200).json(data);
+    } catch (err) { return handleError(res, err); }
+});
+
 // JSON מלא (לקריאת UI / מכשיר)
-router.get('/sendJSON', espPerUser, async (req, res) => {
+router.get('/getJSON', espPerUser, async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store'); // למנוע 304
         const data = await req.esp._readJson();
@@ -41,6 +47,13 @@ router.get('/dataMode', espPerUser, async (req, res) => {
 router.patch('/state', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.EspState(req.body); // { state }
+        return res.status(200).json(result);
+    } catch (err) { return handleError(res, err); }
+});
+
+router.patch('/pump', espPerUser, async (req, res) => {
+    try {
+        const result = await req.esp.setPumpStatus(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
@@ -73,6 +86,13 @@ router.patch('/saturday', espPerUser, async (req, res) => {
 router.patch('/manual', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.ManualMode(req.body);
+        return res.status(200).json(result);
+    } catch (err) { return handleError(res, err); }
+});
+
+router.patch('/pump-stts', espPerUser, async (req, res) => {
+    try {
+        const result = await req.esp.PumpState(req.body);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });

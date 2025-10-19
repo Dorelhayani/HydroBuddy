@@ -1,4 +1,5 @@
-// models/EspMode.js
+// EspMode.js
+
 const { info, warn, error: logError } = require('../utils/logger');
 
 class EspData {
@@ -12,27 +13,23 @@ class EspData {
     async _readJson() {
         const data = await this.store.read(this.ids);
         if (data) return data;
-
-        // מסמך לא קיים → ניצור ברירת מחדל
         warn('ESP', '_readJson(): no doc, creating default', { ids: this.ids });
-
         const init = {
             state: 61,
             TEMP_MODE: { temp: 0, tempLVL: 0, minTime: 0, maxTime: 0, light: 0, lightThresHold: 0, minLight: 0, maxLight: 0 },
             SOIL_MOISTURE_MODE: { minMoisture: 0, maxMoisture: 0, moistureLVL: 0, moisture: 0 },
             SATURDAY_MODE: { dateAct: "", timeAct: "", duration: 0 },
-            MANUAL_MODE: { enabled: false }
+            MANUAL_MODE: { enabled: false },
+            pump: { on: false, updatedAt: null },
         };
         await this.store.write(this.ids, init);
         return init;
     }
 
-    // --- כתיבה (עם מיזוג נתונים) ---
     async _writeJson(obj) {
         const existing = await this.store.read(this.ids);
         const merged = existing ? this._deepMerge(existing, obj) : obj;
 
-        // לא להדפיס את כל הדוק – רק מטא (מונע ספאם)
         info('DB', 'upsert device state', {
             deviceId: this.ids.deviceId,
             hasExisting: !!existing,
@@ -41,15 +38,36 @@ class EspData {
         });
 
         await this.store.write(this.ids, merged);
+
+        try { await this._persistStateToDb(merged); }
+        catch (e) { logError('ESP', '_writeJson: persist to DB failed', { err: e.message }); }
         return merged;
     }
+
+
+    // --- כתיבה (עם מיזוג נתונים) ---
+    // async _writeJson(obj) {
+    //     const existing = await this.store.read(this.ids);
+    //     const merged = existing ? this._deepMerge(existing, obj) : obj;
+    //
+    //     // לא להדפיס את כל הדוק – רק מטא (מונע ספאם)
+    //     info('DB', 'upsert device state', {
+    //         deviceId: this.ids.deviceId,
+    //         hasExisting: !!existing,
+    //         keys: Object.keys(merged),
+    //         size: JSON.stringify(merged).length
+    //     });
+    //
+    //     await this.store.write(this.ids, merged);
+    //     return merged;
+    // }
 
     // --- פונקציית עזר למיזוג עמוק ---
     _deepMerge(target, source) {
         if (typeof target !== 'object' || target === null) return source;
         const output = { ...target };
         for (const key of Object.keys(source)) {
-            if (typeof source[key] === 'object' && source[key] !== null) {
+            if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
                 output[key] = this._deepMerge(target[key] || {}, source[key]);
             } else {
                 output[key] = source[key];
@@ -71,7 +89,44 @@ class EspData {
         return n;
     }
 
+    async _persistStateToDb(merged) {
+        const idValue = Number(this.ids?.deviceId);
+        if (!Number.isFinite(idValue)) {
+            warn('ESP', '_persistStateToDb: missing deviceId', { ids: this.ids });
+            return;
+        }
+        const docStr = JSON.stringify(merged || {});
+        const pumpOn = !!(merged?.pump?.on);
+
+        await this.DB.execute(
+            `INSERT INTO esp_device_state (device_id, doc, pump_status, pump_status_updatedAt, updated_at)
+     VALUES (?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE doc = VALUES(doc), pump_status = VALUES(pump_status),
+       pump_status_updatedAt = VALUES(pump_status_updatedAt), updated_at = NOW()`, [idValue, docStr, pumpOn ? 1 : 0] );
+    }
+
+
     // --- שליטה כללית ---
+
+    async getState() {
+        // return this._readJson();
+        const data = await this._readJson();
+        const idValue = Number(this.ids?.deviceId);
+        if (Number.isFinite(idValue)) {
+            try {
+                const [rows] = await this.DB.execute(`SELECT pump_status, pump_status_updatedAt FROM esp_device_state
+                                          WHERE device_id = ? LIMIT 1`, [idValue]);
+                if (rows?.length) {
+                    const r = rows[0];
+                    data.pump = {
+                        on: r.pump_status === 1,
+                        updatedAt: r.pump_status_updatedAt || data.pump?.updatedAt || null,
+                    };
+                }
+            } catch (err) { logError('ESP', 'getState: DB merge failed', { err: err.message, deviceId: idValue }); }
+        }
+        return data;
+    }
+
     async EspState(payload) {
         const data = await this._readJson();
         if (payload && typeof payload.state !== 'undefined') {
@@ -186,12 +241,22 @@ class EspData {
     }
 
     // --- קריאות חיישנים ---
+    async setPumpStatus(payload) {
+        const on = typeof payload?.on === 'boolean' ? payload.on : Boolean(payload?.flag);
+        const patch = { pump: { on, updatedAt: new Date().toISOString() } };
+
+        const merged = await this._writeJson(patch);
+        info('ESP', 'pump status updated', { on, deviceId: this.ids.deviceId });
+
+        return { pump: merged.pump };
+    }
+
     async UpdateTemp(payload) {
         const t = this._ensureFiniteNumber(payload?.temp ?? payload?.TEMP_MODE?.temp, 'temp');
         const data = await this._readJson();
         const before = data?.TEMP_MODE?.temp ?? null;
         data.TEMP_MODE = { ...(data.TEMP_MODE || {}), temp: t };
-        await this._writeJson(data); // כותב דוק מלא
+        await this._writeJson(data);
         info('SENSOR', 'temp updated', { from: before, to: t, deviceId: this.ids.deviceId });
         return { message: 'Temp sensor updated', temp: t, TEMP_MODE: data.TEMP_MODE };
     }

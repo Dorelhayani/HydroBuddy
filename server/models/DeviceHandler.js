@@ -151,9 +151,6 @@ function EspPerUser(db, EspData) {
                 if (dev) deviceId = dev.id;
             }
 
-            // if (!userId)  return res.status(401).json({ error: 'Unauthorized' });
-            // if (!deviceId) return res.status(400).json({ error: 'Missing deviceId' });
-
             if (!userId) { warn('ESP','no userId'); return res.status(401).json({ error:'Unauthorized' }); }
             if (!deviceId) {
                 warn('ESP','no deviceId for user',{ userId });
@@ -163,11 +160,7 @@ function EspPerUser(db, EspData) {
             req.user_id   = String(userId);
             req.device_id = deviceId;
 
-            // info ('✅ EspPerUser connected:', { userId: req.user_id, deviceId: req.device_id });
             info('ESP','attached esp context',{ userId, deviceId }, req.reqId);
-
-
-            // console.log('✅ EspPerUser connected:', { userId: req.user_id, deviceId: req.device_id });
 
             req.esp = new EspData(db, { userId: req.user_id, deviceId: req.device_id }, store);
             next();
