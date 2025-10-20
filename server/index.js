@@ -33,13 +33,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
+const RegisterRout = require('./Routs/RegisterRout');
 const AuthRout   = require('./Routs/AuthRout');
 const UserRout   = require('./Routs/UserRout');
 const PlantRout  = require('./Routs/PlantRout');
 const deviceRouter = require('./Routs/DeviceRout');
 
 const { EspPerUser } = require('./models/DeviceHandler');
-const EspData = require('./models/EspMode');
+const EspData = require('./models/Esp');
 const EspRout = require('./Routs/espRout');
 
 const deviceOrUserAuthFactory = require('./models/deviceOrUserAuth');
@@ -55,9 +56,10 @@ app.use('/logs', LogRout);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: 0, etag: false }));
 
 // Mount
-app.use('/auth',   AuthRout);
+app.use('/register', RegisterRout);
+app.use('/auth', AuthRout);
 app.use( '/esp', deviceOrUserAuth, EspPerUser(db, EspData), EspRout);
-app.use('/users',  authMiddleware.isLogged.bind(authMiddleware), UserRout);
+app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
 app.use('/PlantRout', deviceOrUserAuth, PlantRout);
 app.use('/devices', deviceRouter);
 

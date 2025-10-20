@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const UserData = require('../models/UserMode');
+const UserData = require('../models/Users');
 const db = require('../models/database');
 const User = new UserData(db);
 

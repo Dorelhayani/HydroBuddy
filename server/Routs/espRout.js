@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const db = require('../models/database');
-const EspData = require('../models/EspMode');
+const EspData = require('../models/Esp');
 const { EspPerUser } = require('../models/DeviceHandler');
 
 // יצירה חד-פעמית של המידלוור עם db + EspData

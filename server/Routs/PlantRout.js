@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const PlantData = require('../models/PlantMode');
+const PlantData = require('../models/Plant');
 const db = require('../models/database');
 const Plants = new PlantData(db);
 

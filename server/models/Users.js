@@ -1,4 +1,4 @@
-// UserMode.js
+// Users.js
 
 class UserData {
     constructor(db) {
