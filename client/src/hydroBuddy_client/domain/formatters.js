@@ -22,7 +22,7 @@ export function toServerDate(yyyy_mm_dd) {
     return `${d.padStart(2,"0")}/${m.padStart(2,"0")}/${y}`;
 }
 
-// לבדיקה מול  toInputDate
+
 export function formatDateDDMMYYYY(value) {
     if (!value) return "";
     const d = new Date(value);

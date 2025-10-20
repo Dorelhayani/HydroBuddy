@@ -131,7 +131,7 @@ export default function GenericForm({
                         {f.type !== "checkbox" && (
                             <label className={`form-label ${labelClassNameAll} ${f.labelClassName || ""}`} htmlFor={fieldId}>
                                 {f.label || f.placeholder}
-                                {f.required ? <span className="form-req" aria-hidden="true">*</span> : null}
+                                {f.required ? <span className="form-req" aria-hidden="true"></span> : null}
                             </label>
                         )}
 
@@ -166,7 +166,7 @@ export default function GenericForm({
                                 />
                                 <span className="check__label">
                   {f.label || f.placeholder}
-                                    {f.required ? <span className="form-req" aria-hidden="true">*</span> : null}
+                                    {f.required ? <span className="form-req" aria-hidden="true"></span> : null}
                 </span>
                             </label>
                             {f.help && <div id={helpId(f)} className="form-help text-subtle">{f.help}</div>}

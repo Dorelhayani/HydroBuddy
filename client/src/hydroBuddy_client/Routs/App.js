@@ -137,6 +137,7 @@ import Card, {useBorderFlash} from "../components/Card";
 
 
 function Layout() {
+    const nav = useNavigate();
     const { logout } = useAuth();
     const [activeTab, setActiveTab] = useState("dashboard");
     const { variant, flashWarning } = useBorderFlash();
@@ -148,6 +149,7 @@ function Layout() {
             try{
                 if (!window.confirm()) return;
                 flashWarning();
+                setTimeout(() => nav("/"), 300);
                 await logout();
             } catch (err) {}
 

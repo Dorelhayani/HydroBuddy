@@ -30,7 +30,6 @@ export function useAuth() {
 
     const avatarUpload = async (formData) => status.run(async () => { await auth.avatarUpload(formData); });
     const login = async (payload) => status.run(async () => { await auth.login(payload); await fetchUser(); });
-    const register = async (payload) => status.run(async () => { await auth.register(payload); await fetchUser();});
     const logout = async () => status.run(async () => { await auth.logout(); setItem(null); });
     const changePassword = async ({ currentPassword, newPassword, newPasswordConfirm }) => {
         if (!item?.id) throw new Error("Not authenticated");
@@ -47,6 +46,7 @@ export function useAuth() {
         err: status.err,
         message: status.message,
         refresh: fetchUser,
-        avatarUpload, login, register, logout,onLogout, changePassword
+        // avatarUpload, login, register, logout,onLogout, changePassword
+        avatarUpload, login, logout, changePassword
     };
 }
