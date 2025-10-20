@@ -17,8 +17,6 @@ function shallowEqual(a, b) {
 
 export function useEsp() {
     const [sensors, setSensors] = useState(null);
-    // const manualEnabled = !!(sensors?.MANUAL_MODE?.enabled);
-    const [enabled, setEnabled] = useState(() => Boolean(sensors?.MANUAL_MODE?.enabled));
     const [form, setForm] = useState({ state: "" }); // נשמר API זהה
     const lastRef = useRef(null);
     const pickDefined = (obj) =>
@@ -35,7 +33,7 @@ export function useEsp() {
     const fetchEspState = useCallback(async () => {
         // משתמשים ב-poll.run כדי לנהל שגיאות, אבל אפשר להסתיר את poll.loading מה-UI כדי למנוע "הבזק"
         return poll.run(async () => {
-            const data = await esp.getStateJson();
+            const data = await esp.getState();
             if (!shallowEqual(lastRef.current, data)) {
                 lastRef.current = data;
                 startTransition(() => setSensors(data));
@@ -111,18 +109,6 @@ export function useEsp() {
         }, { successMessage: "Saturday mode saved" });
     }, [mutate, fetchEspState]);
 
-
-    // manual
-    // const manual = useCallback(async (enabled) => {
-    //     return mutate.run(async () => {
-    //         await esp.setEnabled({ enabled: enabled ? "true" : "false" });
-    //
-    //         const data = await fetchEspState();
-    //         const committed = !!(data?.MANUAL_MODE?.enabled);
-    //         return committed;
-    //     }, { successMessage: "Manual mode saved" });
-    // }, [mutate, fetchEspState]);
-
     const manual = useCallback(async (enabled) => {
         return mutate.run(async () => {
             const res = await esp.setEnabled(enabled);
@@ -174,8 +160,6 @@ export function useEsp() {
         fetchStateSave,
     }), [fetchEspState, fetchDataMod, fetchStateSave]);
 
-    // התאמה ל-UI הקיים: נחזיר loading/err מ-mutate כדי לשלוט בכפתורים וטפסים,
-    // ונחשוף גם pollLoading/pollErr למקרה שתרצה באנר רקע שקט.
     return {
         sensors, setSensors,  currentState,
         temp, moist, saturday, manual, updateTemp, updateMoist, updateLight,

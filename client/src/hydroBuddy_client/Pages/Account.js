@@ -10,7 +10,6 @@ import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
 import {useAuth} from "../hooks/useAuth";
-import {usePlants} from "../hooks/usePlants";
 import {useAccount} from "../hooks/useAccount";
 
 export default function Account() {
@@ -19,7 +18,6 @@ export default function Account() {
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
-    const { plantsListItems, setPlant, fetchPlants } = usePlants();
     const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
 
     const [flipped, setFlipped] = useState(false);
@@ -29,9 +27,8 @@ export default function Account() {
         useEffect(() => {
             (async () => {
                 try {
-                    const [usr, plnts] = await Promise.all([fetchUser(), fetchPlants()]);
+                    const [usr] = await fetchUser();
                     setItems(usr);
-                    setPlant(plnts);
                 } catch (e) { }
             })();
         }, []);
@@ -51,15 +48,22 @@ export default function Account() {
                     )
                 }
                 text={item?.email}
-                list={plantsListItems}
-                // list={ClickablePlantList()}
+                list={
+                    <small className="text-body-secondary">
+                        {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
+                    </small>
+                }
                 footer={
-                    <div className="footer-row">
-                        <small className="text-body-secondary">
-                            {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
-                        </small>
-                        <FlashButton className="btn ghost ml-auto" onClick={flip}> More ↪ </FlashButton>
-                    </div>
+                        <details className="drawer">
+                            <summary><span className="msr">expand_more</span> Quick Actions</summary>
+                            <div className="drawer__content">
+                                <div className="drawer__actions">
+                                    <FlashButton className="btn" onClick={() => setActiveTab("update_account")}> Update Account </FlashButton>
+                                    <FlashButton className="btn" onClick={() => setActiveTab("change_password")}> Change Password </FlashButton>
+                                    <FlashButton className="btn btn--danger" onClick={() => setActiveTab("delete_account")}> Delete </FlashButton>
+                                </div>
+                            </div>
+                        </details>
                 }
             />
         );
@@ -93,9 +97,8 @@ export default function Account() {
             form.append("avatar", f); // השם "avatar" חייב להתאים ל-upload.single('avatar') בשרת
             try {
                 await avatarUpload(form);
-                setPreview(null); // אחרי רענון, נעבור ל־URL האמיתי
+                setPreview(null);
             } finally {
-                // מאפשר לבחור שוב אותו קובץ אם צריך
                 e.target.value = "";
             }
         };
@@ -110,7 +113,7 @@ export default function Account() {
     }
 
     // Update Account card
-     function UpdateAccount({ variant }) {
+     function UpdateAccount({ variant}) {
         if (!item) {
             return (
                 <Card variant={variant} title="Update Account">
@@ -137,10 +140,7 @@ export default function Account() {
                 await update_account(item.id, { name: nextName, email: nextEmail });
                 flashSuccess();
                 setActiveTab('account');
-            }catch(err){
-                flashDanger(2000);
-                // error
-            }
+            }catch(err){ flashDanger(2000); }
         };
 
 
@@ -156,6 +156,7 @@ export default function Account() {
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
                             <FlashButton
+                                className="btn btn--primary btn--block"
                                 onClickAsync={onClick}
                                 loading={loading || authLoading}
                                 disabled={authLoading}
@@ -167,7 +168,7 @@ export default function Account() {
                   }
                   footer={
                       <div className="footer-row">
-                          <FlashButton className="btn" onClick={() => setActiveTab("account")}> {"🢐 Back"} </FlashButton>
+                          <FlashButton className="btn btn--ghost" onClick={() => setActiveTab("account")}> Back </FlashButton>
                       </div>
                   }
             />
@@ -217,6 +218,7 @@ export default function Account() {
                             onSubmit={OnSubmit}
                             customButton={({ onClick, loading }) => (
                                 <FlashButton
+                                    className="btn btn--primary btn--block"
                                     onClickAsync={onClick}
                                     loading={loading || authLoading}
                                     disabled={authLoading}
@@ -227,10 +229,10 @@ export default function Account() {
                 footer={
                     <div className="footer-row">
                         <FlashButton
-                            className="btn ghost ml-auto"
+                            className="btn btn--ghost"
                             onClick={() => setActiveTab("log")}
                         >
-                            {"🢐 Back"}
+                            Back
                         </FlashButton>
                     </div>
                 }
@@ -239,12 +241,12 @@ export default function Account() {
     }
 
     // Delete Account card
-    function DeleteAccount({ variant, item, onCancel }) {
+     function DeleteAccount({ variant, item, onCancel }) {
         const nav = useNavigate();
 
         const handleDelete = async () => {
             try{
-                if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+                if (!window.confirm()) return;
                 await remove_account(item.id);
                 await logout();
                 nav("/");
@@ -254,69 +256,69 @@ export default function Account() {
 
         return (
             <Card variant={variant} title="Delete Account">
-                <p className="txt">This action is permanent. All your plants and data may be removed.</p>
+                <p className="txt__delete">This action is permanent. All your plants and data may be removed.</p>
                 <div className="btn-row">
-                    <FlashButton className="btn ghost" onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton onClickAsync={handleDelete}>Delete</FlashButton>
+                    <FlashButton className="btn btn--outline btn--sm"  onClick={onCancel}>Cancel</FlashButton>
+                    <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>Delete</FlashButton>
                 </div>
             </Card>
         );
     }
 
-    const front = ({ flip }) => (
+
+    return(
         <>
-            <AccountInfo flip={() => { if (!flipped) flip(); }} />
+            <AccountInfo/>
+
+            { activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
+            activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
+            activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) : null }
         </>
     );
 
-    const back = ({ unflip }) => (
-        activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
-            activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
-            activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
-                (
-            <Card
-                variant={variant}
-                header="Account Actions"
-                body={
-                    <div className="btn-grid">
-                        <FlashButton onClick={() => setActiveTab("update_account")} >
-                            Update Account
-                        </FlashButton>
+    // const front = ({ flip }) => ( <AccountInfo flip={() => { if (!flipped) flip();}}/> );
+    // const back = ({ unflip }) => (
+    //     activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
+    //         activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
+    //         activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
+    //             (
+    //         <Card
+    //             variant={variant}
+    //             header="Account Actions"
+    //             body={
+    //                 <div className="btn-grid">
+    //                     {/*<FlashButton onClick={() => setActiveTab("update_account")}> Update Account </FlashButton>*/}
+    //                     {/*<FlashButton onClick={() => setActiveTab("change_password")}> Change Password </FlashButton>*/}
+    //                     {/*<FlashButton onClick={() => setActiveTab("delete_account")}> Delete </FlashButton>*/}
+    //                 </div>
+    //             }
+    //             footer={
+    //                 <div className="footer-row left">
+    //                     <FlashButton className="btn ghost" onClick={() => { setActiveTab("account"); unflip(); }} >
+    //                         ↩ Back
+    //                     </FlashButton>
+    //                 </div>
+    //             }
+    //         />
+    //     )
+    // );
+    //
+    // return (
+    //     <div className="main-container">
+    //         <div className="cards-grid">
+    //             <FlipCard
+    //                 front={front}
+    //                 back={back}
+    //                 flippable
+    //                 isFlipped={flipped}
+    //                 onFlip={setFlipped}
+    //                 autoHeight
+    //
+    //             />
+    //         </div>
+    //         {/*<Outlet />*/}
+    //     </div>
+    // );
 
-                        <FlashButton onClick={() => setActiveTab("change_password")} >
-                            Change Password
-                        </FlashButton>
 
-                        <FlashButton onClick={() => setActiveTab("delete_account")} >
-                            Delete
-                        </FlashButton>
-                    </div>
-                }
-                footer={
-                    <div className="footer-row left">
-                        <FlashButton className="btn ghost" onClick={() => { setActiveTab("account"); unflip(); }} >
-                            ↩ Back
-                        </FlashButton>
-                    </div>
-                }
-            />
-        )
-    );
-
-    return (
-        <div className="main-container">
-            <div className="cards-grid">
-                <FlipCard
-                    front={front}
-                    back={back}
-                    flippable
-                    isFlipped={flipped}
-                    onFlip={setFlipped}
-                    autoHeight
-                />
-            </div>
-
-            <Outlet />
-        </div>
-    );
 }

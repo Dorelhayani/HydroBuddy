@@ -25,6 +25,7 @@ export function useAuth() {
     async function onLogout() {
         if (!window.confirm("Are you sure you want to Log Out?.")) return;
         await logout();
+
     }
 
     const avatarUpload = async (formData) => status.run(async () => { await auth.avatarUpload(formData); });

@@ -8,6 +8,5 @@ export const auth = {
     register: (user) => http("/auth/register", { method: "POST", body: user }),
     change_password:(id,user)=> http(`/auth/change_password/${id}`, { method: "PATCH", body: user }),
     login: (user) => http("/auth/login", { method: "POST", body: user }),
-    // login: (identifier, password) => http('/auth/login', { method: 'POST', body: { identifier, password } }),
     logout: () => http("/auth/logout", { method: "POST" }),
 };

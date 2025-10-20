@@ -1,7 +1,7 @@
 // Login.js
 
 import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {useAuth} from "../hooks/useAuth";
 import GenericForm from "../components/FormGenerate";
@@ -11,14 +11,12 @@ import FlipCard from "../components/FlipCard";
 import {formatDateDDMMYYYY} from "../domain/formatters";
 import RequestBanner from "../components/RequestBanner";
 
-export default function Login() {
+export default function Login({ embed = false }) {
     const nav = useNavigate();
-
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const { item, login, register, loading: authLoading, err: authErr } = useAuth();
-
-    const [activeTab, setActiveTab] = useState("log");
+    const { login, register, loading: authLoading, err: authErr } = useAuth();
     const [flipped, setFlipped] = useState(false);
+    const [activeTab, setActiveTab] = useState("register");
 
     // Log card
     function Log({flip}) {
@@ -28,6 +26,7 @@ export default function Login() {
         ];
 
         const OnSubmit = async (val) => {
+            if (val.password !== val.passwordConfirm) throw new Error("Passwords must match");
             try {
                 await login({ name: val.name.trim(), password: val.password })
                 flashSuccess(1200);
@@ -44,24 +43,27 @@ export default function Login() {
                   body={
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
-                    {authErr && <div style={{color:"salmon", marginBottom:8}}>{authErr}</div>}
                     <GenericForm
                         fields={fields}
                         onSubmit={OnSubmit}
+                        className="stack-12"
                         customButton={({ onClick, loading }) => (
-                            <FlashButton onClickAsync={onClick} loading={loading || authLoading} disabled={authLoading}>
+                            <FlashButton
+                                className="btn btn--primary btn--block"
+                                onClickAsync={onClick}
+                                loading={loading || authLoading}
+                                disabled={authLoading}>
                                 Login</FlashButton> )}
                     />
                 </>
                   }
 
                   footer={
-                      <div className="footer-row">
-                              <small className="text-body-secondary">
-                                  {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
-                              </small>
-                          <FlashButton className="btn ghost ml-auto" onClick={() => { if (!authLoading) flip(); }}
-                                       disabled={authLoading}><small>Not Register yet? </small></FlashButton>
+                      <div className="text-subtle">
+                          <small className="text-truncate" >Not Register yet? </small>
+                          <FlashButton className="btn btn--primary btn--block" disabled={authLoading} onClickAsync={flip}>
+                              Create account
+                          </FlashButton>
                       </div>
                   }
             />
@@ -69,10 +71,11 @@ export default function Login() {
     }
 
     // Register card
-    function Register() {
+    function Register({unflip}) {
         const fields = [
             { name: "name", placeholder: "Name", required: true },
-            { name: "email", placeholder: "Email", type: "email", required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
+            { name: "email", placeholder: "Email", type: "email", required: true,
+                validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
             { name: "password", placeholder: "Password", type: "password", required: true },
             { name: "passwordConfirm", placeholder: "Confirm Password", type: "password", required: true },
         ];
@@ -83,7 +86,7 @@ export default function Login() {
                 await register({ name: val.name.trim(), email: String(val.email),
                     password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
                 flashSuccess(1400);
-                setTimeout(() => setActiveTab("log"), 600);
+                // setTimeout(() => setActiveTab("log"), 600);
             } catch (err) {
                 flashDanger(2000);
                 throw new Error(err.message || "Register failed");
@@ -102,6 +105,7 @@ export default function Login() {
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
                             <FlashButton
+                                className="btn btn--primary btn--block"
                                 onClickAsync={onClick}
                                 loading={loading || authLoading}
                                 disabled={authLoading}
@@ -109,53 +113,21 @@ export default function Login() {
                         )}
                     />
                 </>
-
                 }
                 footer={
                     <div className="footer-row">
-                        <FlashButton className="btn ghost ml-auto" onClick={() => setActiveTab("log")}>
-                            🢐 Back
-                        </FlashButton>
+                        <FlashButton className="btn btn--ghost" onClick= {unflip}> Back </FlashButton>
                     </div>
                 }
             />
         );
     }
 
+    const front = ({ flip }) => ( <> <Log flip={() => {setActiveTab("login");  if (!flipped) flip(); }} /> </>);
+    const back = ({ unflip }) => ( <Register variant={variant} unflip={() => { setActiveTab("register"); if (flipped) unflip(); }}/> )
 
-    const front = ({ flip }) => (
-        <>
-            <Log flip={() => { if (!flipped) flip(); }} />
-        </>
-    );
-
-    const back = ({ unflip }) => (
-            activeTab === "register" ? ( <Register variant={variant} /> ) :
-                (
-            <Card
-                variant={variant}
-                header="Account Actions"
-                body={
-                    <div className="btn-grid">
-                        <FlashButton className="flash-btn" onClick={() => setActiveTab("register")}>
-                            Create account
-                        </FlashButton>
-                    </div>
-                }
-                footer={
-                    <div className="footer-row">
-                    <FlashButton  className="btn ghost" onClick={() => { setActiveTab("log"); unflip(); }} >
-                        ↩ Back
-                    </FlashButton>
-                    </div>
-                }
-            />
-        )
-    );
     return (
-        <div className="main-container">
-
-            <div className="cards-grid">
+            <div className="cards-grid cards-grid--narrow">
                 <FlipCard
                     front={front}
                     back={back}
@@ -163,9 +135,9 @@ export default function Login() {
                     isFlipped={flipped}
                     onFlip={setFlipped}
                     autoHeight
+                    measureDeps={[activeTab]}
+                    backKey={activeTab}
                 />
-            </div>
-            <Outlet />
         </div>
     );
 }

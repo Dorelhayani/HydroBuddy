@@ -3,8 +3,11 @@
 import { http } from "./http";
 
 export const esp = {
-    // getStateJson: () => http(`/esp/sendJSON?_=${Date.now()}`, { method: "GET" }),
-    getStateJson: () => http(`/esp/sendJSON?_=${Date.now()}`, { method: "GET", credentials: "include" }),
+
+    // getStateJson: () => http(`/esp/getJSON?_=${Date.now()}`, { method: "GET" }),
+    // getState: () => http(`/esp/getJSON?_=${Date.now()}`, { method: "GET", credentials: "include" }),
+
+    getState: () => http(`/esp/state?_=${Date.now()}`, { method: "GET", credentials: "include" }),
     dataMode: (state) => http(`/esp/dataMode${state ? `?state=${encodeURIComponent(state)}` : ""}`, { method: "GET" }),
     setState: (payload) => http("/esp/state", { method: "PATCH", body: payload }),
 
@@ -19,12 +22,6 @@ export const esp = {
     updateMoistReading: (payload) => http("/esp/moist-config", { method: "PATCH", body: payload }),
 
     // ידני
-    // setEnabled: (enabled) =>
-    //     http("/esp/manual", {
-    //         method: "PATCH",
-    //         body: JSON.stringify({ enabled: String(enabled) }),
-    //     }),
-
     setEnabled(enabled) {
         return http("/esp/manual", {
             method: "PATCH",

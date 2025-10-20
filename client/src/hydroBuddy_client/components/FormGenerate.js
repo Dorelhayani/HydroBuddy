@@ -1,6 +1,6 @@
 // FormGenerate.js
 
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Form } from "react-router-dom";
 import FlashButton from "./ButtonGenerate";
 
@@ -12,13 +12,20 @@ export default function GenericForm({
                                         renderField,
                                         className = "",
                                         customButton,
-                                    }) {
+                                        rowClassNameAll = "",
+                                        labelClassNameAll = "",
+                                        inputClassNameAll = "",
+                                        placeholderClassAll = "",
+
+}) {
+    // נרמול ערכי פתיחה
     const normalizeInit = (fs, iv) =>
         fs.reduce((acc, f) => {
             const init = iv[f.name];
-            // לשדה multiple נאתחל למערך
             if (f.type === "select" && f.multiple) {
-                acc[f.name] = Array.isArray(init) ? init : (init != null ? [init] : []);
+                acc[f.name] = Array.isArray(init) ? init : init != null ? [init] : [];
+            } else if (f.type === "checkbox") {
+                acc[f.name] = Boolean(init);
             } else {
                 acc[f.name] = init ?? "";
             }
@@ -37,9 +44,9 @@ export default function GenericForm({
 
     const coerce = (val, asNumber) => {
         if (!asNumber) return val;
-        if (val === "" || val === null || val === undefined) return "";
+        if (val === "" || val == null) return "";
         const n = Number(val);
-        return Number.isFinite(n) ? n : val; // אם לא מספר תקין, נשאיר כפי שהוא
+        return Number.isFinite(n) ? n : val;
     };
 
     const validateAll = () => {
@@ -50,11 +57,12 @@ export default function GenericForm({
                 const err = f.validate(val, values);
                 if (err) next[f.name] = err;
             } else if (f.required) {
-                // עבור select עם placeholder ריק
                 if (f.type === "select" && !f.multiple) {
-                    if (val === "" || val === null || val === undefined) next[f.name] = "Required";
+                    if (val === "" || val == null) next[f.name] = "Required";
                 } else if (f.type === "select" && f.multiple) {
                     if (!Array.isArray(val) || val.length === 0) next[f.name] = "Required";
+                } else if (f.type === "checkbox") {
+                    if (!val) next[f.name] = "Required";
                 } else {
                     if (!val && val !== 0) next[f.name] = "Required";
                 }
@@ -65,7 +73,7 @@ export default function GenericForm({
     };
 
     const handleSubmit = async (e) => {
-        if (e && e.preventDefault) e.preventDefault();
+        if (e?.preventDefault) e.preventDefault();
         setSubmitError("");
         if (!validateAll()) return;
         try {
@@ -79,7 +87,7 @@ export default function GenericForm({
         }
     };
 
-    // עוזר לנרמל אופציות ל־{ value, label }
+    // נרמול אופציות ל־{ value, label }
     const toOptionTuples = (options, { valueKey, labelKey } = {}) => {
         if (!options) return [];
         return options.map((opt) => {
@@ -95,55 +103,105 @@ export default function GenericForm({
         });
     };
 
-    return (
-        <Form className={className} onSubmit={handleSubmit} noValidate>
-            {fields.map((f) => {
-                const val = values[f.name] ?? (f.multiple ? [] : "");
-                const err = errors[f.name];
+    // עוזר לאיידים ו־aria
+    const fid = (f) => f.id || `f_${f.name}`;
+    const errId = (f) => `err_${f.name}`;
+    const helpId = (f) => (f.help ? `help_${f.name}` : undefined);
 
-                // מאפשר רנדרר מותאם
+    return (
+        <Form
+            className={["form", "stack-12", className].filter(Boolean).join(" ")}
+            onSubmit={handleSubmit}
+            noValidate
+        >
+            {fields.map((f) => {
+                const val = values[f.name] ?? (f.multiple ? [] : f.type === "checkbox" ? false : "");
+                const err = errors[f.name];
+                const fieldId = fid(f);
+
+                // רנדרר מותאם (אם סופק)
                 if (renderField) {
                     const custom = renderField(f, val, (v) => handleChange(f.name, v), err);
                     if (custom) return <div key={f.name}>{custom}</div>;
                 }
 
-                // ברירת מחדל
-                const block = (child) => (
-                    <div key={f.name} style={{ marginBottom: 12 }}>
-                        <label style={{ display: "block", marginBottom: 6 }}>{f.label}</label>
-                        {child}
-                        {err && <div style={{ color: "salmon", marginTop: 6 }}>{err}</div>}
+                // בלוק אחיד לשדה
+                const block = (control) => (
+                    <div key={f.name} className={`form-row ${rowClassNameAll} ${f.rowClassName || ""} ${err ? "has-error" : ""}`}>
+                        {f.type !== "checkbox" && (
+                            <label className={`form-label ${labelClassNameAll} ${f.labelClassName || ""}`} htmlFor={fieldId}>
+                                {f.label || f.placeholder}
+                                {f.required ? <span className="form-req" aria-hidden="true">*</span> : null}
+                            </label>
+                        )}
+
+                        {control}
+
+                        {f.help && (
+                            <div id={helpId(f)} className="form-help text-subtle">
+                                {f.help}
+                            </div>
+                        )}
+
+                        {err && (
+                            <div id={errId(f)} className="form-error" role="alert">
+                                {err}
+                            </div>
+                        )}
                     </div>
                 );
+
+                // checkbox (layout שונה)
+                if (f.type === "checkbox") {
+                    return (
+                        <div key={f.name} className={`form-row form-row--check ${err ? "has-error" : ""}`}>
+                            <label className="check">
+                                <input
+                                    id={fieldId}
+                                    type="checkbox"
+                                    checked={!!val}
+                                    onChange={(ev) => handleChange(f.name, ev.target.checked)}
+                                    aria-describedby={[helpId(f), err ? errId(f) : null].filter(Boolean).join(" ") || undefined}
+                                    aria-invalid={!!err}
+                                />
+                                <span className="check__label">
+                  {f.label || f.placeholder}
+                                    {f.required ? <span className="form-req" aria-hidden="true">*</span> : null}
+                </span>
+                            </label>
+                            {f.help && <div id={helpId(f)} className="form-help text-subtle">{f.help}</div>}
+                            {err && <div id={errId(f)} className="form-error" role="alert">{err}</div>}
+                        </div>
+                    );
+                }
 
                 if (f.type === "textarea") {
                     return block(
                         <textarea
+                            id={fieldId}
                             name={f.name}
+                            rows={f.rows || 4}
                             value={val}
                             placeholder={f.placeholder || ""}
                             onChange={(ev) => handleChange(f.name, ev.target.value)}
-                            className="input"
+                            className={`input ${inputClassNameAll} ${f.inputClassName || ""} ${placeholderClassAll} ${f.placeholderClass || ""}`}
+                            aria-describedby={[helpId(f), err ? errId(f) : null].filter(Boolean).join(" ") || undefined}
+                            aria-invalid={!!err}
                         />
                     );
                 }
 
                 if (f.type === "select") {
-                    // אופציות יכולות להגיע ישירות או מפונקציה דינמית
                     const rawOptions = typeof f.getOptions === "function" ? f.getOptions(values) : f.options;
                     const opts = toOptionTuples(rawOptions || [], { valueKey: f.valueKey, labelKey: f.labelKey });
                     const disabledSet = new Set(f.disabledOptions || []);
 
-                    // placeholderOption – יצירת בחירה ריקה למצב single
                     const showPlaceholder = !f.multiple && f.placeholderOption;
                     const placeholder = showPlaceholder
                         ? [{ value: "", label: typeof f.placeholderOption === "string" ? f.placeholderOption : "— Select —" }]
                         : [];
 
-                    const selectValue = f.multiple
-                        ? (Array.isArray(val) ? val.map(String) : [])
-                        : String(val ?? "");
-
+                    const selectValue = f.multiple ? (Array.isArray(val) ? val.map(String) : []) : String(val ?? "");
                     const onSelectChange = (ev) => {
                         if (f.multiple) {
                             const chosen = Array.from(ev.target.selectedOptions).map((o) => o.value);
@@ -156,11 +214,14 @@ export default function GenericForm({
 
                     return block(
                         <select
+                            id={fieldId}
                             name={f.name}
                             value={selectValue}
                             onChange={onSelectChange}
-                            className="input"
+                            className={`input ${f.inputClassName || ""} ${f.placeholderClass || ""}`}
                             multiple={!!f.multiple}
+                            aria-describedby={[helpId(f), err ? errId(f) : null].filter(Boolean).join(" ") || undefined}
+                            aria-invalid={!!err}
                         >
                             {placeholder.map((p) => (
                                 <option key="__placeholder__" value="">
@@ -179,7 +240,8 @@ export default function GenericForm({
                 // input רגיל
                 return block(
                     <input
-                        className="input"
+                        id={fieldId}
+                        className={`input ${f.inputClassName || ""} ${f.placeholderClass || ""}`}
                         type={f.type || "text"}
                         name={f.name}
                         value={val}
@@ -188,20 +250,27 @@ export default function GenericForm({
                             const next = f.asNumber ? coerce(ev.target.value, true) : ev.target.value;
                             handleChange(f.name, next);
                         }}
+                        autoComplete={f.autoComplete}
+                        aria-describedby={[helpId(f), err ? errId(f) : null].filter(Boolean).join(" ") || undefined}
+                        aria-invalid={!!err}
                     />
                 );
             })}
 
-            {submitError && <div style={{ color: "salmon", marginBottom: 8 }}>{submitError}</div>}
+            {submitError && <div className="form-error" role="alert">{submitError}</div>}
 
             <div className="btn-container">
-                {customButton
-                    ? customButton({ onClick: handleSubmit, loading })
-                    : (
-                        <FlashButton onClickAsync={() => handleSubmit()} loading={loading}>
-                            {submitLabel}
-                        </FlashButton>
-                    )}
+                {customButton ? (
+                    customButton({ onClick: handleSubmit, loading })
+                ) : (
+                    <FlashButton
+                        className="btn btn--primary btn--block"
+                        onClickAsync={() => handleSubmit()}
+                        loading={loading}
+                    >
+                        {submitLabel}
+                    </FlashButton>
+                )}
             </div>
         </Form>
     );
