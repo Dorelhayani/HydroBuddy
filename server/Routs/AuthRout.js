@@ -49,15 +49,15 @@ const upload = multer({
 router.get('/', (req, res) => res.redirect(process.env.FRONTEND_ORIGIN || 'http://localhost:3000/'));
 
 router.get('/me', authController.isLogged.bind(authController), (req, res) => {
-    const origin = process.env.API_PUBLIC_ORIGIN
-        || `${req.secure ? 'https' : 'http'}://${req.get('host')}`;
+    const origin = process.env.API_PUBLIC_ORIGIN || `${req.secure ? 'https' : 'http'}://${req.get('host')}`;
 
     const user = { ...req.user };
     if (user?.avatar_url && !String(user.avatar_url).startsWith('http')) {
         user.avatar_url = `${origin}${user.avatar_url}`;
     }
     return res.status(200).json(user);
-});
+}
+);
 
 router.post(
     '/avatar', authController.isLogged.bind(authController), upload.single('avatar'),
@@ -80,28 +80,6 @@ router.post(
         }
     }
 );
-
-// Register
-// router.post('/register', async (req, res) => {
-//     try {
-//         const { name, email, password, passwordConfirm } = req.body;
-//         if (!password || !passwordConfirm || password !== passwordConfirm) {
-//             return res.status(400).json({ error: 'Passwords do not match' });
-//         }
-//
-//         const id = await authController.Register(name, email, password);
-//         return res.status(201).json({ message: 'User created', id });
-//     } catch (error) {
-//         if (error && error.code === 'EMAIL_EXISTS')
-//             return res.status(409).json({ error: 'Email already registered' });
-//         if (error && error.code === 'WEAK_PASSWORD')
-//             return res.status(400).json({ error: 'Password too weak', score: error.score, feedback: error.feedback });
-//         if (error && error.code === 'NonValidEmail')
-//             return res.status(400).json({ error: 'Please enter a valid email' });
-//         console.error('Register error:', error);
-//         return res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
 
 // Login
 router.post('/login', async (req, res) => {
@@ -167,7 +145,6 @@ router.patch(
         }
     }
 );
-
 
 // Logout
 router.post('/logout', async (req, res) => {

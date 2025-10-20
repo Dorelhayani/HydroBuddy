@@ -9,7 +9,6 @@ class Register_Account {
     constructor(db, options = {}) {
         this.DB = db;
         this.saltRounds = options.saltRounds || (process.env.SALT_ROUNDS ? Number(process.env.SALT_ROUNDS) : 10);
-
     }
 
     static validateEmail(email) { return typeof email === 'string' && validator.isEmail(email.trim()); }
