@@ -3,34 +3,35 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import {useReg} from "../hooks/useRegister";
 import {useAuth} from "../hooks/useAuth";
 import GenericForm from "../components/FormGenerate";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
-import {formatDateDDMMYYYY} from "../domain/formatters";
 import RequestBanner from "../components/RequestBanner";
 
-export default function Login({ embed = false }) {
+export default function Login() {
     const nav = useNavigate();
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-    const { login, register, loading: authLoading, err: authErr } = useAuth();
+
+    const {register} = useReg();
+    const { login, loading: authLoading, err: authErr } = useAuth();
     const [flipped, setFlipped] = useState(false);
     const [activeTab, setActiveTab] = useState("register");
 
     // Log card
     function Log({flip}) {
         const fields = [
-            { name: "name", placeholder: "Name", required: true },
-            { name: "password", placeholder: "Password", type: "password", required: true },
+            { name: "name", label: "Enter Name", placeholder:"Name", type: "text" },
+            { name: "password", label: "Enter Password", placeholder: "Password", type: "password" },
         ];
 
         const OnSubmit = async (val) => {
-            if (val.password !== val.passwordConfirm) throw new Error("Passwords must match");
             try {
                 await login({ name: val.name.trim(), password: val.password })
                 flashSuccess(1200);
-                setTimeout(() => nav("/home"), 300);
+                setTimeout(() => nav("/dashboard"), 300);
             } catch (err) {
                 flashDanger(1800);
                 throw new Error(err.message || "Login failed");
@@ -44,9 +45,12 @@ export default function Login({ embed = false }) {
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
+                        className="form--inline form--roomy stack-16"
+                        labelClassNameAll="label-muted"
+                        placeholderClassAll="ph-muted ph-sm"
+                        rowClassNameAll="text-sm fw-600"
                         fields={fields}
                         onSubmit={OnSubmit}
-                        className="stack-12"
                         customButton={({ onClick, loading }) => (
                             <FlashButton
                                 className="btn btn--primary btn--block"
@@ -73,11 +77,11 @@ export default function Login({ embed = false }) {
     // Register card
     function Register({unflip}) {
         const fields = [
-            { name: "name", placeholder: "Name", required: true },
-            { name: "email", placeholder: "Email", type: "email", required: true,
+            { name: "name",label:"Enter Name", placeholder: "Name", type:"text", required: true },
+            { name: "email",label:"Enter Email",  placeholder: "Email", type: "email", required: true,
                 validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
-            { name: "password", placeholder: "Password", type: "password", required: true },
-            { name: "passwordConfirm", placeholder: "Confirm Password", type: "password", required: true },
+            { name: "password",label:"Enter Password",  placeholder: "Password", type: "password", required: true },
+            { name: "passwordConfirm",label:"Confirm Your PassWord",  placeholder: "Confirm Password", type: "password", required: true },
         ];
 
         const OnSubmit = async (val) => {
@@ -86,7 +90,7 @@ export default function Login({ embed = false }) {
                 await register({ name: val.name.trim(), email: String(val.email),
                     password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
                 flashSuccess(1400);
-                // setTimeout(() => setActiveTab("log"), 600);
+                setTimeout(() => setActiveTab("login"), 600);
             } catch (err) {
                 flashDanger(2000);
                 throw new Error(err.message || "Register failed");
@@ -101,6 +105,10 @@ export default function Login({ embed = false }) {
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
+                        className="form--inline form--roomy max-w-700"
+                        labelClassNameAll="label-muted"
+                        placeholderClassAll="ph-muted ph-sm"
+                        rowClassNameAll="text-xs fw-600"
                         fields={fields}
                         onSubmit={OnSubmit}
                         customButton={({ onClick, loading }) => (
