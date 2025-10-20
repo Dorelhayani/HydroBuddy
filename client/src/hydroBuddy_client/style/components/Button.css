@@ -1,0 +1,48 @@
+/* בסיס */
+.btn {
+    --btn-h: 42px;
+    --btn-px: 14px;
+    --btn-radius: 12px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: var(--btn-h);
+    padding-inline: var(--btn-px);
+    border-radius: var(--btn-radius);
+    border: 1px solid transparent;
+    font-weight: 600;
+    cursor: pointer;
+
+    background: var(--accent);
+    color: #000;
+    transition: background .15s ease, border-color .15s ease, transform .06s ease, opacity .12s ease;
+}
+
+/* מצבים */
+.btn:hover   { background: var(--accent-600); }
+.btn:active  { transform: translateY(1px); }
+.btn:disabled, .btn[disabled] { opacity:.6; cursor:not-allowed; pointer-events:none; }
+
+/* וריאנטים */
+.btn--primary  { background: var(--accent); color:#000; }
+.btn--ghost    { background: transparent; border-color: var(--muted); color: var(--text); }
+.btn--outline  { background: transparent; border-color: var(--accent); color: var(--accent); }
+.btn--danger   { background: var(--danger); color:#000; }
+.btn--success  { background: var(--success); color:#000; }
+
+/* גדלים */
+.btn--sm { --btn-h: 34px; --btn-px: 10px; --btn-radius: 10px; font-size: .95rem; }
+.btn--lg { --btn-h: 48px; --btn-px: 18px; --btn-radius: 14px; font-size: 1.05rem; }
+
+/* פריסה */
+.btn--block { display:flex; width: 100%; }
+
+/* אייקון־כפתור */
+.btn--icon { --btn-h: 36px; width: var(--btn-h); padding: 0; }
+.btn__icon { font-size: 20px; line-height: 1; }
+
+/* בתוך footer של כרטיס */
+.card .footer-row .btn { min-width: 120px; }  /* מרווח נעים */

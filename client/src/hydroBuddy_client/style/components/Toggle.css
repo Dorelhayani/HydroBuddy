@@ -1,12 +1,5 @@
-.toggle-container{
-    display: grid;
-    grid-template-columns: 1fr 160px;
-    padding: 4px;
-    align-items: center;
-    marginBottom: 10px;
-}
+/* toggle */
 
-/* מצב ידני - חשוב */
 .toggle {
     width: 64px;
     height: 34px;
@@ -39,18 +32,17 @@
     transition: transform 120ms ease;
 }
 
-.toggle[aria-checked="true"] .knob {
-    transform: translateX(31px); /* 64 - 28 - 3 ≈ 33; תכוונן אם צריך */
-}
+.toggle[aria-checked="true"] .knob { transform: translateX(31px); } /* 64 - 28 - 3 ≈ 33; תכוונן אם צריך */
 
-.toggle{
-    margin-left: 12px;
-    opacity: .85;
-}
-
-.toggle-container{
+.manual-row{
     display: flex;
     align-items: center;
-    gap: 165px;
+    gap: 12px;
     margin-top: 16px;
+    min-height: 44px;
 }
+
+
+.push-right{ margin-left: auto; } /* דוחף את הטוגל עד ימין */
+.toggle{ opacity: .85; } /* margin-left: 12px;  ← להסיר את זה */
+@media (max-width: 480px){ .manual-row { gap: 8px; } }

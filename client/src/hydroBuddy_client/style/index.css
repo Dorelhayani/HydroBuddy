@@ -1,37 +1,25 @@
 /*index.css*/
 
-@import "./base.css";
-@import "./style.css";
-@import "./utils.css";
-@import "./layout.css";
-@import "./sidebar.css";
+/* ========== Base Layers ========== */
 @import "./variables.css";
+@import "./base.css";
+@import "./layout.css";
 
-@import "./components/button.css";
-@import "./components/nav.css";
-@import "./components/card.css";
-@import "./components/form.css";
-@import "components/toggle.css";
+/* === Utilities should come AFTER base/layout === */
+@import "./utils.css";
 
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200");
-.msr {
-    font-family: "Material Symbols Rounded", serif;
-    font-weight: 400; /* 300..700 */
-    font-style: normal;
-    font-size: 20px;  /* תשנה חופשי */
-    line-height: 1;
-    display: inline-block;
-    vertical-align: middle;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    direction: ltr;
-    -webkit-font-feature-settings: "liga";
-    -webkit-font-smoothing: antialiased;
+/* === General styling and layout === */
+@import "./sidebar.css";
 
-    /* וריאציות ברירת מחדל (אפשר לשנות פר־אייקון) */
-    font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
-}
-.icon-tomato .msr { color: #ff6b6b; }
-.icon-basil  .msr { color: #7bd389; }
-.icon-mint   .msr { color: #76e4f7; }
+
+/* ========== Components ========== */
+@import "components/Icon.css";
+@import "components/Tile.css";
+@import "components/Card.css";
+@import "components/Drawer.css";
+@import "components/FlipCard.css";
+@import "components/Button.css";
+@import "./components/Form.css";
+@import "./components/Media.css";
+@import "components/Toggle.css";
+@import "components/Banner.css";

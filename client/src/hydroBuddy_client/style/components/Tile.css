@@ -1,0 +1,130 @@
+/* ===== Tile (compact) ===== */
+.tile {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;                 /* היה 18 – קומפקטי יותר */
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;           /* היה 26 – פחות עבה */
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: transform .06s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+    cursor: pointer;
+}
+
+.tile:hover  { background: #2a2a2a; border-color: #3a3a3a; }
+.tile:active { transform: translateY(1px); }
+.tile.is-disabled { opacity: .55; pointer-events: none; }
+
+/* אווטאר קטן יותר */
+.tile__avatar {
+    width: 44px;                   /* היה 56 */
+    height: 44px;
+    border-radius: 999px;
+    display: grid; place-items: center;
+    border: 1px solid #333;
+    background:
+            radial-gradient(120% 120% at 30% 30%, rgba(255,255,255,.06), rgba(0,0,0,.12)),
+            #1f1f1f;
+}
+
+/* טקסט קומפקטי */
+.tile__body { min-width: 0; display: grid; gap: 2px; }
+.tile__title {
+    font-size: 18px;               /* היה 20 */
+    font-weight: 700;
+    color: #f1f1f1;
+    line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tile__subtitle {
+    opacity: .7;
+    letter-spacing: .1px;
+    font-size: 13px;               /* היה 15 */
+    color: #b6b6b6;
+    line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* צ'ברון מעט קטן ומיושר */
+.tile__chev { font-size: 20px; opacity: .6; margin-left: 6px; }
+
+/* מודיפייר אם תרצה אפילו יותר קטן: <div class="tile tile--sm"> */
+.tile--sm { padding: 10px; border-radius: 14px; }
+.tile--sm .tile__avatar { width: 40px; height: 40px; }
+.tile--sm .tile__title { font-size: 16px; }
+.tile--sm .tile__subtitle { font-size: 12px; }
+
+/* ===== List wrapper (אחיד, בלי כפילויות) ===== */
+.c-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.c-list__item { list-style: none; padding: 0; background: transparent; border: 0; }
+.c-list__item > .tile { width: 100%; }
+
+@media (max-width: 420px) {
+    .tile { padding: 12px; border-radius: 16px; }
+    .tile__avatar { width: 40px; height: 40px; }
+    .tile__title { font-size: 16px; }
+    .tile__subtitle { font-size: 12px; }
+}
+
+.tile { outline: none; }
+
+/* טבעת פוקוס אמיתית */
+.tile:focus-visible {
+    box-shadow: 0 0 0 2px rgba(230,194,41,.35);
+    border-color: var(--brand);
+}
+
+
+/* מצב נבחר – בין אם is-selected על ה-tile או על ה-li */
+.tile.is-selected,
+.c-list__item.is-selected > .tile {
+    box-shadow: 0 0 0 2px rgba(230,194,41,.35);
+    border-color: var(--brand);
+}
+
+
+
+/* ===== plantRenderer Control ===== */
+
+/* בסיס: שליטה קלה בפריסה וגודל */
+.plant-status{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+
+/* מיקום: ימין/שמאל בצורה אג׳נוסטית ל-RTL/LTR */
+.align-right { margin-inline-start: auto; }  /* דוחף לימין ב-RTL ולסוף ב-LTR */
+.align-left  { margin-inline-end:  auto; }
+
+/* גדלים טיפוגרפיים כלליים */
+.plant-status--sm { font-size: 12px; }
+.plant-status--md { font-size: 14px; }
+.plant-status--lg { font-size: 16px; }
+
+/* אם ה-renderPlant מחזיר SVG/Icon—נשלוט במידות ישירות */
+.plant-status svg,
+.plant-status .icon {
+    width: 1em;
+    height: 1em;
+}
+
+/* מודיפייר גודל שגם מגדיל אייקונים */
+.plant-status--sm svg, .plant-status--sm .icon { width: 14px; height: 14px; }
+.plant-status--md svg, .plant-status--md .icon { width: 18px; height: 18px; }
+.plant-status--lg svg, .plant-status--lg .icon { width: 22px; height: 22px; }
+
+/* סימון נקודה קטן ליד הטקסט */
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+
+/* אם יש לך כבר מחלקות ok/neutral/warn/alert—נשען עליהן לצבע */
+.badge.ok .dot { background: #2ecc71; }     /* ירוק */
+.badge.neutral .dot { background: #999; }   /* אפור */
+
+/* אופציונלי: גרסה עם scale אם יש תוכן מעורב ולא רק טקסט/אייקון */
+.plant-status.is-scaled-sm { transform: scale(0.9); transform-origin: center; }
+.plant-status.is-scaled-lg { transform: scale(1.15); transform-origin: center; }

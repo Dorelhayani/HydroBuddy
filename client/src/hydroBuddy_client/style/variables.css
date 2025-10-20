@@ -1,35 +1,80 @@
 /* variables.css */
 
-
-:root{
-    /* colors */
+:root {
+    /* ===== Base Colors ===== */
     --bg: #1f1f1f;
     --surface: #2a2a2a;
-    --muted: #3a3a3a;
     --text: #eaeaea;
+
+    /* ===== Muted Scale (לגבולות/טקסט משני) ===== */
+    --muted-50:  #2b2b2b;
+    --muted-100: #333333;
+    --muted-200: #3a3a3a;
+    --muted-300: #444444;
+    --muted-400: #555555;
+    --muted-500: #6b6b6b;
+    --muted: var(--muted-200);
+    --border: var(--muted-200);
+
+    /* ===== Brand / Accent ===== */
+    --brand: #e6c229;
+    --brand-contrast: #000;
     --accent: #ADE2F4;
     --accent-600: #7AAFC1;
     --accent-200: #C1E9F7;
+
+    /* ===== Semantic ===== */
     --warning: #e6c229;
     --danger: #e53e3e;
     --success: #2ecc71;
 
-    /* spacing & sizes */
-    --gap-sm: 8px;
-    --gap-md: 12px;
-    --gap-lg: 20px;
-    --radius: 12px;
-    --container-w: 640px;
+    /* ===== Spacing Scale ===== */
+    --space-2: 2px;
+    --space-4: 4px;
+    --space-6: 6px;
+    --space-8: 8px;
+    --space-12: 12px;
+    --space-16: 16px;
+    --space-20: 20px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --space-40: 40px;
 
-    /* typography */
+    /* Aliases you already use */
+    --gap-sm: var(--space-8);
+    --gap-md: var(--space-12);
+    --gap-lg: var(--space-20);
+
+    /* ===== Container ===== */
+    --container-w: 1200px;
+
+    /* ===== Typography ===== */
     --font-sans: "Helvetica", Arial, sans-serif;
     --base-size: 16px;
-    --line-height: 1.4;
+    --font-title: 18px;
+    --font-body: 16px;
+    --line-height: 1.45;
+
+    /* ===== Radius / Inputs / Focus ===== */
+    --radius: 16px;
+    --input-h: 30px;
+    --focus-ring: 0 0 0 2px rgba(230, 194, 41, 0.35);
+
+    /* ===== Inputs - Width / Spacing ===== */
+    --input-w-sm: 40%;
+    --input-w: 50%;
+    --input-w-lg: 60%;
+
+
+    /* ===== Shadows ===== */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.35);
+    --shadow-md: 0 6px 18px rgba(0,0,0,.35);
+    --shadow-lg: 0 12px 28px rgba(0,0,0,.45);
 }
 
-/* responsive breakpoints (mobile-first) */
-@media (min-width: 768px) {
-    :root {
-        --container-w: 900px;
-    }
+@media (min-width: 1440px) {
+    :root { --container-w: 1280px; }
 }
+
+/* בחירה */
+::selection { background: rgba(230,194,41,.3); color: inherit; }

@@ -1,0 +1,18 @@
+.drawer > summary {
+    list-style: none; cursor: pointer;
+    display:flex; align-items:center; gap:8px; padding: 10px 4px;
+    color: var(--text); font-weight:600; user-select:none;
+}
+.drawer > summary::-webkit-details-marker { display:none; }
+
+.drawer__content {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height .24s ease, opacity .18s ease;
+    padding-left: 2px;
+}
+.drawer[open] .drawer__content { max-height: 380px; opacity: 1; }
+
+.drawer__actions { display:grid; gap: var(--gap-sm); grid-template-columns: 1fr; }
+
+.card + .drawer { margin-top: -6px; } /* מדביק ויזואלית לכרטיס שמעל */
+

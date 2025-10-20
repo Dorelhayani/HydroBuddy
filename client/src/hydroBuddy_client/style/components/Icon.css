@@ -1,0 +1,16 @@
+/* Material Symbols נטען כבר ב-base.css תחת .msr */
+.icon { color: #cfd8dc; }
+
+/* צבעים לפי מצב (Modes) */
+.icon--mode-sleep    .icon { color: #6aa6ff; }
+.icon--mode-theater  .icon { color: #ef6b63; }
+.icon--mode-driving  .icon { color: #7ab6ff; }
+.icon--mode-exercise .icon { color: #58e28f; }
+.icon--mode-relax    .icon { color: #ffba63; }
+.icon--mode-work     .icon { color: #ff8fb1; }
+.icon--mode-game     .icon { color: #b49cff; }
+
+/* צבעים לפי צמחים (אופציונלי) */
+.icon--plant-tomato .icon { color:#ff6b6b; }
+.icon--plant-basil  .icon { color:#7bd389; }
+.icon--plant-mint   .icon { color:#76e4f7; }

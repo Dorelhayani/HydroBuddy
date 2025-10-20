@@ -1,0 +1,53 @@
+/* ===== FlipCard (presentation-only) ===== */
+/* ניתן לשנות את גובה המינימום ע"י --flip-min-h על האלמנט ההורה */
+.flip-card {
+    perspective: 1000px;
+    width: 100%;
+    position: relative;
+    border-radius: var(--radius);
+}
+
+/* מנטרל פליפ (למצבים של "מסך יחיד") */
+.flip-card.no-flip .flip-card-inner { transform: none !important; }
+
+/* ליבה */
+.flip-card-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 380ms ease, min-height 200ms ease;
+    min-height: var(--flip-min-h, 420px);
+    border-radius: inherit;
+}
+
+/* מצב פליפ */
+.flip-card-inner.is-flipped { transform: rotateY(180deg); }
+
+/* פאות */
+.flip-card-face {
+    position: relative;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: inherit;
+    display: flex;
+}
+
+.flip-card-face.front { transform: rotateY(0deg); }
+
+.flip-card-face.back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    overflow: auto; /* כדי לא לחתוך תוכן בגב */
+}
+
+/* הקלפים שבתוך הפאות */
+.flip-card-face > .card {
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* וריאנט: גובה אוטומטי (אם אתה קובע דינאמית ב-JS, אפשר להוסיף את המחלקה להורה) */
+.flip-card--autoheight .flip-card-inner { min-height: auto; }
