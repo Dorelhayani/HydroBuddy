@@ -19,6 +19,7 @@ export default function Account() {
 
     const { setItems, update_account, remove_account } = useAccount();
     const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
+    const avatarSrc = item?.avatar_url || "/img/default-avatar.png";
 
     const [flipped, setFlipped] = useState(false);
 
@@ -105,7 +106,7 @@ export default function Account() {
 
         return (
             <>
-                <img src={src} alt="avatar" tabIndex={0} role="button" aria-label="Upload avatar" onClick={openPicker}
+                <img key={avatarSrc} src={avatarSrc} alt="avatar" tabIndex={0} role="button" aria-label="Upload avatar" onClick={openPicker}
                     onKeyDown={onKey} className="avatar-img" />
                 <input ref={inputRef} type="file" accept="image/*" onChange={onChange} hidden/>
             </>

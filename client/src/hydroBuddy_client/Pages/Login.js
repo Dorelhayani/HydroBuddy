@@ -31,7 +31,7 @@ export default function Login() {
             try {
                 await login({ name: val.name.trim(), password: val.password })
                 flashSuccess(1200);
-                setTimeout(() => nav("/dashboard"), 300);
+                nav("/dashboard");
             } catch (err) {
                 flashDanger(1800);
                 throw new Error(err.message || "Login failed");
@@ -90,7 +90,7 @@ export default function Login() {
                 await register({ name: val.name.trim(), email: String(val.email),
                     password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
                 flashSuccess(1400);
-                setTimeout(() => setActiveTab("login"), 600);
+                setTimeout(() => setActiveTab("/"), 600);
             } catch (err) {
                 flashDanger(2000);
                 throw new Error(err.message || "Register failed");
