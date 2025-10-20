@@ -6,7 +6,7 @@ class PlantData {
     }
 
     // insert sensor data for the most-recent plant of a user
-    async storeESPData(userId, temp, light, moisture, isRunning) {
+    async storeESPData(userId, temp, light, moisture, isPumpON) {
         if (!userId) throw new Error('Missing user id');
 
         // find latest plant id for user
@@ -24,9 +24,9 @@ class PlantData {
 
         const plantId = rows[0].plantId;
         await this.DB.execute(
-            `INSERT INTO datasensors (PlantID, temp, light, moisture, isRunning, Date)
+            `INSERT INTO datasensors (PlantID, temp, light, moisture, isPumpON, Date)
        VALUES (?, ?, ?, ?, ?, CURDATE())`,
-            [plantId, temp, light, moisture, isRunning]
+            [plantId, temp, light, moisture, isPumpON]
         );
 
         return { message: 'Sensor data stored', plantId };

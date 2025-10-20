@@ -1,6 +1,7 @@
 // EspMode.js
 
 const { info, warn, error: logError } = require('../utils/logger');
+const {toInt01} = require("../utils/toBoolLoose");
 
 class EspData {
     constructor(db, ids, store) {
@@ -44,24 +45,6 @@ class EspData {
         return merged;
     }
 
-
-    // --- כתיבה (עם מיזוג נתונים) ---
-    // async _writeJson(obj) {
-    //     const existing = await this.store.read(this.ids);
-    //     const merged = existing ? this._deepMerge(existing, obj) : obj;
-    //
-    //     // לא להדפיס את כל הדוק – רק מטא (מונע ספאם)
-    //     info('DB', 'upsert device state', {
-    //         deviceId: this.ids.deviceId,
-    //         hasExisting: !!existing,
-    //         keys: Object.keys(merged),
-    //         size: JSON.stringify(merged).length
-    //     });
-    //
-    //     await this.store.write(this.ids, merged);
-    //     return merged;
-    // }
-
     // --- פונקציית עזר למיזוג עמוק ---
     _deepMerge(target, source) {
         if (typeof target !== 'object' || target === null) return source;
@@ -80,7 +63,6 @@ class EspData {
     _ensureFiniteNumber(value, name) {
         const n = Number(value);
         if (!Number.isFinite(n)) {
-            // חשוב: גם לזרוק (עם קוד) וגם ללוגג
             warn('VALIDATION', `Invalid numeric value for ${name}`, { value });
             const err = new Error(`Invalid numeric value for ${name}`);
             err.code = 400;
@@ -95,31 +77,67 @@ class EspData {
             warn('ESP', '_persistStateToDb: missing deviceId', { ids: this.ids });
             return;
         }
+
         const docStr = JSON.stringify(merged || {});
         const pumpOn = !!(merged?.pump?.on);
 
-        await this.DB.execute(
-            `INSERT INTO esp_device_state (device_id, doc, pump_status, pump_status_updatedAt, updated_at)
-     VALUES (?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE doc = VALUES(doc), pump_status = VALUES(pump_status),
-       pump_status_updatedAt = VALUES(pump_status_updatedAt), updated_at = NOW()`, [idValue, docStr, pumpOn ? 1 : 0] );
-    }
+        info('ESP', '_persistStateToDb: about to write', {
+            deviceId: idValue, pumpOn, docLen: docStr.length
+        });
 
+        try {
+            const [upd] = await this.DB.execute(
+                `UPDATE esp_device_state
+         SET doc = ?, pump_status = ?, pump_status_updatedAt = NOW()
+       WHERE device_id = ?`,
+                [docStr, pumpOn ? 1 : 0, idValue]
+            );
+            info('ESP', '_persistStateToDb: update result', {
+                deviceId: idValue, affectedRows: upd.affectedRows
+            });
+
+            if (!upd.affectedRows) {
+                const [ins] = await this.DB.execute(
+                    `INSERT INTO esp_device_state
+           (device_id, doc, pump_status, pump_status_updatedAt, updated_at)
+         VALUES (?, ?, ?, NOW(), NOW())`,
+                    [idValue, docStr, pumpOn ? 1 : 0]
+                );
+                info('ESP', '_persistStateToDb: insert result', {
+                    deviceId: idValue, insertId: ins.insertId, affectedRows: ins.affectedRows
+                });
+            }
+
+            const [chk] = await this.DB.execute(
+                `SELECT pump_status, pump_status_updatedAt, updated_at
+                 FROM esp_device_state WHERE device_id=? LIMIT 1`, [idValue]
+            );
+            info('ESP','_persistStateToDb: read-back', {
+                deviceId: idValue,
+                pump_status: chk?.[0]?.pump_status,
+                pump_status_updatedAt: chk?.[0]?.pump_status_updatedAt,
+                updated_at: chk?.[0]?.updated_at
+            });
+
+        } catch (e) { logError('ESP', '_persistStateToDb: SQL failed', { err: e.message, deviceId: idValue }); }
+    }
 
     // --- שליטה כללית ---
 
     async getState() {
-        // return this._readJson();
         const data = await this._readJson();
+        if (!data.pump) data.pump = { on: false, updatedAt: null }
+
         const idValue = Number(this.ids?.deviceId);
         if (Number.isFinite(idValue)) {
             try {
                 const [rows] = await this.DB.execute(`SELECT pump_status, pump_status_updatedAt FROM esp_device_state
-                                          WHERE device_id = ? LIMIT 1`, [idValue]);
+                WHERE device_id = ? LIMIT 1`, [idValue]);
                 if (rows?.length) {
                     const r = rows[0];
                     data.pump = {
-                        on: r.pump_status === 1,
-                        updatedAt: r.pump_status_updatedAt || data.pump?.updatedAt || null,
+                        on: rows[0].pump_status === 1,
+                        updatedAt: rows[0].pump_status_updatedAt || data.pump.updatedAt || null,
                     };
                 }
             } catch (err) { logError('ESP', 'getState: DB merge failed', { err: err.message, deviceId: idValue }); }
@@ -212,7 +230,8 @@ class EspData {
         const validDate = d && d.day >= 1 && d.day <= 31 && d.month >= 1 && d.month <= 12 && d.year >= 2020;
         const validTime = t && t.hour >= 0 && t.hour <= 23 && t.minute >= 0 && t.minute <= 59;
         if (!validDate || !validTime || duration <= 0) {
-            warn('VALIDATION', 'Invalid Saturday config', { dateAct: payload?.dateAct, timeAct: payload?.timeAct, duration });
+            warn('VALIDATION', 'Invalid Saturday config',
+                { dateAct: payload?.dateAct, timeAct: payload?.timeAct, duration: payload?.duration });
             const err = new Error('Please insert a valid date/time/duration');
             err.code = 400;
             throw err;
@@ -221,7 +240,7 @@ class EspData {
         const data = await this._readJson();
         data.SATURDAY_MODE = {
             ...(data.SATURDAY_MODE || {}),
-            dateAct: payload.dateAct, timeAct: payload.timeAct, duration
+            dateAct: payload.dateAct, timeAct: payload.timeAct, duration: duration
         };
         await this._writeJson({ SATURDAY_MODE: data.SATURDAY_MODE });
         info('ESP', 'SATURDAY_MODE config updated', { deviceId: this.ids.deviceId });
@@ -242,11 +261,14 @@ class EspData {
 
     // --- קריאות חיישנים ---
     async setPumpStatus(payload) {
-        const on = typeof payload?.on === 'boolean' ? payload.on : Boolean(payload?.flag);
-        const patch = { pump: { on, updatedAt: new Date().toISOString() } };
+        const raw = payload?.status ?? payload?.on ?? payload?.pump?.on ?? payload?.flag;
+        const st  = toInt01(raw);
+        const on  = st === 1;
 
+        const patch  = { pump: { on, updatedAt: new Date().toISOString() } };
         const merged = await this._writeJson(patch);
-        info('ESP', 'pump status updated', { on, deviceId: this.ids.deviceId });
+
+        info('ESP','pump status updated (int)', { incoming: payload, st, on, deviceId: this.ids.deviceId });
 
         return { pump: merged.pump };
     }
