@@ -1,7 +1,7 @@
 // EspMode.js
 
 const { info, warn, error: logError } = require('../utils/logger');
-const {toInt01} = require("../utils/toBoolLoose");
+const {toInt01} = require("../utils/BoolParserToInt");
 
 class EspData {
     constructor(db, ids, store) {
