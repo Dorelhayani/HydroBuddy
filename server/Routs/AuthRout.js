@@ -73,7 +73,6 @@ router.post(
 
             res.status(200).json({ message: 'Avatar updated', avatarUrl: absolute });
 
-            // return res.status(200).json({ message: 'Avatar updated', avatarUrl });
         } catch (error) {
             console.error('Avatar upload error:', error);
             return res.status(500).json({ error: 'Upload failed' });

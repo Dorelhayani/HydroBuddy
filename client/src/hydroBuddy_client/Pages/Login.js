@@ -1,7 +1,7 @@
 // Login.js
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 import {useReg} from "../hooks/useRegister";
 import {useAuth} from "../hooks/useAuth";
@@ -11,7 +11,7 @@ import Card, { useBorderFlash } from "../components/Card";
 import FlipCard from "../components/FlipCard";
 import RequestBanner from "../components/RequestBanner";
 
-export default function Login() {
+export default function Login({ embed = false }) {
     const nav = useNavigate();
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
 
@@ -63,9 +63,9 @@ export default function Login() {
                   }
 
                   footer={
-                      <div className="text-subtle">
-                          <small className="text-truncate" >Not Register yet? </small>
-                          <FlashButton className="btn btn--primary btn--block" disabled={authLoading} onClickAsync={flip}>
+                      <div className="">
+                          <small className="fw-600" >Not Register yet? </small>
+                          <FlashButton className="nudge-r-70" disabled={authLoading} onClickAsync={flip}>
                               Create account
                           </FlashButton>
                       </div>
@@ -123,8 +123,10 @@ export default function Login() {
                 </>
                 }
                 footer={
-                    <div className="footer-row">
-                        <FlashButton className="btn btn--ghost" onClick= {unflip}> Back </FlashButton>
+                    <div>
+                        <FlashButton className="btn--transparent" onClick= {unflip}>
+                            <span className="text-subtle">&#706;</span>
+                        </FlashButton>
                     </div>
                 }
             />
@@ -132,20 +134,29 @@ export default function Login() {
     }
 
     const front = ({ flip }) => ( <> <Log flip={() => {setActiveTab("login");  if (!flipped) flip(); }} /> </>);
-    const back = ({ unflip }) => ( <Register variant={variant} unflip={() => { setActiveTab("register"); if (flipped) unflip(); }}/> )
+    const back = ({ unflip }) => ( <Register
+        variant={variant} unflip={() => {
+            setActiveTab("register");
+            if (flipped) unflip(); }}/> )
 
-    return (
-            <div className="cards-grid cards-grid--narrow">
-                <FlipCard
-                    front={front}
-                    back={back}
-                    flippable
-                    isFlipped={flipped}
-                    onFlip={setFlipped}
-                    autoHeight
-                    measureDeps={[activeTab]}
-                    backKey={activeTab}
-                />
+    const content =
+        <div>
+            <FlipCard
+                front={front}
+                back={back}
+                flippable
+                isFlipped={flipped}
+                onFlip={setFlipped}
+                autoHeight
+                measureDeps={[activeTab]}
+                backKey={activeTab}
+            />
+        </div>
+
+
+    return embed ? content : (
+        <div>
+            {content}
         </div>
     );
 }

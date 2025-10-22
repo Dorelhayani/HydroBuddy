@@ -46,3 +46,7 @@
 
 /* בתוך footer של כרטיס */
 .card .footer-row .btn { min-width: 120px; }  /* מרווח נעים */
+
+
+.btn--transparent {background: transparent; border-color: transparent; color: var(--text); }
+.btn--transparent:hover {background: transparent; border-color: transparent; color: var(--accent); }

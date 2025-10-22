@@ -20,8 +20,7 @@ input, select, textarea,
 input:focus, select:focus, textarea:focus,
 .input:focus, .valueBox:focus {
     outline: none;
-    /*border-color: var(--brand);*/
-    border-color: var(--brand, #e6c229);
+    border-color: var( #47b375ff);
     box-shadow: var(--focus-ring);
 }
 
@@ -47,6 +46,8 @@ input:focus, select:focus, textarea:focus,
 .max-w-240 { max-width: 240px !important; }
 .max-w-320 { max-width: 320px !important; }
 .max-w-420 { max-width: 420px !important; }
+.max-w-530 { max-width: 530px !important; }
+.max-w-700 { max-width: 700px !important; }
 
 /* יישור אופקי של פריט בתוך תא הגריד (form--inline) */
 .form .js-start   { justify-self: start; }

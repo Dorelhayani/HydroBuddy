@@ -1,17 +1,45 @@
 /* ===== Tile (compact) ===== */
-.tile {
+/*.tile {*/
+/*    display: grid;*/
+/*    grid-template-columns: auto 1fr auto;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    padding: 14px;                 !* היה 18 – קומפקטי יותר *!*/
+/*    background: var(--card);*/
+/*    border: 1px solid var(--border);*/
+/*    border-radius: 18px;           !* היה 26 – פחות עבה *!*/
+/*    box-shadow: 0 2px 8px rgba(0,0,0,.25);*/
+/*    transition: transform .06s ease, background .15s ease, border-color .15s ease, opacity .15s ease;*/
+/*    cursor: pointer;*/
+/*}*/
+
+.tile{
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0,1fr) max-content;
     align-items: center;
     gap: 12px;
-    padding: 14px;                 /* היה 18 – קומפקטי יותר */
-    background: var(--card);
+
+    /* מאריך את ה-tile */
+    padding-block: 16px;
+    padding-inline: 18px;
+    min-height: 72px;
+
+    /* ריווח סימטרי בשני הצדדים (עובד גם RTL/LTR) */
     border: 1px solid var(--border);
-    border-radius: 18px;           /* היה 26 – פחות עבה */
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-    transition: transform .06s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
-    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
 }
+
+.tile > *{ min-width:0; }
+
+.tile__meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-self:end;
+    min-width:max-content;
+}
+
 
 .tile:hover  { background: #2a2a2a; border-color: #3a3a3a; }
 .tile:active { transform: translateY(1px); }
@@ -19,8 +47,8 @@
 
 /* אווטאר קטן יותר */
 .tile__avatar {
-    width: 44px;                   /* היה 56 */
-    height: 44px;
+    width: 40px;                   /* היה 56 */
+    height: 40px;
     border-radius: 999px;
     display: grid; place-items: center;
     border: 1px solid #333;
@@ -30,7 +58,12 @@
 }
 
 /* טקסט קומפקטי */
-.tile__body { min-width: 0; display: grid; gap: 2px; }
+.tile__body {
+    /*min-width: 80%;*/
+    display: grid;
+    gap: 2px;
+}
+
 .tile__title {
     font-size: 18px;               /* היה 20 */
     font-weight: 700;
@@ -38,6 +71,7 @@
     line-height: 1.2;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
 .tile__subtitle {
     opacity: .7;
     letter-spacing: .1px;
@@ -47,10 +81,10 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+
 /* צ'ברון מעט קטן ומיושר */
 .tile__chev { font-size: 20px; opacity: .6; margin-left: 6px; }
 
-/* מודיפייר אם תרצה אפילו יותר קטן: <div class="tile tile--sm"> */
 .tile--sm { padding: 10px; border-radius: 14px; }
 .tile--sm .tile__avatar { width: 40px; height: 40px; }
 .tile--sm .tile__title { font-size: 16px; }
@@ -80,7 +114,7 @@
 /* מצב נבחר – בין אם is-selected על ה-tile או על ה-li */
 .tile.is-selected,
 .c-list__item.is-selected > .tile {
-    box-shadow: 0 0 0 2px rgba(230,194,41,.35);
+    box-shadow: 0 0 0 2px rgb(46, 204, 113);
     border-color: var(--brand);
 }
 
@@ -95,6 +129,13 @@
     gap: 6px;
     line-height: 1;
 }
+
+
+/* ===== רשימה/קונטיינר – מרווחים סימטריים בתוך הכרטיס ===== */
+.c-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }
+.c-list__item > .tile{ width:100%; }
+
+/* אם עדיין נראה שהימין “צפוף”, אפשר מעט מרווח פנימי לכרטיס עצמו */
 
 /* מיקום: ימין/שמאל בצורה אג׳נוסטית ל-RTL/LTR */
 .align-right { margin-inline-start: auto; }  /* דוחף לימין ב-RTL ולסוף ב-LTR */
@@ -128,3 +169,5 @@
 /* אופציונלי: גרסה עם scale אם יש תוכן מעורב ולא רק טקסט/אייקון */
 .plant-status.is-scaled-sm { transform: scale(0.9); transform-origin: center; }
 .plant-status.is-scaled-lg { transform: scale(1.15); transform-origin: center; }
+
+.card .card-body{ padding:16px 18px; } /* דו-צדדי זהה */

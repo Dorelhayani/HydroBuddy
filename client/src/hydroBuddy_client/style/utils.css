@@ -4,6 +4,8 @@
 .u-hidden { display: none !important; }
 
 /* Text */
+.u-text-left { text-align: left !important;}
+.u-text-right { text-align: right !important;}
 .u-text-center { text-align: center !important; }
 .u-muted { color: var(--muted, #bbb) !important; }
 
@@ -164,6 +166,8 @@
 .stack-24 > * + * { margin-top: var(--space-24); }
 .stack-32 > * + * { margin-top: var(--space-32); }
 
+.mr-24 {margin-right: var(--space-24) !important; }
+
 /* ===== Layout niceties ===== */
 .u-center { display:flex; justify-content:center; align-items:center; }
 .u-ml-auto { margin-left: auto !important; }
@@ -178,3 +182,37 @@
 /* Transitions */
 .transition-fast { transition: all .12s ease; }
 .transition      { transition: all .2s ease; }
+
+
+/* ===== Button Spacing (margin/padding) ===== */
+.ms-auto { margin-inline-start: auto; }  /* דוחף ימינה (LTR) / שמאלה (RTL) */
+.me-auto { margin-inline-end:   auto; }  /* דוחף שמאלה (LTR) / ימינה (RTL) */
+.mx-auto-flex { margin-inline: auto; }   /* מרכז בתוך Flex row */
+
+.btn--left   { display:block; margin-inline-end:  auto; }
+.btn--right  { display:block; margin-inline-start:auto; }
+.btn--center { display:block; margin-inline:      auto; }  /* מרכז */
+
+.nudge-r-8  { margin-inline-start: 8px;  }
+.nudge-r-16 { margin-inline-start: 16px; }
+.nudge-r-24 { margin-inline-start: 24px; }
+
+.nudge-r-50 { margin-inline-start: 50px; }
+.nudge-r-60 { margin-inline-start: 60px; }
+.nudge-r-70 { margin-inline-start: 70px; }
+.nudge-r-80 { margin-inline-start: 80px; }
+.nudge-r-90 { margin-inline-start: 90px; }
+.nudge-r-120 { margin-inline-start: 120px; }
+.nudge-r-150 { margin-inline-start: 150px; }
+.nudge-r-230 { margin-inline-start: 230px; }
+
+/* small adjustment */
+.nudge-l-8  { margin-inline-end: 8px;  }
+.nudge-l-16 { margin-inline-end: 16px; }
+.nudge-l-24 { margin-inline-end: 24px; }
+
+/* button container */
+.btn-row      { display:flex; gap:12px; }
+.btn-row.end  { justify-content:flex-end; }
+.btn-row.mid  { justify-content:center; }
+.btn-row.spread { justify-content:space-between; }

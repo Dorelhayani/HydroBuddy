@@ -88,27 +88,3 @@ export default function Icon({
     </span>
     );
 }
-
-// basic info for plants -
-export function Tile({ left, title, subtitle, right, onClick, disabled }) {
-    return (
-        <div
-            className={`tile${disabled ? " is-disabled" : ""}`}
-            role="button"
-            tabIndex={0}
-            onClick={disabled ? undefined : onClick}
-            onKeyDown={(e) => {
-                if (!disabled && (e.key === "Enter" || e.key === " ")) onClick?.(e);
-            }}
-        >
-            <div className="tile__avatar">{left}</div>
-
-            <div className="tile__body">
-                <div className="tile__title">{title}</div>
-                {subtitle ? <div className="tile__subtitle">{subtitle}</div> : null}
-            </div>
-
-            <span className="tile__chev msr" aria-hidden="true">chevron_right</span>
-        </div>
-    );
-}

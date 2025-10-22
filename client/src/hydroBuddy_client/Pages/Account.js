@@ -25,6 +25,7 @@ export default function Account() {
 
     // Account Information card
     function AccountInfo({flip}){
+        const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
         useEffect(() => {
             (async () => {
                 try {
@@ -56,7 +57,18 @@ export default function Account() {
                 }
                 footer={
                         <details className="drawer">
-                            <summary><span className="msr">expand_more</span> Quick Actions</summary>
+                            <summary className="drawer__summary">
+                                <span className="chev" aria-hidden>▾</span>
+                                <span className="fw-500 text-xs">Quick Account Actions</span>
+                                <FlashButton
+                                    className="btn--transparent btn--sm"
+                                    onClick={() => setSidebarCollapsed((s) => !s)}
+                                    title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} >
+                                </FlashButton>
+                            </summary>
+
+
+
                             <div className="drawer__content">
                                 <div className="drawer__actions">
                                     <FlashButton className="btn" onClick={() => setActiveTab("update_account")}> Update Account </FlashButton>
@@ -124,10 +136,11 @@ export default function Account() {
         }
 
         const fields = [
-            { name: "name", placeholder: item.name|| "Name", required: true },
+            { name: "name", label:"Name", placeholder: item.name|| "Name", required: true },
             {
                 name: "email",
                 value: item.email,
+                label: "Email",
                 placeholder: item.email || "Email",
                 type: "email",
                 required: true,
@@ -152,6 +165,8 @@ export default function Account() {
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
+                        labelClassNameAll="label-muted"
+                        rowClassNameAll="text-sm fw-600"
                         fields={fields}
                         initialValues={{ name: item.name, email: item.email }}
                         onSubmit={OnSubmit}
@@ -168,8 +183,10 @@ export default function Account() {
 
                   }
                   footer={
-                      <div className="footer-row">
-                          <FlashButton className="btn btn--ghost" onClick={() => setActiveTab("account")}> Back </FlashButton>
+                      <div className="">
+                          <FlashButton className="btn--transparent btn--sm shadow-sm"
+                                       onClick={() => setActiveTab("account")}>
+                              <span className="text-subtle">&#706;</span></FlashButton>
                       </div>
                   }
             />
@@ -215,6 +232,8 @@ export default function Account() {
                     <>
                         <RequestBanner loading={authLoading} errorText={authErr} />
                         <GenericForm
+                            labelClassNameAll="label-muted"
+                            rowClassNameAll="text-sm fw-600"
                             fields={fields}
                             onSubmit={OnSubmit}
                             customButton={({ onClick, loading }) => (
@@ -228,12 +247,11 @@ export default function Account() {
                     </>
                 }
                 footer={
-                    <div className="footer-row">
+                    <div className="">
                         <FlashButton
-                            className="btn btn--ghost"
-                            onClick={() => setActiveTab("log")}
-                        >
-                            Back
+                            className="btn--transparent btn--sm shadow-sm"
+                            onClick={() => setActiveTab("log")}>
+                            <span className="text-subtle">&#706;</span>
                         </FlashButton>
                     </div>
                 }
@@ -270,7 +288,6 @@ export default function Account() {
     return(
         <>
             <AccountInfo/>
-
             { activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
             activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
             activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) : null }

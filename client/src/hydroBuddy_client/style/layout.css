@@ -57,30 +57,28 @@
 }
 
 /* ===== width for login card ===== */
-.cards-grid--narrow {
-    justify-content: center;
-}
 
-.cards-grid--narrow > * {
-    margin: auto;
+.cards-grid--narrow{
+    display: flex;            /* חשוב! */
+    justify-content: center;  /* מרכז אופקית */
+    align-items: center;      /* אופציונלי */
     width: 100%;
-    max-width: 340px;
 }
 
-/* main content */
-.main-content {
-    flex: 1 1 auto;
-    transition: margin-left 120ms ease;
+.cards-grid--narrow > *{
+    width: 100%;
+    max-width: 360px;         /* 340–420 לפי הטעם */
+    margin: 0 auto;
 }
+
 
 .main-content.expanded { /* when sidebar is collapsed allow more width */ }
-
-/* small devices: sidebar becomes top drawer */
 
 /* footer */
 .site-footer {
     border-top: 1px solid rgba(255,255,255,0.03);
-    margin-top: 18px;
+    /*margin-top: 18px;*/
+    margin-top: 1px;
     padding: 12px 0;
     background: transparent;
 }
@@ -97,3 +95,11 @@
     font-size: 0.95rem;
 }
 
+.auth-center{
+    overflow: auto;
+    min-height: calc(100vh - var(--header-h) - var(--footer-h));
+    display: flex;
+    justify-content: center; /* מרכז אופקית */
+    padding-top: 30px;
+    width: 100%;
+}

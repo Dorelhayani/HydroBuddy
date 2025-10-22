@@ -16,3 +16,42 @@
 
 .card + .drawer { margin-top: -6px; } /* מדביק ויזואלית לכרטיס שמעל */
 
+
+
+.drawer summary::-webkit-details-marker { display: none; }
+
+/* שורת הסיכום: יישור ונוחות לחיצה */
+.drawer__summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* החץ – מסתובב לפי [open] */
+.drawer .chev {
+    display: inline-block;
+    transition: transform 160ms ease;
+    transform-origin: center;
+}
+.drawer[open] .chev {
+    transform: rotate(180deg);
+}
+
+/* אנימציית פתיחה חלקה לתוכן */
+.drawer__content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 220ms ease;
+}
+.drawer[open] .drawer__content {
+    grid-template-rows: 1fr;
+}
+.drawer__actions { overflow: hidden; }
+
+/* בונוס: מצב פוקוס נגיש ל-summary */
+.drawer__summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}

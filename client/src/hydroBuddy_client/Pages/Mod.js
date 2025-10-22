@@ -10,7 +10,6 @@ import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 import ClickableList from "../components/ClickableList";
 
-
 import { useEsp } from "../hooks/useEsp";
 import { useAuth } from "../hooks/useAuth";
 import Icon,{iconName} from "../components/Icons";
@@ -151,7 +150,16 @@ export default function Mod({ embed = false }) {
 
         return (
             <Card variant={variant}
-                  header="Temperature Mod"
+                  header={
+                      <>
+                          <FlashButton
+                              className="btn--transparent btn--sm shadow-sm"
+                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                          <div className="mx-auto-flex" >
+                              <h5 className="m-0 text-2xl">Temperature</h5>
+                          </div>
+                      </>
+                  }
                   body={
                       <>
                           <RequestBanner loading={authLoading} errorText={authErr} />
@@ -187,9 +195,7 @@ export default function Mod({ embed = false }) {
                       </>
                   }
                   footer={
-                      <div className="footer-row">
-                          <FlashButton className="btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>
-                      </div>
+                      <div className="m-0"/>
                   }
             />
         );
@@ -210,7 +216,16 @@ export default function Mod({ embed = false }) {
 
         return (
             <Card variant={variant}
-                  header="Moisture Mod"
+                  header={
+                      <>
+                          <FlashButton
+                              className="btn--transparent btn--sm shadow-sm"
+                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                          <div className="mx-auto-flex" >
+                              <h5 className="m-0 text-2xl">Moisture</h5>
+                          </div>
+                      </>
+                  }
                   body={
                       <>
                           <RequestBanner loading={authLoading} errorText={authErr} />
@@ -242,9 +257,7 @@ export default function Mod({ embed = false }) {
                       </>
                   }
                   footer={
-                      <div className="footer-row">
-                          <FlashButton className="btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>
-                      </div>
+                      <div className="footer-row"/>
                   }
             />
         );
@@ -270,7 +283,17 @@ export default function Mod({ embed = false }) {
 
         return (
             <Card variant={variant}
-                  header="Saturday Mod"
+                  // header="Saturday Mod"
+                  header={
+                      <>
+                          <FlashButton
+                              className="btn--transparent btn--sm shadow-sm"
+                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                          <div className="mx-auto-flex" >
+                              <h5 className="m-0 text-2xl">Saturday</h5>
+                          </div>
+                      </>
+                  }
                   body={
                       <>
                           <RequestBanner loading={authLoading} errorText={authErr} />
@@ -282,7 +305,8 @@ export default function Mod({ embed = false }) {
                               placeholderClassAll="ph-muted ph-lg"
                               rowClassNameAll="text-sm fw-600"
                               initialValues={{
-                                  date: toInputDate(safe?.dateAct || ""),
+                                  // date: toInputDate(safe?.dateAct || ""),
+                                  date: formatDateDDMMYYYY(safe?.dateAct || ""),
                                   time: safe?.timeAct || "",
                                   duration: safe?.duration != null ? String(safe.duration) : "",
 
@@ -303,7 +327,7 @@ export default function Mod({ embed = false }) {
                   }
                   footer={
                       <div className="footer-row">
-                          <FlashButton className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>
+                          {/*<FlashButton className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>*/}
                       </div>
                   }
             />
@@ -341,7 +365,17 @@ export default function Mod({ embed = false }) {
         return (
             <Card
                 variant={variant}
-                header="Manual"
+                // header="Manual"
+                header={
+                    <>
+                            <FlashButton
+                                className="btn--transparent btn--sm shadow-sm"
+                                onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                        <div className="mx-auto-flex" >
+                            <h5 className="m-0 text-2xl">Manual</h5>
+                        </div>
+                    </>
+                }
                 body={
                     <>
                         <RequestBanner loading={authLoading || loading} errorText={authErr || err} />
@@ -359,7 +393,7 @@ export default function Mod({ embed = false }) {
                 }
                 footer={
                     <div className="footer-row">
-                        <FlashButton size="sm" className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>
+                        {/*<FlashButton size="sm" className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>*/}
                     </div>
                 }
             />

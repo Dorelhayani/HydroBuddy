@@ -8,10 +8,8 @@ import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
-import {useEsp} from "../hooks/useEsp";
 import {useAuth} from "../hooks/useAuth";
 import {usePlants} from "../hooks/usePlants";
-import { plantRenderer } from "../hooks/plantStatus";
 import PumpBadge from "../hooks/plantStatus";
 import Icon, {iconName} from "../components/Icons";
 import ClickableList from "../components/ClickableList";
@@ -73,12 +71,11 @@ export default function Plants({ embed = false }) {
                                 <div className="tile__body">
                                     <div className="tile__title">{p.planttype_name}</div>
                                     <div className="tile__subtitle text-subtle">
-                                          <span className="plant-status plant-status--md align-right ">
+                                          <span className="plant-status plant-status--lg align-right ">
                                         {PumpBadge({plant: p})}
                                           </span>
                                     </div>
                                 </div>
-
                                 <span className="tile__chev msr" aria-hidden="true">chevron_right</span>
                             </div>
                         )}
@@ -101,7 +98,7 @@ export default function Plants({ embed = false }) {
     // Add Plant card
     function AddPlant({ variant, unflip }){
         const fields = [
-            { name: "name", label:"Add a Plant" ,placeholder: "Enter Plant Name", disabled: true },
+            { name: "name", label:"Add a Plant" ,placeholder: "Plant Name", required: true },
         ];
 
         const OnSubmit = async (val) => {
@@ -122,7 +119,7 @@ export default function Plants({ embed = false }) {
                     <>
                         <RequestBanner loading={authLoading} errorText={authErr} />
                         <GenericForm
-                            className="form--inline form--roomy stack-16"
+                            className="form-row--inline max-w-320 stack-24"
                             labelClassNameAll="label-muted"
                             placeholderClassAll="ph-muted ph-sm"
                             rowClassNameAll="text-sm fw-600"
@@ -130,7 +127,7 @@ export default function Plants({ embed = false }) {
                             onSubmit={OnSubmit}
                             customButton={({ onClick, loading }) => (
                                 <FlashButton
-                                    className="btn btn--icon"
+                                    className="btn btn__icon"
                                     onClickAsync={onClick}
                                     loading={loading || authLoading}
                                     disabled={authLoading}
@@ -141,8 +138,9 @@ export default function Plants({ embed = false }) {
 
                 }
                 footer={
-                    <div className="footer-row">
-                        <FlashButton className="btn btn--ghost shadow-sm" onClick= {unflip}> Back </FlashButton>
+                    <div className="">
+                        <FlashButton className="btn--transparent btn--sm shadow-sm" onClick= {unflip}>
+                            <span className="text-subtle">&#706;</span></FlashButton>
                     </div>
                 }
             />
@@ -205,15 +203,15 @@ export default function Plants({ embed = false }) {
 
                   }
                   footer={
-                    <div className="footer-row">
+                    <div className="">
                         <FlashButton
-                            className="btn btn--ghost btn--sm shadow-sm"
+                            className="btn--transparent btn--sm shadow-sm"
                             onClick={() => setActiveTab("plant_info")}
-                        > Back </FlashButton>
+                        ><span className="text-subtle">&#706;</span></FlashButton>
 
 
                         <FlashButton
-                            className="btn btn--danger btn--sm shadow-sm"
+                            className="btn btn--danger btn--sm nudge-r-230 shadow-sm"
                             onClick={() => setActiveTab("delete_plant")}
                         > Delete Plant </FlashButton>
                     </div>
@@ -234,10 +232,10 @@ export default function Plants({ embed = false }) {
 
         return (
             <Card variant={variant}>
-                <small className="txt"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
+                <small className="txt u-center fw-600"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
                     <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton className="btn btn--danger btn--lg" onClickAsync={handleDelete}>Delete</FlashButton>
+                    <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={handleDelete}>Delete</FlashButton>
                 </div>
             </Card>
         );
