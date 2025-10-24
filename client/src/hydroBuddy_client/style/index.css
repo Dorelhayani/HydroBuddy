@@ -1,5 +1,6 @@
 /*index.css*/
 
+@import "~@fortawesome/fontawesome-free/css/all.min.css";
 /* ========== Base Layers ========== */
 @import "./variables.css";
 @import "./base.css";
@@ -7,7 +8,7 @@
 
 /* === Utilities should come AFTER base/layout === */
 @import "./utils.css";
-
+@import "./tooltip.css";
 /* === General styling and layout === */
 @import "./sidebar.css";
 

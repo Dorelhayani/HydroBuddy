@@ -1,20 +1,19 @@
 import React, { useState, useMemo, useCallback } from "react";
 export default function ClickableList({
                                           items = [],
-                                          renderItem,                    // (item) => JSX  | אם לא סופק – נציג item.toString()
-                                          onItemClick,                   // (item) => void
+                                          renderItem,
+                                          onItemClick,
                                           className = "",
-                                          itemKey = (item, i) => i,      // string | (item, index) => key
-                                          selected,                      // ערך נשלט (id/whole item) – אופציונלי
-                                          onChangeSelected,              // (item) => void
-                                          getDisabled = () => false,     // (item) => boolean
+                                          itemKey = (item, i) => i,
+                                          selected,
+                                          onChangeSelected,
+                                          getDisabled = () => false,
                                           loading = false,
                                           error = null,
                                           emptyContent = "No items",
                                           ariaLabel = "Clickable list",
-                                          count,                         // מספר כולל ידוע (אופציונלי)
+                                          count,
                                       }) {
-    // מצב נבחר לא-נשלט (fallback אם לא הועבר selected)
     const [internalSelected, setInternalSelected] = useState(null);
     const isControlled = typeof selected !== "undefined";
     const currentSelected = isControlled ? selected : internalSelected;

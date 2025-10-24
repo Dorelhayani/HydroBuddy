@@ -1,11 +1,10 @@
 // Account.js
 
 import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { formatDateDDMMYYYY } from "../domain/formatters";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
-import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
@@ -14,17 +13,15 @@ import {useAccount} from "../hooks/useAccount";
 
 export default function Account() {
     const nav = useNavigate();
-    const { variant, flashSuccess, flashDanger } = useBorderFlash();
+    const { variant, flashSuccess, flashWarning, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("account");
 
     const { setItems, update_account, remove_account } = useAccount();
     const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
     const avatarSrc = item?.avatar_url || "/img/default-avatar.png";
 
-    const [flipped, setFlipped] = useState(false);
-
     // Account Information card
-    function AccountInfo({flip}){
+    function AccountInfo(){
         const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
         useEffect(() => {
             (async () => {
@@ -67,13 +64,54 @@ export default function Account() {
                                 </FlashButton>
                             </summary>
 
-
-
                             <div className="drawer__content">
-                                <div className="drawer__actions">
-                                    <FlashButton className="btn" onClick={() => setActiveTab("update_account")}> Update Account </FlashButton>
-                                    <FlashButton className="btn" onClick={() => setActiveTab("change_password")}> Change Password </FlashButton>
-                                    <FlashButton className="btn btn--danger" onClick={() => setActiveTab("delete_account")}> Delete </FlashButton>
+                                <div className="drawer__viewport">
+                                    <div className="drawer__actions">
+
+                                    <div className="ms-auto">
+                                    {/* update account */}
+                                    <div className="tooltip btn--transparent">
+                                    <FlashButton
+                                        className="btn--transparent"
+                                        onClick={() => setActiveTab("update_account")}>
+                                            <span className="tooltiptext fw-600 text-xs">Update Account</span>
+                                        <i className="fa-solid fa-user"/>
+                                    </FlashButton>
+                                </div>
+
+                                    {/* change password */}
+                                    <div className="tooltip btn--transparent">
+                                    <FlashButton
+                                        className="btn--transparent"
+                                        onClick={() => setActiveTab("change_password")}>
+                                        <span className="tooltiptext fw-600 text-xs">Change Password</span>
+                                        <i className="fa-solid fa-key"/>
+                                    </FlashButton>
+                                    </div>
+
+                                    {/* log out */}
+                                    <div className="tooltip btn--transparent">
+                                        <FlashButton
+                                            className="btn--transparent"
+                                            onClick={() => setActiveTab("log_out")}>
+                                            <span className="tooltiptext fw-600 text-xs">Log Out</span>
+                                            <i className="fas fa-sign-out-alt"/>
+                                        </FlashButton>
+                                    </div>
+
+                                    {/* delete account */}
+                                    <div className="tooltip btn--transparent delete--tooltip">
+                                    <FlashButton
+                                        className="btn--transparent"
+                                        onClick={() => setActiveTab("delete_account")}>
+                                        <span className="tooltiptext fw-600 text-xs">Delete Account</span>
+                                        <i className="fa-solid fa-trash-can"/>
+                                    </FlashButton>
+
+                                    </div>
+                                    </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </details>
@@ -86,8 +124,8 @@ export default function Account() {
     function AvatarControl({ item, avatarUpload }) {
         const inputRef = React.useRef(null);
         const [preview, setPreview] = React.useState(null);
-        const src = preview || (item?.avatar_url ? `${item.avatar_url}?t=${item?.avatar_updated_at 
-        || Date.now()}` : "/img/avatar-placeholder.png");
+        // const src = preview || (item?.avatar_url ? `${item.avatar_url}?t=${item?.avatar_updated_at
+        // || Date.now()}` : "/img/avatar-placeholder.png");
 
         // פתיחת דיאלוג הקובץ בלחיצה על התמונה / מקלדת
         const openPicker = () => inputRef.current?.click();
@@ -184,9 +222,9 @@ export default function Account() {
                   }
                   footer={
                       <div className="">
-                          <FlashButton className="btn--transparent btn--sm shadow-sm"
+                          <FlashButton className="btn--transparent btn--sm"
                                        onClick={() => setActiveTab("account")}>
-                              <span className="text-subtle">&#706;</span></FlashButton>
+                              <i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                       </div>
                   }
             />
@@ -249,11 +287,38 @@ export default function Account() {
                 footer={
                     <div className="">
                         <FlashButton
-                            className="btn--transparent btn--sm shadow-sm"
+                            className="btn--transparent btn--sm"
                             onClick={() => setActiveTab("log")}>
-                            <span className="text-subtle">&#706;</span>
+                            <i className="fa-solid fa-circle-arrow-left"></i>
                         </FlashButton>
                     </div>
+                }
+            />
+        );
+    }
+
+    // Log Out Card
+    function Log_out({ variant, onCancel }) {
+        const handleLogOut = async () => {
+            try {
+                flashWarning();
+                setTimeout(() => nav("/"), 300);
+                await logout();
+            } catch (err) {}
+        };
+
+        return (
+            <Card
+                className="cards-grid"
+                variant={variant}
+                body={
+                    <>
+                        <p className="fw-600 text-xs">Already Leave ?</p>
+                        <div className="btn-row">
+                            <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
+                            <FlashButton className="btn btn--sm" onClickAsync={handleLogOut}>Log Out</FlashButton>
+                        </div>
+                    </>
                 }
             />
         );
@@ -275,7 +340,7 @@ export default function Account() {
 
         return (
             <Card variant={variant} title="Delete Account">
-                <p className="txt__delete">This action is permanent. All your plants and data may be removed.</p>
+                <p className="fw-600 text-xs">This action is permanent. All your plants and data may be removed.</p>
                 <div className="btn-row">
                     <FlashButton className="btn btn--outline btn--sm"  onClick={onCancel}>Cancel</FlashButton>
                     <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>Delete</FlashButton>
@@ -290,53 +355,8 @@ export default function Account() {
             <AccountInfo/>
             { activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
             activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
-            activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) : null }
+            activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
+            activeTab === "log_out" ? (<Log_out variant={variant} onCancel={() => setActiveTab("dashboard")}/> ) : null }
         </>
     );
-
-    // const front = ({ flip }) => ( <AccountInfo flip={() => { if (!flipped) flip();}}/> );
-    // const back = ({ unflip }) => (
-    //     activeTab === "update_account" ? ( <UpdateAccount variant={variant} user={item} />) :
-    //         activeTab === "change_password" ? ( <ChangePassword variant={variant} user={item} /> ) :
-    //         activeTab === "delete_account" ? ( <DeleteAccount variant={variant} onCancel={() => setActiveTab("account")}/> ) :
-    //             (
-    //         <Card
-    //             variant={variant}
-    //             header="Account Actions"
-    //             body={
-    //                 <div className="btn-grid">
-    //                     {/*<FlashButton onClick={() => setActiveTab("update_account")}> Update Account </FlashButton>*/}
-    //                     {/*<FlashButton onClick={() => setActiveTab("change_password")}> Change Password </FlashButton>*/}
-    //                     {/*<FlashButton onClick={() => setActiveTab("delete_account")}> Delete </FlashButton>*/}
-    //                 </div>
-    //             }
-    //             footer={
-    //                 <div className="footer-row left">
-    //                     <FlashButton className="btn ghost" onClick={() => { setActiveTab("account"); unflip(); }} >
-    //                         ↩ Back
-    //                     </FlashButton>
-    //                 </div>
-    //             }
-    //         />
-    //     )
-    // );
-    //
-    // return (
-    //     <div className="main-container">
-    //         <div className="cards-grid">
-    //             <FlipCard
-    //                 front={front}
-    //                 back={back}
-    //                 flippable
-    //                 isFlipped={flipped}
-    //                 onFlip={setFlipped}
-    //                 autoHeight
-    //
-    //             />
-    //         </div>
-    //         {/*<Outlet />*/}
-    //     </div>
-    // );
-
-
 }

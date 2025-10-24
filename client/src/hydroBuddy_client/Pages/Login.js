@@ -65,7 +65,7 @@ export default function Login({ embed = false }) {
                   footer={
                       <div className="">
                           <small className="fw-600" >Not Register yet? </small>
-                          <FlashButton className="nudge-r-70" disabled={authLoading} onClickAsync={flip}>
+                          <FlashButton className="nudge-r-120" disabled={authLoading} onClickAsync={flip}>
                               Create account
                           </FlashButton>
                       </div>
@@ -124,8 +124,8 @@ export default function Login({ embed = false }) {
                 }
                 footer={
                     <div>
-                        <FlashButton className="btn--transparent" onClick= {unflip}>
-                            <span className="text-subtle">&#706;</span>
+                        <FlashButton className="btn--transparent" onClick={unflip}>
+                            <i className="fa-solid fa-circle-arrow-left"></i>
                         </FlashButton>
                     </div>
                 }

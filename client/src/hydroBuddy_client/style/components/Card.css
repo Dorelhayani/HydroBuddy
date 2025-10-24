@@ -8,17 +8,20 @@
     box-shadow: 0 6px 18px rgba(0,0,0,.35);
     display: flex;
     flex-direction: column;
+    overflow: visible;
+    position: relative;
+    z-index: 0;
+}
+
+.scroll-area {
+    max-height: 518px;    /* או מה שמתאים לך */
     overflow: auto;
-    scrollbar-gutter: stable both-edges;
 }
 
 /* Sections */
 .card .card-header,
 .card .card-body,
-/*.card .card-footer { padding:var(--padd-md); }*/
-/*.card .card-footer { padding:var(--gap-sm); }*/
-.card .card-footer { padding:var(--gap-md); }
-/*.card .card-footer { padding:var(--gap-lg); }*/
+.card .card-footer { padding:var(--gap-sm); }
 
 .card .card-body{ padding:16px 18px; } /* ימין=שמאל */
 
@@ -32,7 +35,8 @@
     border-bottom: 1px solid rgba(255,255,255,.06);
 }
 
-.card .card-footer {
+.card .card-footer
+{
     min-height: 48px;
     display: flex;
     align-items: center;
@@ -53,5 +57,5 @@
     width: 100%;
     height: auto;
     border-radius: calc(var(--radius) - 4px);
-    overflow: hidden;
+    overflow: visible;
 }

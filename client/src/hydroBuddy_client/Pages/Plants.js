@@ -10,7 +10,7 @@ import RequestBanner from "../components/RequestBanner";
 
 import {useAuth} from "../hooks/useAuth";
 import {usePlants} from "../hooks/usePlants";
-import PumpBadge from "../hooks/plantStatus";
+import PumpStatus from "../hooks/plantStatus";
 import Icon, {iconName} from "../components/Icons";
 import ClickableList from "../components/ClickableList";
 
@@ -42,9 +42,24 @@ export default function Plants({ embed = false }) {
 
 
         return (
-            <Card
+            <Card className= "card-body scroll-area"
                 variant={variant}
-                header="Plant Info"
+                header={
+                    <>
+                        {/*<div className="tooltip btn--transparent">*/}
+                        {/*<FlashButton*/}
+                        {/*    className="btn--transparent btn--sm"*/}
+                        {/*    onClickAsync={flip}>*/}
+                        {/*    <span className="tooltiptext fw-600 text-xs">Add Plant</span>*/}
+                        {/*    <i className="fa-solid fa-tree"></i>*/}
+                        {/*</FlashButton>*/}
+                        {/*    </div>*/}
+                        {/*<small className="text-xs text-muted-500 mb-8">Add Plant</small>*/}
+                        <div className="mx-auto-flex" >
+                            <small className="text-lg fw-600 mb-8 stack-8">Plant Info</small>
+                        </div>
+                    </>
+                }
                 body=" "
                 list={
                     <ClickableList
@@ -68,13 +83,15 @@ export default function Plants({ embed = false }) {
                                     />
                                 </div>
 
-                                <div className="tile__body">
-                                    <div className="tile__title">{p.planttype_name}</div>
-                                    <div className="tile__subtitle text-subtle">
-                                          <span className="plant-status plant-status--lg align-right ">
-                                        {PumpBadge({plant: p})}
+                                {/*<div className="c-list nudge-l-8">*/}
+                                    <div className="tile__body">
+                                    <div className="tile__title text-muted-500">{p.planttype_name}</div>
+                                    <div className="tile__subtitle text-muted-500">
+                                          <span className="plant-status">
+                                              <PumpStatus/>
                                           </span>
                                     </div>
+                                {/*</div>*/}
                                 </div>
                                 <span className="tile__chev msr" aria-hidden="true">chevron_right</span>
                             </div>
@@ -84,14 +101,17 @@ export default function Plants({ embed = false }) {
                     />
                 }
                 footer={
-                    <div className="footer-row">
+                <div className="footer-row">
+                    <div className="tooltip btn--transparent">
                         <FlashButton
-                            size="lg"
-                            className="btn btn--icon shadow-sm"
+                            className="btn--transparent btn--sm"
                             onClickAsync={flip}>
-                            <small className="centered">Add Plant</small></FlashButton>
+                            <span className="tooltiptext fw-600 text-xs">Add Plant</span>
+                            <i className="fa-solid fa-tree"></i>
+                        </FlashButton>
                     </div>
-                }
+                </div>
+            }
             />
         );
     }
@@ -139,8 +159,8 @@ export default function Plants({ embed = false }) {
                 }
                 footer={
                     <div className="">
-                        <FlashButton className="btn--transparent btn--sm shadow-sm" onClick= {unflip}>
-                            <span className="text-subtle">&#706;</span></FlashButton>
+                        <FlashButton className="btn--transparent btn--sm" onClick= {unflip}>
+                            <i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                     </div>
                 }
             />
@@ -205,9 +225,9 @@ export default function Plants({ embed = false }) {
                   footer={
                     <div className="">
                         <FlashButton
-                            className="btn--transparent btn--sm shadow-sm"
+                            className="btn--transparent btn--sm"
                             onClick={() => setActiveTab("plant_info")}
-                        ><span className="text-subtle">&#706;</span></FlashButton>
+                        ><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
 
 
                         <FlashButton
@@ -222,12 +242,12 @@ export default function Plants({ embed = false }) {
 
     // Delete Plant card
     function DeletePlant({ variant, onCancel }) {
-        const handleDelete = async () => {
+
+        const OnSubmit = async () => {
             try{
                 if (!window.confirm(`Are you sure you want to delete ${selectedPlant.planttype_name} ? This cannot be undone.`)) return;
                 await remove_plant(selectedPlant.PlantTypeID);
             } catch (err) {}
-
         };
 
         return (
@@ -235,7 +255,7 @@ export default function Plants({ embed = false }) {
                 <small className="txt u-center fw-600"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
                     <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={handleDelete}>Delete</FlashButton>
+                    <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={OnSubmit}>Delete</FlashButton>
                 </div>
             </Card>
         );

@@ -37,7 +37,7 @@
     position: absolute;
     inset: 0;
     transform: rotateY(180deg);
-    overflow: auto; /* כדי לא לחתוך תוכן בגב */
+    overflow: visible;
 }
 
 /* הקלפים שבתוך הפאות */
@@ -51,3 +51,4 @@
 
 /* וריאנט: גובה אוטומטי (אם אתה קובע דינאמית ב-JS, אפשר להוסיף את המחלקה להורה) */
 .flip-card--autoheight .flip-card-inner { min-height: auto; }
+

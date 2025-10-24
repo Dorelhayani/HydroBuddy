@@ -15,7 +15,7 @@ import { useAuth } from "../hooks/useAuth";
 import Icon,{iconName} from "../components/Icons";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { useSnapshotOnOpen } from "../hooks/useSnapshotOnOpen";
-import {toInputDate, formatDateDDMMYYYY} from "../domain/formatters";
+import {toInputDate} from "../domain/formatters";
 
 
 export default function Mod({ embed = false }) {
@@ -90,7 +90,11 @@ export default function Mod({ embed = false }) {
         return (
             <Card
                 variant={variant}
-                header="Mod"
+                header={
+                    <div className="mx-auto-flex mb-8">
+                        <small className="text-lg fw-600 mb-8 stack-8">Mod</small>
+                    </div>
+                }
                 body={<RequestBanner loading={authLoading || loading} errorText={authErr || err} />}
                 list={
                     <ClickableList
@@ -98,7 +102,7 @@ export default function Mod({ embed = false }) {
                         role="button"
                         tabIndex={0}
                         itemKey="value"
-                        className="text-muted"
+                        className="text-muted-500"
                         selected={selectedItem}
                         onItemClick={(m) => handlePickMode(m, setPendingValue)}
                         onKeyDown={(e) => onKeyActivate(e, () => handlePickMode(e, setPendingValue))}
@@ -153,8 +157,8 @@ export default function Mod({ embed = false }) {
                   header={
                       <>
                           <FlashButton
-                              className="btn--transparent btn--sm shadow-sm"
-                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                              className="btn--transparent btn--sm"
+                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Temperature</h5>
                           </div>
@@ -219,8 +223,8 @@ export default function Mod({ embed = false }) {
                   header={
                       <>
                           <FlashButton
-                              className="btn--transparent btn--sm shadow-sm"
-                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                              className="btn--transparent btn--sm"
+                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Moisture</h5>
                           </div>
@@ -283,12 +287,11 @@ export default function Mod({ embed = false }) {
 
         return (
             <Card variant={variant}
-                  // header="Saturday Mod"
                   header={
                       <>
                           <FlashButton
-                              className="btn--transparent btn--sm shadow-sm"
-                              onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                              className="btn--transparent btn--sm"
+                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Saturday</h5>
                           </div>
@@ -305,8 +308,7 @@ export default function Mod({ embed = false }) {
                               placeholderClassAll="ph-muted ph-lg"
                               rowClassNameAll="text-sm fw-600"
                               initialValues={{
-                                  // date: toInputDate(safe?.dateAct || ""),
-                                  date: formatDateDDMMYYYY(safe?.dateAct || ""),
+                                  date: toInputDate(safe?.dateAct || ""),
                                   time: safe?.timeAct || "",
                                   duration: safe?.duration != null ? String(safe.duration) : "",
 
@@ -325,11 +327,7 @@ export default function Mod({ embed = false }) {
                           />
                       </>
                   }
-                  footer={
-                      <div className="footer-row">
-                          {/*<FlashButton className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>*/}
-                      </div>
-                  }
+                  footer={<div className="footer-row" />}
             />
         );
     }
@@ -365,12 +363,11 @@ export default function Mod({ embed = false }) {
         return (
             <Card
                 variant={variant}
-                // header="Manual"
                 header={
                     <>
-                            <FlashButton
-                                className="btn--transparent btn--sm shadow-sm"
-                                onClick={unflip}><span className="text-subtle">&#706;</span></FlashButton>
+                        <FlashButton
+                            className="btn--transparent btn--sm"
+                            onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                         <div className="mx-auto-flex" >
                             <h5 className="m-0 text-2xl">Manual</h5>
                         </div>
@@ -391,11 +388,7 @@ export default function Mod({ embed = false }) {
                         </div>
                     </>
                 }
-                footer={
-                    <div className="footer-row">
-                        {/*<FlashButton size="sm" className="btn btn--ghost shadow-sm" onClick={unflip}>Back</FlashButton>*/}
-                    </div>
-                }
+                footer={<div className="" />}
             />
         );
     }
@@ -425,7 +418,7 @@ export default function Mod({ embed = false }) {
     );
 
     const content = (
-        <div className="cards-grid">
+        <div className="card-footer">
             <FlipCard
                 front={front}
                 back={back}
