@@ -1,6 +1,6 @@
 // auth.js
 
-import {http} from "./http";
+import http from "./http";
 
 export const auth = {
     me: () => http("/auth/me", { method: "GET" }),

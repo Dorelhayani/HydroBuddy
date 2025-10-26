@@ -1,6 +1,6 @@
 // esp.js
 
-import { http } from "./http";
+import http from "./http";
 
 export const esp = {
 
@@ -15,20 +15,17 @@ export const esp = {
     setTempConfig:  (payload) => http("/esp/temp",     { method: "PATCH", body: payload }),
     setMoistConfig: (payload) => http("/esp/moisture", { method: "PATCH", body: payload }),
     setSaturday:    (payload) => http("/esp/saturday", { method: "PATCH", body: payload }),
+    setEnabled(enabled) {
+        return http("/esp/manual", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body:{ enabled: !!enabled },
+            credentials: "include",
+        });
+    },
 
     // קריאות חיישנים ידניות
     updateTempReading:  (payload) => http("/esp/temp-config",  { method: "PATCH", body: payload }),
     updateLightReading: (payload) => http("/esp/light-config", { method: "PATCH", body: payload }),
     updateMoistReading: (payload) => http("/esp/moist-config", { method: "PATCH", body: payload }),
-
-    // ידני
-    setEnabled(enabled) {
-        return http("/esp/manual", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ enabled: !!enabled }), // boolean
-            credentials: "include",
-        });
-    },
-
 };

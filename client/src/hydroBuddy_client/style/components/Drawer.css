@@ -1,193 +1,33 @@
-/*.drawer > summary {*/
-/*    list-style: none;*/
-/*    cursor: pointer;*/
-/*    display:flex;*/
-/*    align-items:center;*/
-/*    gap:8px;*/
-/*    padding: 10px 4px;*/
-/*    color: var(--text);*/
-/*    font-weight:600;*/
-/*    user-select:none;*/
-/*}*/
-/*.drawer > summary::-webkit-details-marker { display:none; }*/
-
-/*!*.drawer__content {*!*/
-/*!*    max-height: 0;*!*/
-/*!*    overflow: visible;*!*/
-/*!*    opacity: 0;*!*/
-/*!*    transition: max-height .24s ease, opacity .18s ease;*!*/
-/*!*    padding-left: 2px;*!*/
-/*!*}*!*/
-
-/*.drawer__content { overflow: visible; }*/
-
-/*.drawer__viewport {*/
-/*    display: grid;*/
-/*    grid-template-rows: 0fr;*/
-/*    overflow: hidden;*/
-/*    transition: grid-template-rows 220ms ease;*/
-/*}*/
-
-/*.drawer[open] .drawer__viewport { grid-template-rows: 1fr; }*/
-
-/*.drawer[open] .drawer__content {*/
-/*    max-height: 380px;*/
-/*    opacity: 1;*/
-/*}*/
-
-/*.drawer__actions {*/
-/*    display:grid;*/
-/*    gap: var(--gap-sm);*/
-/*    grid-template-columns: 1fr;*/
-/*}*/
-
-/*.card + .drawer { margin-top: -6px; } !* מדביק ויזואלית לכרטיס שמעל *!*/
-
-/*.drawer summary::-webkit-details-marker { display: none; }*/
-
-/*.drawer__summary {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    gap: 8px;*/
-/*    cursor: pointer;*/
-/*    user-select: none;*/
-/*}*/
-
-/*!* החץ – מסתובב לפי [open] *!*/
-/*.drawer .chev {*/
-/*    display: inline-block;*/
-/*    transition: transform 160ms ease;*/
-/*    transform-origin: center;*/
-/*}*/
-/*.drawer[open] .chev {*/
-/*    transform: rotate(180deg);*/
-/*}*/
-
-/*.drawer__content {*/
-/*    display: grid;*/
-/*    grid-template-rows: 0fr;*/
-/*    transition: grid-template-rows 220ms ease;*/
-/*}*/
-/*.drawer[open] .drawer__content {*/
-/*    grid-template-rows: 1fr;*/
-/*}*/
-/*.drawer__actions { overflow: hidden; }*/
-
-/*!* בונוס: מצב פוקוס נגיש ל-summary *!*/
-/*.drawer__summary:focus-visible {*/
-/*    outline: 2px solid var(--accent);*/
-/*    outline-offset: 2px;*/
-/*}*/
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===== Drawer (Details/Summary) ===== */
-
-.drawer > summary { list-style: none; }
-.drawer > summary::-webkit-details-marker { display: none; }
-
-/* סיכום המגירה */
 .drawer__summary{
-    display:flex; align-items:center; gap:8px;
-    cursor:pointer; user-select:none;
-    padding:10px 4px; color:var(--text); font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    user-select:none;
+    padding:10px 4px;
+    color:var(--text); font-weight:600;
 }
 
-/* חץ מסתובב לפי מצב open */
-.drawer .chev{
-    display:inline-block;
-    transition: transform 160ms ease;
-    transform-origin:center;
-}
-.drawer[open] .chev{ transform: rotate(180deg); }
-
-/* תוכן המגירה — אנימציית גובה חלקה עם grid */
-.drawer__content{
-    display:grid;
-    grid-template-rows: 0fr;     /* סגור */
-    transition: grid-template-rows 220ms ease;
-    overflow: hidden;            /* מסתיר בזמן סגירה/פתיחה */
-    padding-left: 2px;
+.account-card__footer details.drawer {
+    position: static;
+    width: 100%;
 }
 
-/* במצב פתוח — לא חותך טולטיפים */
-.drawer[open] .drawer__content{
-    grid-template-rows: 1fr;     /* פתוח */
-    overflow: visible;           /* מונע חיתוך tooltip */
-}
-
-.drawer__actions{
-    overflow: visible;            /* התוכן עצמו */
-    display:grid;
-    gap: var(--gap-sm);
-    grid-template-columns: 1fr;
-}
-
-/* ===== Tooltip ===== */
-
-.tooltip{
-    position: relative;          /* עוגן לבועה */
-    display: inline-flex;        /* מסתדר יפה עם כפתורים/אייקונים */
-    align-items: center;
-}
-
-/* הבועה עצמה */
-.tooltip .tooltiptext{
+.account-card__footer details.drawer .drawer__viewport {
     position: absolute;
-    z-index: 9999;               /* צף מעל המגירה */
-    min-width: 120px;
-    max-width: 220px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    background: #000;
-    color: #fff;
-    text-align: center;
-    line-height: 1.2;
+    top: 80%;
+    left: 0;
+    right: 0;
+    width:auto;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-top: none;
+    border-radius: 0 0 var(--card-radius) var(--card-radius); /* פינות מעוגלות תחתונות */
 
-    /* מיקום — כמו אצלך, אפשר להתאים */
-    top: 35px;                   /* מתחת לאייקון */
-    right: 5%;
-
-    /* הופעה */
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
-    transform: translateY(-4px);
-    pointer-events: none;        /* לא תופס hover */
+    max-height: 0;
+    transition: max-height 820ms ease;
 }
 
-/* חשיפת הטולטיפ */
-.tooltip:hover .tooltiptext,
-.tooltip:focus-within .tooltiptext{
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
 
-/* אופציונלי: חץ קטן */
-.tooltip .tooltiptext::after{
-    content: "";
-    position: absolute;
-    top: -6px; right: 16px;      /* למקם לפי הצורך */
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent transparent #000 transparent;
-}
-
-/* נגישות לפוקוס על ה-summary */
-.drawer__summary:focus-visible{
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
-/* מרווח חיבור לכרטיס שמעל (אם יש) */
-.card + .drawer { margin-top: -6px; }
+.account-card__footer details.drawer[open] .drawer__viewport { max-height: 500px; }

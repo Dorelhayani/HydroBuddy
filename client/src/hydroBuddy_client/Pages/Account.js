@@ -33,30 +33,36 @@ export default function Account() {
         }, []);
 
         return (
-            <Card
+            <Card className="account-card card--flow"
                 variant={variant}
-                header="Account"
-                title={item?.name}
+                header={
+                    <h5 className="text-sm fw-600 text-muted-500 lh-1 text-center">Account</h5>
+                }
+                title={<div className="account_card-title text-sm fw-600 text-muted-500 ">{item?.name}</div>}
                 imgsrc={
                     item && (
                         <AvatarControl
+                            className="avatar-img"
                             item={item}
                             avatarUpload={avatarUpload}
                             fetchUser={fetchUser}
                         />
                     )
                 }
-                text={item?.email}
-                list={
-                    <small className="text-body-secondary">
+                body={
+                <div className="account-card__body">
+                    <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
+                    <div className="account_card-joined text-sm fw-600 text-muted-500 lh-1 text-center">
                         {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
-                    </small>
-                }
+                    </div>
+                </div>
+            }
                 footer={
-                        <details className="drawer">
-                            <summary className="drawer__summary">
+                <div className="account-card__footer">
+                        <details className="account-card__footer drawer">
+                            <summary className="drawer__summary u-center">
                                 <span className="chev" aria-hidden>▾</span>
-                                <span className="fw-500 text-xs">Quick Account Actions</span>
+                                <span className="fw-500 text-xs"> Quick Account Actions </span>
                                 <FlashButton
                                     className="btn--transparent btn--sm"
                                     onClick={() => setSidebarCollapsed((s) => !s)}
@@ -110,11 +116,11 @@ export default function Account() {
 
                                     </div>
                                     </div>
-
                                     </div>
                                 </div>
                             </div>
                         </details>
+                </div>
                 }
             />
         );
@@ -197,10 +203,12 @@ export default function Account() {
 
 
         return (
-            <Card variant={variant}
-                  header="Update Account"
-                  body={
-                <>
+            <Card
+                className="action-card card--flow"
+                variant={variant}
+                header="Update Account"
+                body={
+                <div className="account_body">
                     <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
                         labelClassNameAll="label-muted"
@@ -217,7 +225,7 @@ export default function Account() {
                             >Update</FlashButton>
                         )}
                     />
-                </>
+                </div>
 
                   }
                   footer={
@@ -264,6 +272,7 @@ export default function Account() {
 
         return (
             <Card
+                className="action-card card--flow"
                 variant={variant}
                 header="Change Password"
                 body={
@@ -309,7 +318,7 @@ export default function Account() {
 
         return (
             <Card
-                className="cards-grid"
+                className="action-card card--flow"
                 variant={variant}
                 body={
                     <>
@@ -339,7 +348,7 @@ export default function Account() {
         };
 
         return (
-            <Card variant={variant} title="Delete Account">
+            <Card className="action-card card--flow" variant={variant} title="Delete Account">
                 <p className="fw-600 text-xs">This action is permanent. All your plants and data may be removed.</p>
                 <div className="btn-row">
                     <FlashButton className="btn btn--outline btn--sm"  onClick={onCancel}>Cancel</FlashButton>

@@ -10,15 +10,13 @@ export function AuthProvider({ children }) {
     const [item, setItem] = useState(null);
     const status = useRequestStatus();
 
-    // מגיני “פעם אחת” ו”פנייה בתהליך”
     const didInit = useRef(false);
     const inflight = useRef(null);
 
-    // פונקציה יציבה (לא תלויה בכלום) שמאחדת פניות מקבילות
     const fetchUser = async () => {
         if (inflight.current) return inflight.current;
         inflight.current = status.run(async () => {
-            const usr = await auth.me();  // מחזיר avatar_url (עם bust אם הוספת)
+            const usr = await auth.me();
             setItem(usr);
             return usr;
         });
@@ -27,7 +25,6 @@ export function AuthProvider({ children }) {
     };
 
     const login = async (payload) => {
-        // קודם login (קוקית JWT), ואז fetchUser יחיד
         await status.run(() => auth.login(payload));
         return fetchUser();
     };

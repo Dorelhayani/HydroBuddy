@@ -1,99 +1,25 @@
 /* ===== Tile (compact) ===== */
-/*.tile {*/
-/*    display: grid;*/
-/*    grid-template-columns: auto 1fr auto;*/
-/*    align-items: center;*/
-/*    gap: 10px;*/
-/*    padding: 14px;                 !* היה 18 – קומפקטי יותר *!*/
-/*    background: var(--card);*/
-/*    border: 1px solid var(--border);*/
-/*    border-radius: 18px;           !* היה 26 – פחות עבה *!*/
-/*    box-shadow: 0 2px 8px rgba(0,0,0,.25);*/
-/*    transition: transform .06s ease, background .15s ease, border-color .15s ease, opacity .15s ease;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.tile{*/
-/*    display: grid;*/
-/*    grid-template-columns: auto minmax(0,1fr) max-content;*/
-/*    align-items: center;*/
-/*    gap: 5px;*/
-
-/*    !* מאריך את ה-tile *!*/
-/*    padding-block: 16px;*/
-/*    padding-inline: 20px;*/
-/*    min-height: 72px;*/
-
-/*    !* ריווח סימטרי בשני הצדדים (עובד גם RTL/LTR) *!*/
-/*    border: 1px solid var(--border);*/
-/*    width: 100%;*/
-/*    box-sizing: border-box;*/
-/*}*/
-
-.tile{
-    display: grid;
-    grid-template-columns: auto minmax(0,1fr) max-content;
-    align-items: center;
-    gap: 5px;
-    padding-block: 12px;      /* היה 16px */
-    padding-inline: 16px;     /* היה 20px */
-    min-height: 64px;         /* היה 72px */
-
-}
-
-.tile > *{ min-width:0; }
-
-.tile__meta{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    justify-self:end;
-    min-width:max-content;
-}
-
 
 .tile:hover  { background: #2a2a2a; border-color: #3a3a3a; }
 .tile:active { transform: translateY(1px); }
 .tile.is-disabled { opacity: .55; pointer-events: none; }
 
-/* אווטאר קטן יותר */
 .tile__avatar {
     width: 40px;                   /* היה 56 */
     height: 40px;
     border-radius: 999px;
-    display: grid; place-items: center;
-    border: 1px solid #333;
-    background:
-            radial-gradient(120% 120% at 30% 30%, rgba(255,255,255,.06), rgba(0,0,0,.12)),
-            #1f1f1f;
-}
-
-/* טקסט קומפקטי */
-.tile__body {
-    width: 110%;
     display: grid;
-    /*margin-left: -40px;*/
-    margin-right: 50px;
-    /*gap: 2px;*/
-    /*padding-left: 10px;*/
-    /*padding-right: 10px;*/
+    place-items: center;
+    border: 1px solid #333;
 }
-
-/*.tile__title {*/
-/*    font-weight: 700;*/
-/*    color: #f1f1f1;*/
-/*    line-height: 2.5;*/
-/*    margin-bottom: 5px;*/
-/*    margin-left: 40px;*/
-/*    overflow: hidden;*/
-/*    text-overflow: ellipsis;*/
-/*    white-space: nowrap;*/
-/*}*/
 
 .tile__title{
+    position: absolute;
+    left: 60px;
     line-height: 1.25;        /* היה 2.5 – זה מה שעשה רווח אנכי גדול */
     margin-bottom: 4px;
-    margin-left: 0;           /* לא צריך הזחה מלאכותית */
+    background-color: transparent;
+    /*margin-left: 10px;           !* לא צריך הזחה מלאכותית *!*/
 }
 
 
@@ -102,59 +28,52 @@
     line-height: 1.2;
 }
 
-/*.tile__subtitle {*/
-/*    opacity: .7;*/
-/*    letter-spacing: .1px;*/
-/*    font-size: 13px;               !* היה 15 *!*/
-/*    color: #b6b6b6;*/
-/*    line-height: 1.2;*/
-/*    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;*/
-/*}*/
-
-
 /* צ'ברון מעט קטן ומיושר */
-.tile__chev { font-size: 20px; opacity: .6; margin-left: 6px; }
+.tile__chev {
+    position: absolute;
+    align-items: center;
+    font-size: 20px;
+    opacity: .6;
+    right: 5%;
+    bottom: 15px;
+}
 
 .tile--sm {
     padding: 10px;
     border-radius: 14px;
 }
-.tile--sm .tile__avatar {
-    width: 40px;
-    height: 40px;
-}
+.tile--sm .tile__avatar { width: 40px; height: 40px; }
+
 .tile--sm .tile__title { font-size: 16px; }
 .tile--sm .tile__subtitle { font-size: 12px; }
 
 /* ===== List wrapper (אחיד, בלי כפילויות) ===== */
 .c-list {
     list-style: none;
-    margin: 0; padding: 0;
-    display: grid;
-    /*gap: 12px;*/
-}
-.c-list__item {
-    list-style: none;
+    margin: 0;
     padding: 0;
-    background: transparent;
-    border: 0; }
-.c-list__item > .tile { width: 100%; }
+    display: grid;
+    gap: 12px;
+}
+
+
+
+/*.c-list__item {*/
+/*    list-style: none;*/
+/*    padding: 0;*/
+/*    background: transparent;*/
+/*    border: 0; }*/
+
+/*.c-list__item > .tile { width: 100%; }*/
 
 @media (max-width: 420px) {
-    .tile {
-        padding: 12px;
-        border-radius: 16px; }
-
-    .tile__avatar {
-        width: 40px;
-        height: 40px; }
-
+    .tile { padding: 12px; border-radius: 16px; }
+    .tile__avatar { width: 40px; height: 40px; }
     .tile__title { font-size: 16px; }
-
     .tile__subtitle { font-size: 12px; }
 }
 
-.tile { outline: none; }
+
 
 /* טבעת פוקוס אמיתית */
 .tile:focus-visible {
@@ -172,148 +91,28 @@
 
 
 
-/* ===== plantRenderer Control ===== */
-
-/*!* בסיס: שליטה קלה בפריסה וגודל *!*/
-/*!*.plant-status{*!*/
-/*!*    display: inline-flex;*!*/
-/*!*    !*align-items: center;*!*!*/
-/*!*    margin-bottom: 10px;*!*/
-/*!*    gap: 6px;*!*/
-/*!*    line-height: 1;*!*/
-/*!*}*!*/
-
-
-/*!* ===== רשימה/קונטיינר – מרווחים סימטריים בתוך הכרטיס ===== *!*/
-/*!*.c-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }*!*/
-/*.c-list{*/
-/*    list-style:none;*/
-/*    padding-top: -100px;*/
-/*    margin-left: -40px;*/
-/*    !*margin:0;*!*/
-/*    !*padding:0;*!*/
-/*    display:grid;*/
-/*    gap:12px;*/
-/*}*/
-/*.c-list__item > .tile{ width:100%; }*/
-
-/*!* אם עדיין נראה שהימין “צפוף”, אפשר מעט מרווח פנימי לכרטיס עצמו *!*/
-
-/*!* מיקום: ימין/שמאל בצורה אג׳נוסטית ל-RTL/LTR *!*/
-/*.align-right { margin-inline-start: -100px; }  !* דוחף לימין ב-RTL ולסוף ב-LTR *!*/
-/*.align-left  { margin-inline-end:  100px; }*/
-
-/*.align-r { margin-right: 70px; }*/
-/*.align-l { margin-left: 70px; }*/
-
-/*!* גדלים טיפוגרפיים כלליים *!*/
-/*.plant-status--sm { font-size: 12px; }*/
-/*.plant-status--md { font-size: 14px; }*/
-/*.plant-status--lg { font-size: 16px; }*/
-
-/*!* אם ה-renderPlant מחזיר SVG/Icon—נשלוט במידות ישירות *!*/
-/*.plant-status svg,*/
-/*.plant-status .icon {*/
-/*    width: 1em;*/
-/*    height: 1em;*/
-/*}*/
-
-/*!* מודיפייר גודל שגם מגדיל אייקונים *!*/
-/*.plant-status--sm svg, .plant-status--sm .icon { width: 14px; height: 14px; margin-bottom: 40px; }*/
-/*.plant-status--md svg, .plant-status--md .icon { width: 18px; height: 18px; }*/
-/*.plant-status--lg svg, .plant-status--lg .icon { width: 22px; height: 22px; }*/
-
-/*!* סימון נקודה קטן ליד הטקסט *!*/
-/*.badge-container{*/
-/*    display: inline-grid;*/
-/*    margin-left: 45px;*/
-/*    margin-bottom: 50px;*/
-/*}*/
-
-/*.badge .dot {*/
-/*    width: 8px;*/
-/*    height: 8px;*/
-/*    border-radius: 50%;*/
-/*    display: inline-block;*/
+/*.list-canvas {*/
+/*    position: absolute;  !* קונטקסט נוח *!*/
+/*    overflow: auto;      !* גלילה פנימית אם צריך *!*/
+/*    max-height: 520px;   !* כמו ה-scroll-area שלך *!*/
+/*    padding: 0 8px;      !* רווח פנימי קטן, אופציונלי *!*/
 /*}*/
 
 
-/*!* אם יש לך כבר מחלקות ok/neutral/warn/alert—נשען עליהן לצבע *!*/
-/*.badge.ok .dot { background: #2ecc71; }     !* ירוק *!*/
-/*.badge.neutral .dot { background: #999; }   !* אפור *!*/
+/*.tile--free {*/
+/*    position: absolute;*/
+/*    top: var(--tile-top, 0);*/
+/*    left: var(--tile-left, 0);*/
+/*    transform: translate(var(--tile-x, 0), var(--tile-y, 0));*/
+/*    !* טיפ: כדי לא לחצות header/footer, תן ל-list-canvas padding-top/bottom *!*/
+/*}*/
 
-/*!* אופציונלי: גרסה עם scale אם יש תוכן מעורב ולא רק טקסט/אייקון *!*/
-/*.plant-status.is-scaled-sm { transform: scale(0.9); transform-origin: center; }*/
-/*.plant-status.is-scaled-lg { transform: scale(1.15); transform-origin: center; }*/
+.nudge-l-8  { --tile-x: -8px; }
+.nudge-l-16 { --tile-x: -16px; }
+.nudge-r-8  { --tile-x: 8px; }
+.nudge-r-16 { --tile-x: 16px; }
+.nudge-t-8  { --tile-y: -8px; }
+.nudge-t-16 { --tile-y: -16px; }
+.nudge-b-8  { --tile-y: 8px; }
+.nudge-b-16 { --tile-y: 16px; }
 
-
-
-
-
-
-
-
-
-
-
-/* ===== PumpStatus ===== */
-.pump-status{
-    display: inline-flex;           /* אינליין כדי לשבת מתחת לכותרת */
-    align-items: center;
-    gap: 10px;
-    line-height: 1.2;
-}
-
-.pump-status__icon{
-    display: inline-grid;
-    place-items: center;
-    width: 18px;
-    height: 18px;
-    opacity: .9;
-}
-
-/* התגית: "pump: ON/OFF" */
-.pump-status__badge{
-    display: inline-flex;
-    /*align-items: center;*/
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    /*background: #2a2a2a;*/
-    /*border: 1px solid #373737;*/
-    font-size: 10px;
-    white-space: nowrap;
-}
-.pump-status__badge .pump-status__dot{
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-    background: #999;            /* ברירת מחדל */
-}
-.pump-status__badge.is-on .pump-status__dot {
-    background: #2ecc71;
-}
-.pump-status__badge.is-off .pump-status__dot {
-    background: #777
-; }
-
-/* הטקסט של זמן העדכון – בדיוק לאחר התגית באותה שורה (המקום המסומן בכחול) */
-.pump-status__time{
-    display: flex;
-    margin-right: -10px;
-    margin-bottom: -50px;
-    /*margin-top: 40px;*/
-    opacity: .75;
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-/* אופציונלי: רשימת אירועים לדיבוג */
-.pump-status__events{
-    list-style: none;
-    margin: 4px 0 0; padding: 0;
-    font-size: 11px;
-    opacity: .75;
-}
-.pump-status__events li{ margin-top: 2px; }

@@ -29,9 +29,8 @@ export function useEsp() {
     const toFiniteInt   = (v) => Number.isFinite(+v) ? parseInt(v,10) : undefined;
     const toFiniteFloat = (v) => Number.isFinite(+v) ? parseFloat(v) : undefined;
 
-    // === קריאת מצב ה-ESP (פולינג / רקע) ===
+
     const fetchEspState = useCallback(async () => {
-        // משתמשים ב-poll.run כדי לנהל שגיאות, אבל אפשר להסתיר את poll.loading מה-UI כדי למנוע "הבזק"
         return poll.run(async () => {
             const data = await esp.getState();
             if (!shallowEqual(lastRef.current, data)) {
@@ -42,9 +41,8 @@ export function useEsp() {
         });
     }, [poll]);
 
-    // === דוגמה: קריאה שמחזירה dataMode (אם יש לך צורך) ===
+    // ===  קריאה שמחזירה dataMode ===
     const fetchDataMod = useCallback(async () => {
-        // נחשב כ"קריאת ממשק" — נשתמש ב-poll כדי שלא יכנס לדגלי טופס/כפתור
         const data = await fetchEspState();
         return data?.dataMode ?? null;
     }, [fetchEspState]);
@@ -53,14 +51,11 @@ export function useEsp() {
     const fetchStateSave = useCallback(async ({ state }) => {
         return mutate.run(async () => {
             await esp.setState({ state: state })
-            // אם יש לך endpoint אמיתי לשמירת state, בטל את ההערה:
-            // await http("/esp/dataMode", { method: "PATCH", body: JSON.stringify({ state }) });
-            setForm({ state: String(state) }); // שמירה לוקלית כדי לשמור על זרימה ב-UI
+            setForm({ state: String(state) });
             return state;
         }, { successMessage: "" });
     }, [mutate]);
 
-    // currentState נשען על sensors אבל נופל חזרה ל-form.state אם צריך
     const currentState = sensors?.dataMode ?? form.state ?? "";
 
         // ---- פעולות שמורות (Configs) ----
@@ -75,10 +70,9 @@ export function useEsp() {
             maxLight:       toFiniteInt(formPayload.maxLight),
         });
 
-        // נחשב "מוטציה" => נשתמש ב-status של mutate
         await mutate.run(async () => {
             await esp.setTempConfig(payload);
-            await fetchEspState();           // יעדכן sensors רק אם באמת השתנה (עם shallowEqual)
+            await fetchEspState();
         }, { successMessage: "Temperature mode saved" });
 
     }, [mutate, fetchEspState]);
@@ -112,10 +106,9 @@ export function useEsp() {
     const manual = useCallback(async (enabled) => {
         return mutate.run(async () => {
             const res = await esp.setEnabled(enabled);
-            // נוודא שהחזיר בדיוק מה שאתה מחזיר מ־ESPMod.js
             await fetchEspState();
             console.log("Response from /esp/manual:", res);
-            return !!res?.MANUAL_MODE?.enabled;   // מחזיר committed
+            return !!res?.MANUAL_MODE?.enabled;
         }, { successMessage: "Manual mode saved" });
     }, [mutate]);
 

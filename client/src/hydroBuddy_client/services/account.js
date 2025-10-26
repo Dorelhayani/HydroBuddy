@@ -1,6 +1,6 @@
 // account.js
 
-import {http} from "./http";
+import http from "./http";
 
 export const account = {
     // async getOptions() {

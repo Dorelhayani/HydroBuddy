@@ -1,17 +1,22 @@
 // http.js
 
-export function http(url, { method = "GET", body, headers = {} } = {}) {
-    const opts = {
-        method,
-        credentials: "include",
-        cache: "no-store",
-        headers: { "Content-Type": "application/json", ...headers },
+export default async function http(url, opts = {}) {
+    const { body, headers, ...rest } = opts;
+    const init = {
+        ...rest,
+        headers: { 'Content-Type': 'application/json', ...(headers || {}) },
+        credentials: opts.credentials ?? 'include',
     };
-    if (body && !(body instanceof FormData)) opts.body = JSON.stringify(body);
-    if (body instanceof FormData) delete opts.headers["Content-Type"];
-    return fetch(url, opts).then(async r => {
-        const json = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(json?.error || r.statusText);
-        return json;
-    });
+
+    if (body !== undefined) {
+        init.body = typeof body === 'string' ? body : JSON.stringify(body);
+    }
+
+    const res = await fetch(url, init);
+    if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${txt || res.statusText}`);
+    }
+    const ct = res.headers.get('content-type') || '';
+    return ct.includes('application/json') ? res.json() : res.text();
 }

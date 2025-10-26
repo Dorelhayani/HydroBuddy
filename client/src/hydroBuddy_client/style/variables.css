@@ -7,9 +7,15 @@
     --text: #eaeaea;
 
     /* ===== Login Card Height & Width ===== */
-
     --header-h: 56px;
     --footer-h: 44px;
+
+
+    /* ===== Tile Control ===== */
+    --tile-top: 0px;
+    --tile-left: 0px;
+    --tile-x: 0px;
+    --tile-y: 0px;
 
     /* ===== Muted Scale (לגבולות/טקסט משני) ===== */
     --muted-50:  #2b2b2b;
