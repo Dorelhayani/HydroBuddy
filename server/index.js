@@ -29,7 +29,8 @@ app.use(cors({
     origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
     credentials: true,
 }));
-app.use(express.json());
+
+app.use(express.json({ strict: true }));
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
@@ -76,6 +77,14 @@ app.use( '/esp', deviceOrUserAuth, EspPerUser(db, EspData), EspRout);
 app.use('/users', authMiddleware.isLogged.bind(authMiddleware), UserRout);
 app.use('/PlantRout', deviceOrUserAuth, PlantRout);
 app.use('/devices', deviceRouter);
+
+// טיפול במקרה קצה
+app.use((req, _res, next) => {
+    if (typeof req.body === 'string') {
+        try { req.body = JSON.parse(req.body); } catch (_) {}
+    }
+    next();
+});
 
 // Start
 app.listen(port, () => {
