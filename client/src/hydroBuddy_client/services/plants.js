@@ -1,6 +1,6 @@
 // plants.js
 
-import {http} from "./http";
+import http from "./http";
 
 export const plants = {
     // getOptions: () => http("/PlantRout/list", { method: "GET" }),

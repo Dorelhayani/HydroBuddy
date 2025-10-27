@@ -1,4 +1,4 @@
-// Plants.js
+/* ===== Plants.js ===== */
 
 import React, { useEffect, useState } from "react";
 import {Outlet} from "react-router-dom";
@@ -42,75 +42,57 @@ export default function Plants({ embed = false }) {
 
 
         return (
-            <Card className= "card-body scroll-area"
+            // <Card className= "card-body scroll-area"
+            <Card
                 variant={variant}
                 header={
-                    <>
-                        {/*<div className="tooltip btn--transparent">*/}
-                        {/*<FlashButton*/}
-                        {/*    className="btn--transparent btn--sm"*/}
-                        {/*    onClickAsync={flip}>*/}
-                        {/*    <span className="tooltiptext fw-600 text-xs">Add Plant</span>*/}
-                        {/*    <i className="fa-solid fa-tree"></i>*/}
-                        {/*</FlashButton>*/}
-                        {/*    </div>*/}
-                        {/*<small className="text-xs text-muted-500 mb-8">Add Plant</small>*/}
                         <div className="mx-auto-flex" >
                             <small className="text-lg fw-600 mb-8 stack-8">Plant Info</small>
                         </div>
-                    </>
                 }
-                body=" "
-                list={
-                    <ClickableList
-                        items={plant}
-                        itemKey="ID"
-                        className="text-muted"
-                        onItemClick={(p) => {
-                            setSelectedPlant(p);
-                            onItemClick && onItemClick(p);
-                            setActiveTab("update_plant");
-                        }}
-                        renderItem={(p) => (
-                            <div className="tile tile--sm" onClick={() => setActiveTab("update_plant")}>
-                                <div className="tile__avatar icon--plant">
-                                    <Icon
-                                        name={iconName({ name: p.planttype_name, kind: "plant" })}
-                                        size={24}
-                                        fill={1}
-                                        weight={600}
-                                        className="icon"
-                                    />
-                                </div>
+                body={
+                         <ClickableList
+                            items={plant}
+                            itemKey="ID"
+                            className="text-muted"
+                            onItemClick={(p) => {
+                                setSelectedPlant(p);
+                                onItemClick && onItemClick(p);
+                                setActiveTab("update_plant");
+                            }}
+                            renderItem={(p) => (
+                                <div className="tile tile--sm" onClick={() => setActiveTab("update_plant")}>
+                                     <div className="tile__avatar">
+                                         <Icon
+                                             name={iconName({ name: p.planttype_name, kind: "plant" })}
+                                             size={24}
+                                             fill={1}
+                                             weight={600}
+                                             className="icon"
+                                         />
+                                     </div>
 
-                                {/*<div className="c-list nudge-l-8">*/}
-                                    <div className="tile__body">
-                                    <div className="tile__title text-muted-500">{p.planttype_name}</div>
-                                    <div className="tile__subtitle text-muted-500">
-                                          <span className="plant-status">
-                                              <PumpStatus/>
-                                          </span>
-                                    </div>
-                                {/*</div>*/}
-                                </div>
-                                <span className="tile__chev msr" aria-hidden="true">chevron_right</span>
-                            </div>
-                        )}
-                        emptyContent="No plants yet"
-                        ariaLabel="Plants list"
-                    />
-                }
+                                     <div className="tile tile--free">
+                                         <div className="tile__title text-muted-500">{p.planttype_name}</div>
+                                         <div className="text-muted-500">
+                                             <span className="state-status"><PumpStatus/></span>
+                                         </div>
+                                     </div>
+                                     <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
+                            )}
+                            emptyContent="No plants yet"
+                            ariaLabel="Plants list"
+                         />
+            }
                 footer={
-                <div className="footer-row">
-                    <div className="tooltip btn--transparent">
+                    <div className="tooltip">
                         <FlashButton
-                            className="btn--transparent btn--sm"
+                            className="btn--right btn--sm btn--transparent"
                             onClickAsync={flip}>
                             <span className="tooltiptext fw-600 text-xs">Add Plant</span>
                             <i className="fa-solid fa-tree"></i>
                         </FlashButton>
                     </div>
-                </div>
             }
             />
         );
@@ -158,8 +140,8 @@ export default function Plants({ embed = false }) {
 
                 }
                 footer={
-                    <div className="">
-                        <FlashButton className="btn--transparent btn--sm" onClick= {unflip}>
+                    <div className="card-footer">
+                        <FlashButton className="btn--left btn--transparent btn--sm" onClick= {unflip}>
                             <i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
                     </div>
                 }

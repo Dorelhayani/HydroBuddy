@@ -1,4 +1,4 @@
-/* toggle */
+/* ===== Toggle.css ===== */
 
 .toggle {
     width: 64px;
@@ -11,14 +11,9 @@
     background: #e53e3e;
 }
 
-.toggle[aria-checked="true"] {
-    background: #2ecc71; /* ירוק */
-}
+.toggle[aria-checked="true"] { background: #2ecc71; }
 
-.toggle[aria-disabled="true"] {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
+.toggle[aria-disabled="true"] { cursor: not-allowed; opacity: 0.7;}
 
 .toggle .knob {
     position: absolute;
@@ -32,7 +27,7 @@
     transition: transform 120ms ease;
 }
 
-.toggle[aria-checked="true"] .knob { transform: translateX(31px); } /* 64 - 28 - 3 ≈ 33; תכוונן אם צריך */
+.toggle[aria-checked="true"] .knob { transform: translateX(31px); }
 
 .manual-row{
     display: flex;
@@ -42,7 +37,6 @@
     min-height: 44px;
 }
 
-
-.push-right{ margin-left: auto; } /* דוחף את הטוגל עד ימין */
-.toggle{ opacity: .85; } /* margin-left: 12px;  ← להסיר את זה */
+.push-right{ margin-left: auto; }
+.toggle{ opacity: .85; }
 @media (max-width: 480px){ .manual-row { gap: 8px; } }

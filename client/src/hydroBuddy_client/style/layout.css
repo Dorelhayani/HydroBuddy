@@ -1,4 +1,4 @@
-/* layout.css */
+/* ===== Layout.css ===== */
 
 .content-grid {
     display: grid;
@@ -13,7 +13,6 @@
     }
     .content-grid.two-col > * { min-width: 0; }
 }
-
 
 .site-header {
     width: 100%;
@@ -36,12 +35,10 @@
 
 .brand { font-weight:700; font-size:1.1rem; color:var(--accent); margin-left: 6px; }
 
-/* top nav (for small screens, shown when burger clicked) */
 .header-nav { display:none; max-width: var(--container-w); margin: 8px auto; padding: 0 12px; }
 
 .header-nav.open { display:flex; flex-direction: column; gap:8px; }
 
-/* layout area */
 .body-area {
     display: flex;
     gap: 16px;
@@ -51,26 +48,21 @@
     align-items: flex-start;
 }
 
-.cards-grid > * {
-    width: 100%;
-    max-width: none;
-}
+.cards-grid > * { width: 100%; max-width: none; }
 
 /* ===== width for login card ===== */
-
 .cards-grid--narrow{
-    display: flex;            /* חשוב! */
-    justify-content: center;  /* מרכז אופקית */
-    align-items: center;      /* אופציונלי */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
 }
 
 .cards-grid--narrow > *{
     width: 100%;
-    max-width: 360px;         /* 340–420 לפי הטעם */
+    max-width: 360px;
     margin: 0 auto;
 }
-
 
 .main-content.expanded { /* when sidebar is collapsed allow more width */ }
 

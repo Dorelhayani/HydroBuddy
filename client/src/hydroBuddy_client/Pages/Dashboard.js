@@ -1,4 +1,4 @@
-// Dashboard.js
+/* ===== Dashboard.js ===== */
 
 import Plants from "./Plants";
 import Mod from "./Mod";

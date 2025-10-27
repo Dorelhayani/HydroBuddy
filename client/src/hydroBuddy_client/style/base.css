@@ -62,9 +62,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 .grid { display: grid; grid-template-columns: 1fr; gap: var(--gap-md, 16px); }
 /* modifiers */
 .grid--2 { grid-template-columns: 1fr; }
-@media (min-width: 640px) {
-    .grid--2 { grid-template-columns: 1fr 1fr; }
-}
+@media (min-width: 640px) { .grid--2 { grid-template-columns: 1fr 1fr; } }
 
 
 

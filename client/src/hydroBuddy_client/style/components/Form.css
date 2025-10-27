@@ -1,6 +1,4 @@
-/* Form.css */
-
-/* Inputs */
+/* ===== Form.css ===== */
 
 input, select, textarea,
 .input, .valueBox {
@@ -24,8 +22,6 @@ input:focus, select:focus, textarea:focus,
     box-shadow: var(--focus-ring);
 }
 
-
-
 /* ==== Sizes for inputs (height & font) ==== */
 .input { --in-h: var(--input-h, 36px); height: var(--in-h); }
 .input--sm { --in-h: 30px; font-size: .95rem; }
@@ -33,7 +29,6 @@ input:focus, select:focus, textarea:focus,
 .input--lg { --in-h: 44px; font-size: 1.05rem; }
 
 /* ===== Useful Width ===== */
-
 .w-auto  { width: auto !important; }
 .w-100   { width: 100% !important; }
 .w-75    { width: 75% !important; }
@@ -64,11 +59,7 @@ input:focus, select:focus, textarea:focus,
 .form .input { width: 100%; } /* שדה ימלא את תא העמודה אלא אם נתת .w-XX */
 
 
-
-
-
 /* ===== spacing between fields ===== */
-
 .form {
     --form-row-gap: 6px;     /* רווח בין label לשדה */
     --form-stack-gap: 12px;  /* רווח בין קבוצות שדה (שורות) */
@@ -121,7 +112,6 @@ input:focus, select:focus, textarea:focus,
 
 
 /* error / success messages */
-
 .msg { margin-top:8px; font-size: .95rem; }
 .msg.error { color: var(--danger); }
 .msg.success { color: var(--success); }

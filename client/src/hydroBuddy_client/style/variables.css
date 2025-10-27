@@ -1,5 +1,4 @@
-/* variables.css */
-
+/* ===== variables.css ===== */
 :root {
     /* ===== Base Colors ===== */
     --bg: #1f1f1f;
@@ -9,7 +8,6 @@
     /* ===== Login Card Height & Width ===== */
     --header-h: 56px;
     --footer-h: 44px;
-
 
     /* ===== Tile Control ===== */
     --tile-top: 0px;
@@ -50,15 +48,14 @@
     --space-24: 24px;
     --space-32: 32px;
     --space-40: 40px;
-
-
     --padding-16-18: 16px 18px;
+
     /* Aliases you already use */
     --gap-sm: var(--space-8);
     --gap-md: var(--space-12);
     --gap-lg: var(--space-20);
-
     --padd-md: var(--padding-16-18);
+
     /* ===== Container ===== */
     --container-w: 1200px;
 
@@ -79,16 +76,13 @@
     --input-w: 50%;
     --input-w-lg: 60%;
 
-
     /* ===== Shadows ===== */
     --shadow-sm: 0 1px 3px rgba(0,0,0,.35);
     --shadow-md: 0 6px 18px rgba(0,0,0,.35);
     --shadow-lg: 0 12px 28px rgba(0,0,0,.45);
 }
 
-@media (min-width: 1440px) {
-    :root { --container-w: 1280px; }
-}
+@media (min-width: 1440px) { :root { --container-w: 1280px; } }
 
 /* בחירה */
 ::selection { background: rgba(230,194,41,.3); color: inherit; }

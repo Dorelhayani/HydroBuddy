@@ -1,0 +1,49 @@
+/* ===== PumpStatus tile ===== */
+
+/* התגית: "pump: ON/OFF" */
+.pump-status__badge{
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    top: 40px;
+    right: -30px;
+    gap: 15px;
+    border-radius: 999px;
+    background: #2a2a2a;
+    border: 1px solid #373737;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.pump-status__badge .pump-status__dot{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #999;
+}
+
+.pump-status__time{
+    position: absolute;
+    display: flex;
+    opacity: .75;
+    right: 20px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.pump-status__events{
+    position: absolute;
+    list-style: none;
+    left: 70px;
+    top: 10px;
+    margin: 4px 0 0;
+    padding: 0;
+    font-size: 11px;
+    opacity: .75;
+}
+
+.pump-status__events li{ margin-top: 2px; }
+.pump-status__badge.is-on .pump-status__dot { background: #2ecc71; }
+.pump-status__badge.is-off .pump-status__dot { background: #777 ; }
+.plant-body-canvas{ position: relative; width: 100%; height: 100%; }

@@ -1,16 +1,14 @@
 /* ===== FlipCard.css ===== */
-
 .flip-card {
     perspective: 1000px;
     width: 100%;
     position: relative;
     border-radius: var(--radius);
+    z-index: 1;
 }
 
-/* מנטרל פליפ (למצבים של "מסך יחיד") */
 .flip-card.no-flip .flip-card-inner { transform: none !important; }
 
-/* ליבה */
 .flip-card-inner {
     position: relative;
     transform-style: preserve-3d;
@@ -18,10 +16,8 @@
     border-radius: inherit;
 }
 
-/* מצב פליפ */
 .flip-card-inner.is-flipped { transform: rotateY(180deg); }
 
-/* פאות */
 .flip-card-face {
     position: relative;
     backface-visibility: hidden;
@@ -30,22 +26,21 @@
     display: flex;
 }
 
-.flip-card-face.front { transform: rotateY(0deg); }
+.flip-card-face.front { transform: rotateY(0deg); z-index: 2;}
 
 .flip-card-face.back {
-    position: relative;
+    position: absolute;
     inset: 0;
     transform: rotateY(180deg);
     overflow: visible;
+    z-index: 1;
 }
 
-/* הקלפים שבתוך הפאות */
 .flip-card-face > .card {
     border-radius: inherit;
     display: flex;
     flex-direction: column;
 }
 
-/* וריאנט: גובה אוטומטי (אם אתה קובע דינאמית ב-JS, אפשר להוסיף את המחלקה להורה) */
 .flip-card--autoheight .flip-card-inner { min-height: auto; }
 
