@@ -1,4 +1,4 @@
-// toInt01
+/* ===== toInt01.js ===== */
 
 function toInt01(v) {
     if (v === 1 || v === '1') return 1;

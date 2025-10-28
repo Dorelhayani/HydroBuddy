@@ -1,4 +1,5 @@
-// Routs/LogRout.js
+/* ===== LogRout.js ===== */
+
 const express = require('express');
 const router = express.Router();
 const { getRecent } = require('../utils/logger');

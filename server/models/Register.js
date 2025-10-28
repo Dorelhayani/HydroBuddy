@@ -1,4 +1,4 @@
-// Register.js
+/* ===== Register.js ===== */
 
 const bcrypt = require('bcryptjs');
 const validator = require('validator');

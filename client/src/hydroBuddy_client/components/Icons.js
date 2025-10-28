@@ -1,4 +1,5 @@
-// components/Icon.js
+/* ===== Icon.js ===== */
+
 import React from "react";
 
 /** ---- MAPS ---- */

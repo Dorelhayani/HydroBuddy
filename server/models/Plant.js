@@ -1,4 +1,4 @@
-// Plant.js
+/* ===== Plant.js ===== */
 
 class PlantData {
     constructor(db) {

@@ -1,4 +1,5 @@
-// utils/logger.js
+/* ===== logger.js ===== */
+
 const { randomUUID } = require('crypto');
 
 const MAX_ITEMS = 300;               // כמה שורות נשמור בזיכרון

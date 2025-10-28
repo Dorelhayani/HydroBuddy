@@ -1,4 +1,4 @@
-// DeviceHandler.js
+/* ===== DeviceHandler.js ===== */
 
 const bcrypt = require('bcryptjs');
 const { info, warn } = require('../utils/logger');

@@ -1,6 +1,7 @@
-// index.js
+/* ===== index.js ===== */
 
 const express = require('express');
+const http = require('http');
 const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
@@ -12,6 +13,7 @@ const port = process.env.PORT || 5050;
 
 const db = require('./models/database');
 const Auth = require('./models/Auth');
+const { initWebSocket } = require('./utils/webSocketUtils');
 
 // אינסטנס יחיד של Auth (ליוזרים)
 const authMiddleware = new Auth(db, {
@@ -68,7 +70,7 @@ app.use('/uploads', express.static(
             }
         },
     }
-));
+));git
 
 // Mount
 app.use('/register', RegisterRout);

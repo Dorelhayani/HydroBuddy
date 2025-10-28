@@ -1,4 +1,4 @@
-// deviceOrUserAuth.js
+/* ===== deviceOrUserAuth.js ===== */
 
 const bcrypt = require('bcryptjs');
 const { info, warn, error } = require('../utils/logger');

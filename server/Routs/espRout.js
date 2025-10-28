@@ -1,4 +1,4 @@
-// espRout.js
+/* ===== espRout.js ===== */
 
 const express = require('express');
 const router = express.Router();
@@ -6,6 +6,7 @@ const router = express.Router();
 const db = require('../models/database');
 const EspData = require('../models/Esp');
 const { EspPerUser } = require('../models/DeviceHandler');
+const { broadcastSensorUpdate } = require('../utils/webSocketUtils');
 
 // יצירה חד-פעמית של המידלוור עם db + EspData
 const espPerUser = EspPerUser(db, EspData);
@@ -101,6 +102,9 @@ router.patch('/pump-stts', espPerUser, async (req, res) => {
 router.patch('/temp-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateTemp(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
+
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
@@ -108,6 +112,9 @@ router.patch('/temp-config', espPerUser, async (req, res) => {
 router.patch('/light-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateLight(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
+
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
@@ -115,6 +122,9 @@ router.patch('/light-config', espPerUser, async (req, res) => {
 router.patch('/moist-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateMoisture(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
+
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
