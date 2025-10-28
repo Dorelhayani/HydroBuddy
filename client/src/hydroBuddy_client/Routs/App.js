@@ -1,4 +1,4 @@
-// App.js
+/* ===== App.js ===== */
 
 import React, { useState, Suspense } from "react";
 import { Outlet, createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
@@ -30,8 +30,7 @@ function Layout() {
                             </FlashButton>
                         </div>
                     )}
-
-                    <i className="fa-solid fa-seedling"></i>
+                    <i className="fa-solid fa-seedling fa-bounce fa-xl" style={{color: "#63E6BE"}}></i>
                     <div className="brand">HydroBuddy</div>
                 </div>
             </header>

@@ -1,4 +1,4 @@
-// Mod.js
+/* ===== Mod.js ===== */
 
 import { Outlet } from "react-router-dom";
 import React, { useState, useMemo, useCallback, useEffect } from "react";
@@ -16,6 +16,7 @@ import Icon,{iconName} from "../components/Icons";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { useSnapshotOnOpen } from "../hooks/useSnapshotOnOpen";
 import {toInputDate} from "../domain/formatters";
+import ModStatus from "../hooks/ModStatus";
 
 
 export default function Mod({ embed = false }) {
@@ -35,15 +36,15 @@ export default function Mod({ embed = false }) {
     const { fetchEspState, fetchStateSave } = refetch;
 
     const MODS = useMemo(() => ([
-        { name: "Temperature Mod", value: 61, tab: "temperature" },
-        { name: "Moisture Mod",    value: 62, tab: "moisture" },
-        { name: "Saturday Mod",    value: 63, tab: "saturday" },
-        { name: "Manual Mod",      value: 64, tab: "manual" },
+        { name: "Temperature", value: 61, tab: "temperature" },
+        { name: "Moisture",    value: 62, tab: "moisture" },
+        { name: "Saturday",    value: 63, tab: "saturday" },
+        { name: "Manual",      value: 64, tab: "manual" },
     ]), []);
-
 
     function ModDisplay({
                             flip,
+                            MODS,
                             setModeForm,
                             currentState,
                             loading,
@@ -95,40 +96,67 @@ export default function Mod({ embed = false }) {
                         <small className="text-lg fw-600 mb-8 stack-8">Mod</small>
                     </div>
                 }
-                body={<RequestBanner loading={authLoading || loading} errorText={authErr || err} />}
-                list={
+                body={
+                <>
+                    <RequestBanner loading={authLoading || loading} errorText={authErr || err} />
                     <ClickableList
                         items={MODS}
                         role="button"
                         tabIndex={0}
                         itemKey="value"
-                        className="text-muted-500"
+                        className="text-muted"
                         selected={selectedItem}
                         onItemClick={(m) => handlePickMode(m, setPendingValue)}
                         onKeyDown={(e) => onKeyActivate(e, () => handlePickMode(e, setPendingValue))}
                         getDisabled={(m) => pendingValue === m.value || loading || authLoading}
-                        renderItem={(m) => (
-                            <div className="tile tile--sm" onClick={() => handlePickMode(m, setPendingValue)}>
-                                <div className={`tile__avatar icon--mode-${(m.tab || m.name).replace(/\s+/g,'').toLowerCase()}`}>
-                                    <Icon
-                                        name={iconName({ name: m.name, tab: m.tab, kind: "mode" })}
-                                        size={24}
-                                        fill={1}
-                                        weight={600}
-                                        className="icon"
-                                    />
-                                </div>
+                        // renderItem={(m) => (
+                        //     <div className="tile tile--sm" onClick={() => handlePickMode(m, setPendingValue)}>
+                        //         <div className={`tile__avatar ${(m.name).replace(/\s+/g,'').toLowerCase()}`}>
+                        //             <Icon
+                        //                 name={iconName({ name: m.name})}
+                        //                 size={24}
+                        //                 fill={1}
+                        //                 weight={600}
+                        //                 className="icon"
+                        //             />
+                        //         </div>
+                        //
+                        //         <div className="tile tile--free">
+                        //             <div className="tile__title text-muted-500">{m.name}</div>
+                        //             <div className="text-muted-500">
+                        //                 <span className="state-status"><ModStatus/></span>
+                        //             </div>
+                        //         </div> <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
+                        // )}
 
-                                <div className="tile__body">
-                                    <div className="tile__title">{m.name}</div>
-                                    <div className="tile__subtitle">Not set</div>
-                                </div>
+                        renderItem={(m) => {
+                            const isActive = Number(currentState) === m.value;
+                            return (
+                                <div className="tile tile--sm" onClick={() => handlePickMode(m, setPendingValue)}>
+                                    <div className={`tile__avatar ${(m.name).replace(/\s+/g,'').toLowerCase()}`}>
+                                        <Icon
+                                            name={iconName({ name: m.name})}
+                                            size={24}
+                                            fill={1}
+                                            weight={600}
+                                            className="icon"
+                                        />
+                                    </div>
 
-                                <span className="tile__chev msr" aria-hidden="true">chevron_right</span>
-                            </div>
-                        )}
+                                    <div className="tile tile--free">
+                                        <div className="tile__title text-muted-500">{m.name}</div>
+                                        <div className="text-muted-500">
+                                            <span className="state-status">
+                                                <ModStatus isActive={isActive} name={m.name}/>
+                                            </span>
+                                        </div>
+                                    </div> <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
+
+                            );
+                        }}
                         emptyContent="No mods yet"
                     />
+                </>
                 }
                 footer=" "
             />
@@ -261,7 +289,7 @@ export default function Mod({ embed = false }) {
                       </>
                   }
                   footer={
-                      <div className="footer-row"/>
+                      <div className="m-0"/>
                   }
             />
         );
@@ -315,6 +343,11 @@ export default function Mod({ embed = false }) {
                               }}
                               onSubmit={onSubmit}
                               submitLabel="Save Staurday Mode"
+                              text={
+                              <span className="txt">
+                                  Saturday starts on {sensors?.SATURDAY_MODE?.dateAct ?? "-"} at {sensors?.SATURDAY_MODE?.timeAct ?? "-"} for {sensors?.SATURDAY_MODE?.duration ?? "-"}
+                              </span>
+                              }
                               customButton={({ onClick, loading }) => (
                                   <FlashButton
                                       size="sm"
@@ -393,14 +426,13 @@ export default function Mod({ embed = false }) {
         );
     }
 
-
-
     const front = ({ flip }) => (
         <ModDisplay
             flip={() => { if (!flipped) flip(); }}
             modeForm={modeForm}
             setModeForm={setModeForm}
             currentState={currentState}
+            MODS={MODS}
             loading={loading}
             authLoading={authLoading}
             authErr={authErr}
@@ -418,7 +450,7 @@ export default function Mod({ embed = false }) {
     );
 
     const content = (
-        <div className="card-footer">
+        <div className="cards-grid">
             <FlipCard
                 front={front}
                 back={back}

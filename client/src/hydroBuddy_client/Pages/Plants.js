@@ -1,6 +1,6 @@
 /* ===== Plants.js ===== */
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {Outlet} from "react-router-dom";
 import FlashButton from "../components/ButtonGenerate";
 import Card, { useBorderFlash } from "../components/Card";
@@ -29,17 +29,6 @@ export default function Plants({ embed = false }) {
 
     // Plant Information card
     function PlantInfo({flip, onItemClick}){
-        useEffect(() => {
-            (async () => {
-                try {
-                    const plnts = await fetchPlants();
-                    setPlant(plnts);
-                } catch (e) {
-                    console.error(e);
-                }
-            })();
-        }, []);
-
 
         return (
             // <Card className= "card-body scroll-area"
@@ -97,7 +86,7 @@ export default function Plants({ embed = false }) {
             />
         );
     }
-    // Add Plant card
+
     function AddPlant({ variant, unflip }){
         const fields = [
             { name: "name", label:"Add a Plant" ,placeholder: "Plant Name", required: true },
@@ -149,7 +138,6 @@ export default function Plants({ embed = false }) {
         );
     }
 
-    // Update Plant card
     function UpdatePlant({ variant }){
         if (!selectedPlant) {
             return (
@@ -222,7 +210,6 @@ export default function Plants({ embed = false }) {
         );
     }
 
-    // Delete Plant card
     function DeletePlant({ variant, onCancel }) {
 
         const OnSubmit = async () => {

@@ -1,11 +1,16 @@
 /* ===== Tile (compact) ===== */
+.tile { transform: translate(var(--tile-x,0), var(--tile-y,0)); }
 
-.tile:hover  { background: #2a2a2a; border-color: #3a3a3a; }
-.tile:active { transform: translateY(1px); }
-.tile.is-disabled { opacity: .55; pointer-events: none; }
+.tile--free{
+    position: absolute;
+    gap: 16px;
+    top: var(--tile-top, 0);
+    left: var(--tile-left, 0);
+    transform: translate(var(--tile-x,0), var(--tile-y,0));
+}
 
 .tile__avatar {
-    width: 40px;                   /* היה 56 */
+    width: 40px;
     height: 40px;
     border-radius: 999px;
     display: grid;
@@ -16,19 +21,11 @@
 .tile__title{
     position: absolute;
     left: 60px;
-    line-height: 1.25;        /* היה 2.5 – זה מה שעשה רווח אנכי גדול */
+    line-height: 1.25;
     margin-bottom: 4px;
     background-color: transparent;
-    /*margin-left: 10px;           !* לא צריך הזחה מלאכותית *!*/
 }
 
-
-.tile__subtitle{
-    font-size: 12px;
-    line-height: 1.2;
-}
-
-/* צ'ברון מעט קטן ומיושר */
 .tile__chev {
     position: absolute;
     align-items: center;
@@ -42,12 +39,20 @@
     padding: 10px;
     border-radius: 14px;
 }
+
+.state-status{
+    position: absolute;
+    display: inline-flex;
+    left: 100px;
+    gap: 40px;
+    line-height: 1.2;
+}
+
 .tile--sm .tile__avatar { width: 40px; height: 40px; }
 
 .tile--sm .tile__title { font-size: 16px; }
 .tile--sm .tile__subtitle { font-size: 12px; }
 
-/* ===== List wrapper (אחיד, בלי כפילויות) ===== */
 .c-list {
     list-style: none;
     margin: 0;
@@ -56,16 +61,6 @@
     gap: 12px;
 }
 
-
-
-/*.c-list__item {*/
-/*    list-style: none;*/
-/*    padding: 0;*/
-/*    background: transparent;*/
-/*    border: 0; }*/
-
-/*.c-list__item > .tile { width: 100%; }*/
-
 @media (max-width: 420px) {
     .tile { padding: 12px; border-radius: 16px; }
     .tile__avatar { width: 40px; height: 40px; }
@@ -73,39 +68,22 @@
     .tile__subtitle { font-size: 12px; }
 }
 
-
-
-/* טבעת פוקוס אמיתית */
 .tile:focus-visible {
     box-shadow: 0 0 0 2px rgba(230,194,41,.35);
     border-color: var(--brand);
 }
 
 
-/* מצב נבחר – בין אם is-selected על ה-tile או על ה-li */
 .tile.is-selected,
 .c-list__item.is-selected > .tile {
     box-shadow: 0 0 0 2px rgb(46, 204, 113);
     border-color: var(--brand);
 }
 
+.tile:hover  { background: #2a2a2a; border-color: #3a3a3a; }
+.tile:active { transform: translateY(1px); }
+.tile.is-disabled { opacity: .55; pointer-events: none; }
 
-
-/*.list-canvas {*/
-/*    position: absolute;  !* קונטקסט נוח *!*/
-/*    overflow: auto;      !* גלילה פנימית אם צריך *!*/
-/*    max-height: 520px;   !* כמו ה-scroll-area שלך *!*/
-/*    padding: 0 8px;      !* רווח פנימי קטן, אופציונלי *!*/
-/*}*/
-
-
-/*.tile--free {*/
-/*    position: absolute;*/
-/*    top: var(--tile-top, 0);*/
-/*    left: var(--tile-left, 0);*/
-/*    transform: translate(var(--tile-x, 0), var(--tile-y, 0));*/
-/*    !* טיפ: כדי לא לחצות header/footer, תן ל-list-canvas padding-top/bottom *!*/
-/*}*/
 
 .nudge-l-8  { --tile-x: -8px; }
 .nudge-l-16 { --tile-x: -16px; }

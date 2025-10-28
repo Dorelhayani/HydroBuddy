@@ -1,4 +1,4 @@
-// Login.js
+/* ===== Login.js ===== */
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
@@ -20,7 +20,6 @@ export default function Login({ embed = false }) {
     const [flipped, setFlipped] = useState(false);
     const [activeTab, setActiveTab] = useState("register");
 
-    // Log card
     function Log({flip}) {
         const fields = [
             { name: "name", label: "Enter Name", placeholder:"Name", type: "text" },
@@ -74,7 +73,6 @@ export default function Login({ embed = false }) {
         );
     }
 
-    // Register card
     function Register({unflip}) {
         const fields = [
             { name: "name",label:"Enter Name", placeholder: "Name", type:"text", required: true },
@@ -126,6 +124,7 @@ export default function Login({ embed = false }) {
                     <div>
                         <FlashButton className="btn--left btn--transparent" onClick={unflip}>
                             <i className="fa-solid fa-circle-arrow-left"></i>
+                            {/*<i className="fa-solid fa-circle-arrow-left fa-shake fa-lg"></i>*/}
                         </FlashButton>
                     </div>
                 }

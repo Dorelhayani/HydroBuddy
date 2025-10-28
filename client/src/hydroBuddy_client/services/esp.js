@@ -1,4 +1,4 @@
-// esp.js
+/* ===== esp.js ===== */
 
 import http from "./http";
 
@@ -25,7 +25,7 @@ export const esp = {
     },
 
     // קריאות חיישנים ידניות
-    updateTempReading:  (payload) => http("/esp/temp-config",  { method: "PATCH", body: payload }),
-    updateLightReading: (payload) => http("/esp/light-config", { method: "PATCH", body: payload }),
-    updateMoistReading: (payload) => http("/esp/moist-config", { method: "PATCH", body: payload }),
+    TempReading:  (payload) => http("/esp/temp-config",  { method: "PATCH", body: payload }),
+    LightReading: (payload) => http("/esp/light-config", { method: "PATCH", body: payload }),
+    MoistReading: (payload) => http("/esp/moist-config", { method: "PATCH", body: payload }),
 };

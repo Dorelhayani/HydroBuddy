@@ -77,42 +77,47 @@ export default function Account() {
                                     <div className="ms-auto">
                                     {/* update account */}
                                     <div className="tooltip btn--transparent">
-                                    <FlashButton
-                                        className="btn--transparent"
-                                        onClick={() => setActiveTab("update_account")}>
+                                        <FlashButton
+                                            className="btn--transparent"
+                                            onClick={() => setActiveTab("update_account")}>
                                             <span className="tooltiptext fw-600 text-xs">Update Account</span>
-                                        <i className="fa-solid fa-user"/>
-                                    </FlashButton>
-                                </div>
-
-                                    {/* change password */}
-                                    <div className="tooltip btn--transparent">
-                                    <FlashButton
-                                        className="btn--transparent"
-                                        onClick={() => setActiveTab("change_password")}>
-                                        <span className="tooltiptext fw-600 text-xs">Change Password</span>
-                                        <i className="fa-solid fa-key"/>
-                                    </FlashButton>
+                                            {/*<i className="fa-solid fa-user"/>*/}
+                                            <i className="fa-solid fa-user-pen fa-beat fa-lg"></i>
+                                        </FlashButton>
                                     </div>
 
-                                    {/* log out */}
+                                        {/* change password */}
+                                    <div className="tooltip btn--transparent">
+                                        <FlashButton
+                                            className="btn--transparent"
+                                            onClick={() => setActiveTab("change_password")}>
+                                            <span className="tooltiptext fw-600 text-xs">Change Password</span>
+                                            {/*<i className="fa-solid fa-key"/>*/}
+                                            <i className="fa-solid fa-key fa-beat fa-lg"></i>
+                                        </FlashButton>
+                                    </div>
+
+                                        {/* log out */}
                                     <div className="tooltip btn--transparent">
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("log_out")}>
                                             <span className="tooltiptext fw-600 text-xs">Log Out</span>
-                                            <i className="fas fa-sign-out-alt"/>
+                                            {/*<i className="fas fa-sign-out-alt"/>*/}
+                                            <i className="fa-solid fa-right-from-bracket fa-beat fa-lg"></i>
                                         </FlashButton>
                                     </div>
 
-                                    {/* delete account */}
+                                        {/* delete account */}
                                     <div className="tooltip btn--transparent delete--tooltip">
-                                    <FlashButton
-                                        className="btn--transparent"
-                                        onClick={() => setActiveTab("delete_account")}>
-                                        <span className="tooltiptext fw-600 text-xs">Delete Account</span>
-                                        <i className="fa-solid fa-trash-can"/>
-                                    </FlashButton>
+                                        <FlashButton
+                                            className="btn--transparent"
+                                            onClick={() => setActiveTab("delete_account")}>
+                                            <span className="tooltiptext fw-600 text-xs">Delete Account</span>
+                                            {/*<i className="fa-solid fa-trash-can"/>*/}
+                                            <i className="fa-solid fa-trash-can fa-beat fa-lg"
+                                               style={{color: "#ff0000"}}></i>
+                                        </FlashButton>
 
                                     </div>
                                     </div>

@@ -1,4 +1,4 @@
-// useEsp.js
+/* ===== useEsp.js ===== */
 
 import { useRef, useState, useCallback, startTransition, useMemo } from "react";
 import { esp } from "../services/esp";
@@ -116,7 +116,7 @@ export function useEsp() {
         const t = toFiniteFloat(tempValue);
         if (t === undefined) throw new Error("Insert valid temp");
         await mutate.run(async () => {
-            await esp.updateTempReading({ temp: t }); // PATCH /esp/temp-config
+            await esp.TempReading({ temp: t });
             await fetchEspState();
         }, { successMessage: "Temp reading updated" });
     }, [mutate, fetchEspState]);
@@ -126,7 +126,7 @@ export function useEsp() {
         const payload = { light: parseInt(lightValue, 10) };
         if (!Number.isInteger(payload.light)) throw new Error("Insert valid light (int)");
         await mutate.run(async () => {
-            await esp.updateLightReading(payload);
+            await esp.LightReading(payload);
             await fetchEspState();
         }, { successMessage: "Light reading updated" });
     }, [mutate, fetchEspState]);
@@ -136,7 +136,7 @@ export function useEsp() {
         const payload = { moisture: parseInt(moistValue, 10) };
         if (!Number.isInteger(payload.moisture)) throw new Error("Insert valid moisture (int)");
         await mutate.run(async () => {
-            await esp.updateMoistReading(payload);
+            await esp.MoistReading(payload);
             await fetchEspState();
         }, { successMessage: "Moisture reading updated" });
     }, [mutate, fetchEspState]);
@@ -171,4 +171,3 @@ export function useEsp() {
         refetch,
     };
 }
-
