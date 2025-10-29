@@ -36,6 +36,9 @@ app.use(express.json({ strict: true }));
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
+const server = http.createServer(app);
+initWebSocket(server);
+
 const RegisterRout = require('./Routs/RegisterRout');
 const AuthRout   = require('./Routs/AuthRout');
 const UserRout   = require('./Routs/UserRout');
@@ -70,7 +73,7 @@ app.use('/uploads', express.static(
             }
         },
     }
-));git
+));
 
 // Mount
 app.use('/register', RegisterRout);
@@ -89,13 +92,7 @@ app.use((req, _res, next) => {
 });
 
 // Start
-app.listen(port, () => {
-    console.log(`Server listening on http://localhost:${port}`);
-    if (process.env.SINGLE_SESSION === 'true') {
-        console.log('SINGLE_SESSION is enabled (tokens will be stored/checked in DB).');
-    }
-});
-
+server.listen(port, () => { console.log(`Server listening on port ${port}`); });
 module.exports = { authMiddleware };
 
 

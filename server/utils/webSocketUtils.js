@@ -6,7 +6,7 @@ let wss;
 function initWebSocket(server) {
     wss = new WebSocket.Server({
         server: server,
-        path: '/ws/sensors' // הנתיב לחיבור הלקוח
+        path: '/ws/sensors'
     });
 
     wss.on('connection', (ws) => {
@@ -15,10 +15,6 @@ function initWebSocket(server) {
     });
 }
 
-/**
- * משדר עדכון נתונים לכל הלקוחות המחוברים.
- * @param {object} data - נתוני החיישנים החדשים לשליחה.
- */
 function broadcastSensorUpdate(data) {
     if (!wss) {
         console.error("WebSocket Server not initialized!");
@@ -32,7 +28,4 @@ function broadcastSensorUpdate(data) {
     });
 }
 
-module.exports = {
-    initWebSocket,
-    broadcastSensorUpdate
-};
+module.exports = { initWebSocket, broadcastSensorUpdate };

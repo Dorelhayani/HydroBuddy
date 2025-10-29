@@ -7,8 +7,6 @@ const db = require('../models/database');
 const EspData = require('../models/Esp');
 const { EspPerUser } = require('../models/DeviceHandler');
 const { broadcastSensorUpdate } = require('../utils/webSocketUtils');
-
-// יצירה חד-פעמית של המידלוור עם db + EspData
 const espPerUser = EspPerUser(db, EspData);
 
 // שיטת עזרה לשגיאות
@@ -98,7 +96,7 @@ router.patch('/pump-stts', espPerUser, async (req, res) => {
     } catch (err) { return handleError(res, err); }
 });
 
-// עדכוני קריאות סנסורים (מה־ESP או ידני)
+
 router.patch('/temp-config', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.UpdateTemp(req.body);
