@@ -1,11 +1,3 @@
-// import { useEffect, useState } from "react";
-//
-// export function useSnapshotOnOpen(source, isOpen) {
-//     const [snap, setSnap] = useState(null);
-//     useEffect(() => { if (isOpen && source != null) setSnap(source); }, [isOpen, source]);
-//     return snap ?? source ?? null;
-// }
-
 /* ===== useSnapshotOnOpen.js ===== */
 
 import { useEffect, useRef, useState } from "react";

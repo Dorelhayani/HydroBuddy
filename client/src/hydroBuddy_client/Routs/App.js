@@ -25,12 +25,12 @@ function Layout() {
                                 className="btn--transparent btn--sm"
                                 onClick={() => setSidebarCollapsed((s) => !s)}
                                 title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
-                                {sidebarCollapsed ? <i className="fa-solid fa-circle-arrow-down"></i> :
-                                    <i className="fa-solid fa-circle-arrow-up"></i>}
+                                { sidebarCollapsed ? <i className="fa-solid fa-left-long fa-beat fa-lg"></i> :
+                                    <i className="fa-solid fa-right-long fa-beat fa-lg"></i> }
                             </FlashButton>
                         </div>
                     )}
-                    <i className="fa-solid fa-seedling fa-bounce fa-xl" style={{color: "#63E6BE"}}></i>
+                    <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}></i>
                     <div className="brand">HydroBuddy</div>
                 </div>
             </header>
@@ -62,7 +62,10 @@ function Layout() {
             <footer className="site-footer">
                 <div className="footer-inner">
                     <div>© {new Date().getFullYear()} HydroBuddy</div>
-                    <div className="muted">Built with ❤️ — responsive & modular</div>
+                    {/*<div className="muted">Built with ❤️ — responsive & modular</div>*/}
+                    <div className="muted">Built with
+                        <i className="fa-solid fa-heart fa-beat" style={{color: "#ff8080"}}/>
+                        — responsive & modular</div>
                 </div>
             </footer>
         </div>

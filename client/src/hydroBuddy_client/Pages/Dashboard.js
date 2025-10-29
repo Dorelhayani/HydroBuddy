@@ -1,7 +1,7 @@
 /* ===== Dashboard.js ===== */
+
 import Plants from "./Plants";
 import Mod from "./Mod";
-
 
 export default function Dashboard() {
 

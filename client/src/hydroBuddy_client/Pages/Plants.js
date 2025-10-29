@@ -51,23 +51,24 @@ export default function Plants({ embed = false }) {
                             }}
                             renderItem={(p) => (
                                 <div className="tile tile--sm" onClick={() => setActiveTab("update_plant")}>
-                                     <div className="tile__avatar">
-                                         <Icon
-                                             name={iconName({ name: p.planttype_name, kind: "plant" })}
-                                             size={24}
-                                             fill={1}
-                                             weight={600}
-                                             className="icon"
-                                         />
-                                     </div>
+                                    <div className="tile__avatar">
+                                        <Icon
+                                            name={iconName({name: p.planttype_name, kind: "plant"})}
+                                            size={24}
+                                            fill={1}
+                                            weight={600}
+                                            className="icon"
+                                        />
+                                    </div>
 
-                                     <div className="tile tile--free">
-                                         <div className="tile__title text-muted-500">{p.planttype_name}</div>
-                                         <div className="text-muted-500">
-                                             <span className="state-status"><PumpStatus/></span>
-                                         </div>
-                                     </div>
-                                     <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
+                                    <div className="tile tile--free">
+                                        <div className="tile__title text-muted-500">{p.planttype_name}</div>
+                                        <div className="text-muted-500">
+                                            <span className="state-status"><PumpStatus/></span>
+                                        </div>
+                                    </div>
+                                    <i className="tile__chev fa-solid fa-caret-right fa-beat-fade"></i>
+                                </div>
                             )}
                             emptyContent="No plants yet"
                             ariaLabel="Plants list"
@@ -79,10 +80,10 @@ export default function Plants({ embed = false }) {
                             className="btn--right btn--sm btn--transparent"
                             onClickAsync={flip}>
                             <span className="tooltiptext fw-600 text-xs">Add Plant</span>
-                            <i className="fa-solid fa-tree"></i>
+                            <i className="fa-solid fa-plus fa-bounce fa-lg"></i>
                         </FlashButton>
                     </div>
-            }
+                }
             />
         );
     }
@@ -129,9 +130,10 @@ export default function Plants({ embed = false }) {
 
                 }
                 footer={
-                    <div className="card-footer">
+                    <div className="">
                         <FlashButton className="btn--left btn--transparent btn--sm" onClick= {unflip}>
-                            <i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                            <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                        </FlashButton>
                     </div>
                 }
             />
@@ -196,8 +198,10 @@ export default function Plants({ embed = false }) {
                     <div className="">
                         <FlashButton
                             className="btn--transparent btn--sm"
-                            onClick={() => setActiveTab("plant_info")}
-                        ><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                            onClick={() => setActiveTab("plant_info")}>
+                            {/*<i className="fa-solid fa-circle-arrow-left"></i>*/}
+                            <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                        </FlashButton>
 
 
                         <FlashButton

@@ -29,7 +29,6 @@
 .tile__chev {
     position: absolute;
     align-items: center;
-    font-size: 20px;
     opacity: .6;
     right: 5%;
     bottom: 15px;

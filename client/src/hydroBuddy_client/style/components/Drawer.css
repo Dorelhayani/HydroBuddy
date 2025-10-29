@@ -30,4 +30,10 @@
     transition: max-height 820ms ease;
 }
 
-.account-card__footer details.drawer[open] .drawer__viewport { max-height: 500px; }
+.drawer .chev {
+    display: inline-block;
+    transition: transform 160ms ease;
+}
+.account-card__footer details.drawer .chev { transition: transform 160ms ease; }
+.account-card__footer details.drawer[open]  .drawer__viewport { max-height: 500px; }
+.account-card__footer details.drawer:not([open]) .chev { transform: rotate(180deg); }

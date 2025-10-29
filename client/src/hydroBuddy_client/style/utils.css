@@ -189,8 +189,8 @@
 /*.btn--right  { display:block; margin-inline-start:auto; }*/
 /*.btn--center { display:block; margin-inline:      auto; }*/
 
-.btn--left  { right: 400%; }
-.btn--right { left: 400%; }
+.btn--left  { right: 300%; }
+.btn--right { left: 300%; }
 .btn--center { left: auto; right: auto ; }
 
 .nudge-r-8  { margin-inline-start: 8px;  }

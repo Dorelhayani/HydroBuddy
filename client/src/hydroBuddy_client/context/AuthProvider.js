@@ -1,4 +1,4 @@
-// AuthProvider.js
+/* ===== AuthProvider.js ===== */
 
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { auth } from "../services/auth";

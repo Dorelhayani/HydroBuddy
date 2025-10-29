@@ -1,11 +1,10 @@
-/* ===== useEsp.js ===== */
+// /* ===== useEsp.js ===== */
 
-import { useRef, useState, useCallback, startTransition, useMemo } from "react";
+import { useRef, useState, useCallback, startTransition, useMemo, useEffect } from "react";
 import { esp } from "../services/esp";
 import { useRequestStatus } from "./RequestStatus";
 import { toServerDate } from "../domain/formatters";
 
-// השוואה רדודה כדי לעדכן state רק כשיש שינוי אמיתי
 function shallowEqual(a, b) {
     if (a === b) return true;
     if (!a || !b) return false;
@@ -16,39 +15,81 @@ function shallowEqual(a, b) {
 }
 
 export function useEsp() {
+    const [wsError, setWsError] = useState(null);
+    const [reconnectAttempt, setReconnectAttempt] = useState(0);
+    const wsRef = useRef(null);
+
     const [sensors, setSensors] = useState(null);
-    const [form, setForm] = useState({ state: "" }); // נשמר API זהה
+    const [form, setForm] = useState({ state: "" });
     const lastRef = useRef(null);
     const pickDefined = (obj) =>
         Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null));
 
-    // שני מצבי סטטוס: פולינג (קריאות רקע), ומוטציות (פעולות יזומות ע"י המשתמש)
-    const poll = useRequestStatus();
     const mutate = useRequestStatus();
 
     const toFiniteInt   = (v) => Number.isFinite(+v) ? parseInt(v,10) : undefined;
     const toFiniteFloat = (v) => Number.isFinite(+v) ? parseFloat(v) : undefined;
 
-
-    const fetchEspState = useCallback(async () => {
-        return poll.run(async () => {
+    const fetchInitialState = useCallback(async () => {
+        try {
             const data = await esp.getState();
             if (!shallowEqual(lastRef.current, data)) {
                 lastRef.current = data;
                 startTransition(() => setSensors(data));
             }
-            return data;
-        });
-    }, [poll]);
+        } catch (e) {
+            console.error("Failed to fetch initial ESP state:", e);
+        }
+    }, []);
 
-    // ===  קריאה שמחזירה dataMode ===
-    const fetchDataMod = useCallback(async () => {
-        const data = await fetchEspState();
-        return data?.dataMode ?? null;
-    }, [fetchEspState]);
 
-    // === שמירת מצב (מוטציה) — רץ תחת mutate.run כדי להציג loading אמיתי בכפתורים ===
-    const fetchStateSave = useCallback(async ({ state }) => {
+    useEffect(() => {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsHost = window.location.hostname
+        const wsPort = 5050;
+        const wsUrlFinal = `${wsProtocol}://${wsHost}:${wsPort}/ws/sensors`;
+        wsRef.current = new WebSocket(wsUrlFinal);
+
+        wsRef.current.onopen = () => {
+            console.log("WebSocket connected. Fetching initial state...");
+            setWsError(null);
+            fetchInitialState();
+        };
+
+        wsRef.current.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (!shallowEqual(lastRef.current, data)) {
+                    lastRef.current = data;
+                    startTransition(() => setSensors(data));
+                }
+            } catch (e) { console.error("Failed to parse WS message:", e);
+            }
+        };
+
+        wsRef.current.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+            setWsError("Connection Error");
+        };
+
+        wsRef.current.onclose = () => {
+            console.warn("WebSocket closed. Attempting reconnect in 5s...");
+            setWsError("Disconnected");
+            const reconnectId = setTimeout(() => { setReconnectAttempt(prev => prev + 1); }, 5000);
+            return () => { clearTimeout(reconnectId); };
+        };
+
+        return () => {
+            if (wsRef.current?.readyState === WebSocket.OPEN) {
+                wsRef.current.close(1000, "Component unmounted");
+            }
+        };
+    }, [fetchInitialState, reconnectAttempt]);
+
+    const fetchEspState = fetchInitialState;
+    const fetchDataMod = useCallback(async () => { return sensors?.dataMode ?? null; }, [sensors]);
+
+        const fetchStateSave = useCallback(async ({ state }) => {
         return mutate.run(async () => {
             await esp.setState({ state: state })
             setForm({ state: String(state) });
@@ -56,9 +97,8 @@ export function useEsp() {
         }, { successMessage: "" });
     }, [mutate]);
 
-    const currentState = sensors?.dataMode ?? form.state ?? "";
+    const currentState = sensors?.state ?? form.state ?? "";
 
-        // ---- פעולות שמורות (Configs) ----
     const temp = useCallback(async (formPayload) => {
         const payload = pickDefined({
             temp:           toFiniteFloat(formPayload.temp),
@@ -112,7 +152,7 @@ export function useEsp() {
         }, { successMessage: "Manual mode saved" });
     }, [mutate]);
 
-    const updateTemp = useCallback(async (tempValue) => {
+        const updateTemp = useCallback(async (tempValue) => {
         const t = toFiniteFloat(tempValue);
         if (t === undefined) throw new Error("Insert valid temp");
         await mutate.run(async () => {
@@ -141,12 +181,6 @@ export function useEsp() {
         }, { successMessage: "Moisture reading updated" });
     }, [mutate, fetchEspState]);
 
-
-    // אם יש לך enable אמיתי—תחליף; שומר API
-    const enable = true;
-    const setEnable = () => {};
-
-    // שמירה על אותו API: refetch כאובייקט
     const refetch = useMemo(() => ({
         fetchEspState,
         fetchDataMod,
@@ -154,19 +188,16 @@ export function useEsp() {
     }), [fetchEspState, fetchDataMod, fetchStateSave]);
 
     return {
-        sensors, setSensors,  currentState,
+        sensors, setSensors, currentState,
         temp, moist, saturday, manual, updateTemp, updateMoist, updateLight,
-        enable, setEnable,
         form, setForm,
 
-        // למעלה בטפסים/כפתורים:
         loading: mutate.loading,
         err: mutate.err,
         error: mutate.err,
 
-        // אופציונלי לשקט רקע:
-        pollLoading: poll.loading,
-        pollErr: poll.err,
+        pollLoading: false,
+        pollErr: wsError,
 
         refetch,
     };

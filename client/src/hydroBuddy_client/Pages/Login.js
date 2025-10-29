@@ -123,8 +123,7 @@ export default function Login({ embed = false }) {
                 footer={
                     <div>
                         <FlashButton className="btn--left btn--transparent" onClick={unflip}>
-                            <i className="fa-solid fa-circle-arrow-left"></i>
-                            {/*<i className="fa-solid fa-circle-arrow-left fa-shake fa-lg"></i>*/}
+                            <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                         </FlashButton>
                     </div>
                 }

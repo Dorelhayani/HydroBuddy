@@ -54,12 +54,6 @@ export default function Mod({ embed = false }) {
                         }) {
         const [pendingValue, setPendingValue] = useState(null);
 
-        useEffect(() => {
-            if (flipped) return;
-            const id = setInterval(() => { fetchEspState(); }, 5000);
-            return () => clearInterval(id);
-        }, [fetchEspState, flipped]);
-
         const selectedItem = useMemo(
             () => MODS.find(m => m.value === Number(currentState)) ?? null,
             [MODS, currentState]
@@ -109,26 +103,6 @@ export default function Mod({ embed = false }) {
                         onItemClick={(m) => handlePickMode(m, setPendingValue)}
                         onKeyDown={(e) => onKeyActivate(e, () => handlePickMode(e, setPendingValue))}
                         getDisabled={(m) => pendingValue === m.value || loading || authLoading}
-                        // renderItem={(m) => (
-                        //     <div className="tile tile--sm" onClick={() => handlePickMode(m, setPendingValue)}>
-                        //         <div className={`tile__avatar ${(m.name).replace(/\s+/g,'').toLowerCase()}`}>
-                        //             <Icon
-                        //                 name={iconName({ name: m.name})}
-                        //                 size={24}
-                        //                 fill={1}
-                        //                 weight={600}
-                        //                 className="icon"
-                        //             />
-                        //         </div>
-                        //
-                        //         <div className="tile tile--free">
-                        //             <div className="tile__title text-muted-500">{m.name}</div>
-                        //             <div className="text-muted-500">
-                        //                 <span className="state-status"><ModStatus/></span>
-                        //             </div>
-                        //         </div> <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
-                        // )}
-
                         renderItem={(m) => {
                             const isActive = Number(currentState) === m.value;
                             return (
@@ -150,7 +124,9 @@ export default function Mod({ embed = false }) {
                                                 <ModStatus isActive={isActive} name={m.name}/>
                                             </span>
                                         </div>
-                                    </div> <span className="tile__chev msr" aria-hidden="true">chevron_right</span> </div>
+                                    </div>
+                                    <i className="tile__chev fa-solid fa-caret-right fa-beat-fade"></i>
+                                </div>
 
                             );
                         }}
@@ -184,9 +160,9 @@ export default function Mod({ embed = false }) {
             <Card variant={variant}
                   header={
                       <>
-                          <FlashButton
-                              className="btn--transparent btn--sm"
-                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                          <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
+                              <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                          </FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Temperature</h5>
                           </div>
@@ -250,9 +226,9 @@ export default function Mod({ embed = false }) {
             <Card variant={variant}
                   header={
                       <>
-                          <FlashButton
-                              className="btn--transparent btn--sm"
-                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                          <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
+                              <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                          </FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Moisture</h5>
                           </div>
@@ -317,9 +293,9 @@ export default function Mod({ embed = false }) {
             <Card variant={variant}
                   header={
                       <>
-                          <FlashButton
-                              className="btn--transparent btn--sm"
-                              onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                          <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
+                              <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                          </FlashButton>
                           <div className="mx-auto-flex" >
                               <h5 className="m-0 text-2xl">Saturday</h5>
                           </div>
@@ -398,9 +374,9 @@ export default function Mod({ embed = false }) {
                 variant={variant}
                 header={
                     <>
-                        <FlashButton
-                            className="btn--transparent btn--sm"
-                            onClick={unflip}><i className="fa-solid fa-circle-arrow-left"></i></FlashButton>
+                        <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
+                            <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
+                        </FlashButton>
                         <div className="mx-auto-flex" >
                             <h5 className="m-0 text-2xl">Manual</h5>
                         </div>

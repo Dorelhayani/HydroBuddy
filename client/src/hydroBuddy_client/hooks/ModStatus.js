@@ -57,7 +57,6 @@ export default function ModStatus({ isActive, name }) {
             aria-busy={loading}
         >
             <span className="mod-status__dot" />
-            {/* שנה את הטקסט כך שיציג את שם המצב במקום Mod כללי */}
             {name}: {isActive ? "Active" : "Inactive"}
         </span>
     );
