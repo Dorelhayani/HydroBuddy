@@ -1,4 +1,4 @@
-// ToggleSwitch
+/* ===== ToggleSwitch.js ===== */
 
 export default function ToggleSwitch({ checked, onToggle, disabled }) {
     const handleClick = () => {

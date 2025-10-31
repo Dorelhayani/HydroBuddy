@@ -1,4 +1,4 @@
-// http.js
+/* ===== http.js ===== */
 
 export default async function http(url, opts = {}) {
     const { body, headers, ...rest } = opts;

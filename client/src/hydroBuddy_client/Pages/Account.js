@@ -76,35 +76,32 @@ export default function Account() {
 
                         <div className="drawer__content">
                                 <div className="drawer__viewport">
-                                    <div className="drawer__actions">
+                                    <div className="u-center drawer__actions">
 
-                                    {/* update account */}
                                     <div className="tooltip btn--transparent">
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("update_account")}>
                                             <span className="tooltiptext fw-600 text-xs">Update Account</span>
-                                            <i className="fa-solid fa-user-pen fa-beat fa-lg"></i>
+                                            <i className="fa-solid fa-user-pen fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
 
-                                        {/* change password */}
-                                    <div className="tooltip btn--transparent">
+                                        <div className="tooltip btn--transparent">
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("change_password")}>
                                             <span className="tooltiptext fw-600 text-xs">Change Password</span>
-                                            <i className="fa-solid fa-key fa-beat fa-lg"></i>
+                                            <i className="fa-solid fa-key fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
 
-                                        {/* log out */}
                                     <div className="tooltip btn--transparent">
                                         <FlashButton
                                             className="btn--transparent"
-                                            onClick={() => setActiveTab("log_out")}>
+                                            onClick={()=> setActiveTab("log_out")}>
                                             <span className="tooltiptext fw-600 text-xs">Log Out</span>
-                                            <i className="fa-solid fa-right-from-bracket fa-beat fa-lg"></i>
+                                            <i className="fa-solid fa-right-from-bracket fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
 
@@ -115,7 +112,7 @@ export default function Account() {
                                             onClick={() => setActiveTab("delete_account")}>
                                             <span className="tooltiptext fw-600 text-xs">Delete Account</span>
                                             <i className="fa-solid fa-trash-can fa-beat fa-lg"
-                                               style={{color: "#ff0000"}}></i>
+                                               style={{color:"#ff0000"}}/>
                                         </FlashButton>
 
                                     </div>

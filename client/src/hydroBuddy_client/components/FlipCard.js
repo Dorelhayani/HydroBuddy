@@ -7,8 +7,8 @@ export default function FlipCard({
                                      front,
                                      back,
                                      flippable = true,
-                                     isFlipped,               // מצב חיצוני (controlled)
-                                     onFlip,                  // callback חיצוני
+                                     isFlipped,
+                                     onFlip,
                                      autoHeight = false,
                                      defaultFlipped = false,
                                      className = "",
@@ -16,8 +16,8 @@ export default function FlipCard({
                                      innerClassName = "",
                                      frontClassName = "",
                                      backClassName = "",
-                                     transitionDuration = "0.6s", // חדש: מהירות מעבר
-                                     axis = "Y",                  // חדש: כיוון הציר (Y או X)
+                                     transitionDuration = "0.6s",
+                                     axis = "Y",
                                      ...rest
                                  }) {
     const [innerFlipped, setInnerFlipped] = React.useState(defaultFlipped);
@@ -51,8 +51,7 @@ export default function FlipCard({
                     }}
                 >
                     {typeof front === "function"
-                        ? front({ flip: () => setFlipped(true) })
-                        : front}
+                        ? front({ flip: () => setFlipped(true) }) : front}
                 </div>
 
                 <div

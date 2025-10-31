@@ -11,7 +11,6 @@ const fmt = (d) =>
 
 
 export default function PumpStatus() {
-
     const { sensors, loading: espLoading, pollErr: wsError } = useEsp();
     const pump = sensors?.pump ?? { on: false, updatedAt: null };
     const loading = espLoading;

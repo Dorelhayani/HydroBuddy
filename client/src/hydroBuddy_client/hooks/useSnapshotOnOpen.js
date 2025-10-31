@@ -11,11 +11,10 @@ export function useSnapshotOnOpen(source, isOpen, { resetOnClose = false } = {})
             setSnap(source ?? null);
             wasOpen.current = true;
         }
-        if (!isOpen && wasOpen.current) {
-            wasOpen.current = false;
+        if (!isOpen && wasOpen.current) {wasOpen.current = false;
             if (resetOnClose) setSnap(null);
         }
-    }, [isOpen]);
-
-    return isOpen ? (snap ?? source ?? null) : (source ?? null);
+    }, [isOpen, source, resetOnClose]);
+    if (isOpen) { return snap ?? source ?? null; }
+    return snap ?? null;
 }

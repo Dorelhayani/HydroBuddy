@@ -1,4 +1,4 @@
-// /* ===== useEsp.js ===== */
+/* ===== useEsp.js ===== */
 
 import { useRef, useState, useCallback, startTransition, useMemo, useEffect } from "react";
 import { esp } from "../services/esp";
@@ -7,16 +7,28 @@ import { toServerDate } from "../domain/formatters";
 
 function shallowEqual(a, b) {
     if (a === b) return true;
-    if (!a || !b) return false;
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+
     const ak = Object.keys(a), bk = Object.keys(b);
     if (ak.length !== bk.length) return false;
-    for (const k of ak) if (a[k] !== b[k]) return false;
+
+    for (const k of ak) {
+        const valA = a[k];
+        const valB = b[k];
+
+        if (typeof valA === 'object' && valA !== null && !Array.isArray(valA) &&
+            typeof valB === 'object' && valB !== null && !Array.isArray(valB)) {
+
+            if (!shallowEqual(valA, valB)) return false;
+        } else if (valA !== valB) {
+            return false;
+        }
+    }
     return true;
 }
 
 export function useEsp() {
     const [wsError, setWsError] = useState(null);
-    const [reconnectAttempt, setReconnectAttempt] = useState(0);
     const wsRef = useRef(null);
 
     const [sensors, setSensors] = useState(null);
@@ -26,7 +38,6 @@ export function useEsp() {
         Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null));
 
     const mutate = useRequestStatus();
-
     const toFiniteInt   = (v) => Number.isFinite(+v) ? parseInt(v,10) : undefined;
     const toFiniteFloat = (v) => Number.isFinite(+v) ? parseFloat(v) : undefined;
 
@@ -42,10 +53,17 @@ export function useEsp() {
         }
     }, []);
 
+    const fetchStateSave = useCallback(async ({ state }) => {
+        return mutate.run(async () => {
+            await esp.setState({ state: state })
+            setForm({ state: String(state) });
+            return state;
+        }, { successMessage: "" });
+    }, [mutate]);
 
     useEffect(() => {
         const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const wsHost = window.location.hostname
+        const wsHost = window.location.hostname;
         const wsPort = 5050;
         const wsUrlFinal = `${wsProtocol}://${wsHost}:${wsPort}/ws/sensors`;
         wsRef.current = new WebSocket(wsUrlFinal);
@@ -53,7 +71,7 @@ export function useEsp() {
         wsRef.current.onopen = () => {
             console.log("WebSocket connected. Fetching initial state...");
             setWsError(null);
-            fetchInitialState();
+            fetchInitialState()
         };
 
         wsRef.current.onmessage = (event) => {
@@ -75,39 +93,28 @@ export function useEsp() {
         wsRef.current.onclose = () => {
             console.warn("WebSocket closed. Attempting reconnect in 5s...");
             setWsError("Disconnected");
-            const reconnectId = setTimeout(() => { setReconnectAttempt(prev => prev + 1); }, 5000);
-            return () => { clearTimeout(reconnectId); };
         };
 
         return () => {
-            if (wsRef.current?.readyState === WebSocket.OPEN) {
+            if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
                 wsRef.current.close(1000, "Component unmounted");
             }
         };
-    }, [fetchInitialState, reconnectAttempt]);
+    }, [fetchInitialState]);
 
     const fetchEspState = fetchInitialState;
     const fetchDataMod = useCallback(async () => { return sensors?.dataMode ?? null; }, [sensors]);
-
-        const fetchStateSave = useCallback(async ({ state }) => {
-        return mutate.run(async () => {
-            await esp.setState({ state: state })
-            setForm({ state: String(state) });
-            return state;
-        }, { successMessage: "" });
-    }, [mutate]);
-
     const currentState = sensors?.state ?? form.state ?? "";
 
     const temp = useCallback(async (formPayload) => {
         const payload = pickDefined({
-            temp:           toFiniteFloat(formPayload.temp),
-            tempLVL:        toFiniteFloat(formPayload.tempLVL),
-            minTime:        toFiniteInt(formPayload.minTime),
-            maxTime:        toFiniteInt(formPayload.maxTime),
+            temp: toFiniteFloat(formPayload.temp),
+            tempLVL: toFiniteFloat(formPayload.tempLVL),
+            minTime: toFiniteInt(formPayload.minTime),
+            maxTime: toFiniteInt(formPayload.maxTime),
             lightThresHold: toFiniteInt(formPayload.lightThresHold),
-            minLight:       toFiniteInt(formPayload.minLight),
-            maxLight:       toFiniteInt(formPayload.maxLight),
+            minLight: toFiniteInt(formPayload.minLight),
+            maxLight: toFiniteInt(formPayload.maxLight),
         });
 
         await mutate.run(async () => {

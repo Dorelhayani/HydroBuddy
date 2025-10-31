@@ -25,12 +25,12 @@ function Layout() {
                                 className="btn--transparent btn--sm"
                                 onClick={() => setSidebarCollapsed((s) => !s)}
                                 title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
-                                { sidebarCollapsed ? <i className="fa-solid fa-left-long fa-beat fa-lg"></i> :
-                                    <i className="fa-solid fa-right-long fa-beat fa-lg"></i> }
+                                { sidebarCollapsed ? <i className="fa-solid fa-left-long fa-beat fa-lg"/> :
+                                    <i className="fa-solid fa-right-long fa-beat fa-lg"/> }
                             </FlashButton>
                         </div>
                     )}
-                    <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}></i>
+                    <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}/>
                     <div className="brand">HydroBuddy</div>
                 </div>
             </header>

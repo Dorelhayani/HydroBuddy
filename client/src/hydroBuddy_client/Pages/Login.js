@@ -38,9 +38,14 @@ export default function Login({ embed = false }) {
         };
 
         return (
-            <Card variant={variant}
-                  header="Login"
-                  body={
+            <Card
+                variant={variant}
+                header={
+                    <div className="mx-auto-flex mb-8">
+                        <small className="text-lg fw-600 mb-8 stack-8">Login</small>
+                    </div>
+                }
+                body={
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
                     <GenericForm
@@ -79,7 +84,7 @@ export default function Login({ embed = false }) {
             { name: "email",label:"Enter Email",  placeholder: "Email", type: "email", required: true,
                 validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
             { name: "password",label:"Enter Password",  placeholder: "Password", type: "password", required: true },
-            { name: "passwordConfirm",label:"Confirm Your PassWord",  placeholder: "Confirm Password", type: "password", required: true },
+            { name: "passwordConfirm",label:"Confirm Your Password",  placeholder: "Confirm Password", type: "password", required: true },
         ];
 
         const OnSubmit = async (val) => {
@@ -98,7 +103,11 @@ export default function Login({ embed = false }) {
         return (
             <Card
                 variant={variant}
-                header="Register"
+                header={
+                    <div className="mx-auto-flex mb-8">
+                        <small className="text-lg fw-600 mb-8 stack-8">Register</small>
+                    </div>
+                }
                 body={
                 <>
                     <RequestBanner loading={authLoading} errorText={authErr} />
@@ -146,11 +155,8 @@ export default function Login({ embed = false }) {
                 isFlipped={flipped}
                 onFlip={setFlipped}
                 autoHeight
-                measureDeps={[activeTab]}
-                backKey={activeTab}
             />
         </div>
-
 
     return embed ? content : (
         <div>
