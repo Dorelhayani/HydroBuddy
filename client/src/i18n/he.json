@@ -1,0 +1,70 @@
+{
+  "app": {
+    "title": "HydroBuddy",
+    "app_txt": "נבנה עם ה רספונסיבי ומודולרי"
+  },
+
+  "common": {
+    "loading": "טוען...",
+    "save": "שמור",
+    "cancel": "בטל",
+    "edit": "ערוך",
+    "delete": "מחק",
+    "back": "חזרה"
+  },
+
+  "login": {
+    "name": "שם", "email": "מייל", "password": "סיסמא", "confirm_password":"אישור סיסמא",
+
+    "name_label": "הכנס/י שם", "email_label": "הכנס/י מייל", "password_label": "הכנס/י סיסמא",
+    "confirm_label_password":"אשר/י סיסמא חדשה",
+
+    "login_title": "התחברות", "login_btn": "התחבר",
+
+    "register_title": "רישום משתמש חדש", "register_txt": "אין לך חשבון ?", "register_btn":"צור משתמש/ת"
+  },
+
+  "account": {
+    "Account": "משתמש", "Update_IMG": "שינוי תמונה", "Update": "עדכן",
+
+    "quick_actions": "פעולות חשבון מהירות", "collapse": "כווץ סרגל צד", "expand": "הרחב סרגל צד",
+
+    "Update_Account": "עדכון חשבון", "Name":"שם", "Email":"מייל",
+
+    "Change_Password":"שינוי סיסמא", "Your_current_Password":"הסיסמא הנוכחית שלך", "New_password":"סיסמא חדשה",
+    "Confirm_New_Password":"אשר סיסמא חדשה",
+
+    "Log_Out":"יציאה", "Already_Leave": "כבר יוצא ?",
+
+    "Delete_Account":"מחיקת משתמש", "delete_txt": "זוהי פעולה סופית, כל הצמחים והמידע שלך יוסרו !"
+  },
+
+  "plants": {
+    "plants_info_title":"צמחים",
+
+    "add_title": "הוספת צמח", "add_label": "הוסף/י צמח", "add_placeholder": "שם הצמח",
+
+    "update_title": "עדכון צמח", "update_label": "עדכן/ני צמח", "update_btn": "עדכן/י",
+
+    "delete_plant": "מחיקת צמח", "delete_btn": "מחק",
+
+    "pump": "משאבה", "on": "דולקת", "off": "כבויה"
+  },
+
+  "mod": {
+    "title": "משאבה ומצבים",
+    "update": "עדכן",
+
+    "temp_title": "מצב טמפרטורה", "temp_label": "טמפרטורה", "tempLVL_label": "סף טמפרטורה", "minTime_label":"קבע/י זמן מינימלי",
+    "maxTime_label": "קבע/י זמן מקסימלי", "light_label":"אור", "lightThresHold_label": "הגדר/י את סף האור",
+    "minLight_label":"קבע/י סף-אור מינימלי", "maxLight_label":"קבע/י סף-אור מקסימלי",
+
+    "moisture_title": "מצב לחות", "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
+    "minMoisture_label": "קבע/י סף-לחות מינימלי", "maxMoisture_label":"קבע/י סף-לחות מקסימלי",
+
+    "saturday_title": "מצב שבת", "date_label": "תאריך הפעלה", "time_label":"זמן הפעלה", "duration_label": "משך (בדקות)",
+
+    "manual_title": "מצב ידני", "pump_enabled": "הפעלת משאבה", "enabled": "מופעל", "disabled": "כבוי",
+    "saved": "נשמר בהצלחה", "active": "פעיל", "inactive": "לא פעיל"
+  }
+}

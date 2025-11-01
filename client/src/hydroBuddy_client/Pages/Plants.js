@@ -8,6 +8,7 @@ import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
+import {useT} from "../../local/useT";
 import {useAuth} from "../hooks/useAuth";
 import {usePlants} from "../hooks/usePlants";
 import PumpStatus from "../hooks/plantStatus";
@@ -15,6 +16,7 @@ import Icon, {iconName} from "../components/Icons";
 import ClickableList from "../components/ClickableList";
 
 export default function Plants({ embed = false }) {
+    const {t} = useT();
     const [flipped, setFlipped] = useState(false);
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("plant_info");
@@ -36,7 +38,7 @@ export default function Plants({ embed = false }) {
                 variant={variant}
                 header={
                         <div className="mx-auto-flex" >
-                            <small className="text-lg fw-600 mb-8 stack-8">Plant Info</small>
+                            <small className="text-lg fw-600 mb-8 stack-8">{t("plants.plants_info_title")}</small>
                         </div>
                 }
                 body={
@@ -79,7 +81,7 @@ export default function Plants({ embed = false }) {
                         <FlashButton
                             className="btn--right btn--sm btn--transparent"
                             onClickAsync={flip}>
-                            <span className="tooltiptext fw-600 text-xs">Add Plant</span>
+                            <span className="tooltiptext fw-600 text-xs">{t("plants.add_title")}</span>
                             <i className="fa-solid fa-plus fa-bounce fa-lg"></i>
                         </FlashButton>
                     </div>
@@ -90,7 +92,7 @@ export default function Plants({ embed = false }) {
 
     function AddPlant({ variant, unflip }){
         const fields = [
-            { name: "name", label:"Add a Plant" ,placeholder: "Plant Name", required: true },
+            { name: "name", label:`${t("plants.add_label")}` ,placeholder: `${t("plants.add_placeholder")}`, required: true },
         ];
 
         const OnSubmit = async (val) => {
@@ -106,7 +108,7 @@ export default function Plants({ embed = false }) {
         return (
             <Card
                 variant={variant}
-                header="Add Plant"
+                header={t("plants.add_title")}
                 body={
                     <>
                         <RequestBanner loading={authLoading} errorText={authErr} />
@@ -143,7 +145,10 @@ export default function Plants({ embed = false }) {
     function UpdatePlant({ variant }){
         if (!selectedPlant) {
             return (
-                <Card variant={variant} title="Update Plant">
+                <Card
+                    variant={variant}
+                    title={t("plants.update_title")}
+                >
                     <div className="loading">Select a plant from the list…</div>
                     <div className="footer-row">
                         <FlashButton
@@ -156,7 +161,7 @@ export default function Plants({ embed = false }) {
             );
         }
 
-        const fields = [ { name: "name", label: "Update Your Plant", disabled: true } ];
+        const fields = [ { name: "name", label: `${t("plants.update_label")}`, disabled: true } ];
         const OnSubmit = async (val) => {
             try{
                 const nextName  = (val.name?.trim?.() || selectedPlant.planttype_name).trim();
@@ -168,7 +173,7 @@ export default function Plants({ embed = false }) {
 
         return (
             <Card variant={variant}
-                  header="Edit Plant"
+                  header={t("plants.update_title")}
                   body={
                       <>
                           <RequestBanner loading={authLoading} errorText={authErr} />
@@ -186,7 +191,7 @@ export default function Plants({ embed = false }) {
                                       onClickAsync={onClick}
                                       loading={loading || authLoading}
                                       disabled={authLoading}
-                                  >Update</FlashButton>
+                                  >{t("plants.update_btn")}</FlashButton>
                               )}
                           />
 
@@ -199,7 +204,6 @@ export default function Plants({ embed = false }) {
                         <FlashButton
                             className="btn--transparent btn--sm"
                             onClick={() => setActiveTab("plant_info")}>
-                            {/*<i className="fa-solid fa-circle-arrow-left"></i>*/}
                             <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
                         </FlashButton>
 
@@ -207,7 +211,7 @@ export default function Plants({ embed = false }) {
                         <FlashButton
                             className="btn btn--danger btn--sm nudge-r-230 shadow-sm"
                             onClick={() => setActiveTab("delete_plant")}
-                        > Delete Plant </FlashButton>
+                        > {t("plants.delete_plant")} </FlashButton>
                     </div>
             }
             />
@@ -227,8 +231,11 @@ export default function Plants({ embed = false }) {
             <Card variant={variant}>
                 <small className="txt u-center fw-600"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
-                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={OnSubmit}>Delete</FlashButton>
+                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>
+                        {t("common.cancel")}</FlashButton>
+
+                    <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={OnSubmit}>
+                        {t("plants.delete_plant_btn")}</FlashButton>
                 </div>
             </Card>
         );

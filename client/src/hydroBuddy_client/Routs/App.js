@@ -9,16 +9,23 @@ import Login from "../Pages/Login";
 import Account from "../Pages/Account";
 import FlashButton from "../components/ButtonGenerate";
 
+import {useT} from "../../local/useT";
+import {LocaleProvider } from "../../local/LocaleProvider";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+
 function Layout() {
+    // const {t} = useT();
     const location = useLocation();
 
     const isLoginPage = location.pathname === "/";
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     return (
+        <LocaleProvider>
         <div className="app-root layout-wrapper">
             <header className="site-header">
                 <div className="header-inner">
+                    {/*<LanguageSwitcher compact />*/}
                     {!isLoginPage && (
                         <div className="header-actions">
                             <FlashButton
@@ -32,6 +39,8 @@ function Layout() {
                     )}
                     <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}/>
                     <div className="brand">HydroBuddy</div>
+                    <LanguageSwitcher compact />
+
                 </div>
             </header>
 
@@ -62,13 +71,12 @@ function Layout() {
             <footer className="site-footer">
                 <div className="footer-inner">
                     <div>© {new Date().getFullYear()} HydroBuddy</div>
-                    {/*<div className="muted">Built with ❤️ — responsive & modular</div>*/}
                     <div className="muted">Built with
-                        <i className="fa-solid fa-heart fa-beat" style={{color: "#ff8080"}}/>
-                        — responsive & modular</div>
+                        <i className="fa-solid fa-heart fa-beat" style={{color: "#ff8080"}}/>— responsive & modular</div>
                 </div>
             </footer>
         </div>
+        </LocaleProvider>
     );
 }
 

@@ -1,6 +1,8 @@
 /* ===== PlantStatus.js ===== */
 
 import { useEffect, useRef, useState } from "react";
+
+import {useT} from "../../local/useT";
 import { useEsp } from "./useEsp";
 
 const fmt = (d) =>
@@ -11,6 +13,7 @@ const fmt = (d) =>
 
 
 export default function PumpStatus() {
+    const {t} = useT();
     const { sensors, loading: espLoading, pollErr: wsError } = useEsp();
     const pump = sensors?.pump ?? { on: false, updatedAt: null };
     const loading = espLoading;
@@ -32,7 +35,7 @@ export default function PumpStatus() {
         } else { prevOnRef.current = curr; }
     }, [pump.on, pump.updatedAt]);
 
-    const statusText = wsError ? `WS Error: ${wsError}` : `pump: ${pump.on ? "ON" : "OFF"}`;
+    const statusText = wsError ? `WS Error: ${wsError}` : `${t("plants.pump")}: ${pump.on ? `${t("plants.on")}` : `${t("plants.off")}` }`;
 
     return (
         <div className="pump-status " aria-busy={loading}>

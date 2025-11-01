@@ -1,434 +1,4 @@
-// /* ===== Mod.js ===== */
-//
-// import { Outlet } from "react-router-dom";
-// import React, { useState, useMemo, useCallback } from "react";
-//
-// import FlashButton from "../components/ButtonGenerate";
-// import Card, { useBorderFlash } from "../components/Card";
-// import FlipCard from "../components/FlipCard";
-// import GenericForm from "../components/FormGenerate";
-// import RequestBanner from "../components/RequestBanner";
-// import ClickableList from "../components/ClickableList";
-//
-// import { useEsp } from "../hooks/useEsp";
-// import { useAuth } from "../hooks/useAuth";
-// import Icon,{iconName} from "../components/Icons";
-// import ToggleSwitch from "../components/ToggleSwitch";
-// import { useSnapshotOnOpen } from "../hooks/useSnapshotOnOpen";
-// import {toInputDate} from "../domain/formatters";
-// import ModStatus from "../hooks/ModStatus";
-//
-// export default function Mod({ embed = false }) {
-//     const [flipped, setFlipped] = useState(false);
-//     const [activeTab, setActiveTab] = useState("mod_display");
-//     const { variant, flashSuccess, flashDanger } = useBorderFlash();
-//     const { loading: authLoading, err: authErr } = useAuth();
-//
-//     const {
-//         temp, moist,saturday,manual,
-//         sensors, setSensors, currentState,
-//         form: modeForm, setForm: setModeForm,
-//         refetch, loading, err } = useEsp();
-//
-//     const { fetchEspState, fetchStateSave } = refetch;
-//
-//     const MODS = useMemo(() => ([
-//         { name: "Temperature", value: 61, tab: "temperature" }, { name: "Moisture",    value: 62, tab: "moisture" },
-//         { name: "Saturday",    value: 63, tab: "saturday" }, { name: "Manual",      value: 64, tab: "manual" } ]), []);
-//
-//     function ModDisplay({ flip, MODS, setModeForm, currentState, loading, authLoading, authErr, variant }) {
-//         const [pendingValue, setPendingValue] = useState(null);
-//
-//         const selectedItem = useMemo(
-//             () => MODS.find(m => m.value === Number(currentState)) ?? null,
-//             [MODS, currentState]
-//         );
-//
-//         const handlePickMode = useCallback(async (m, setPendingValue) => {
-//             try {
-//                 setPendingValue?.(m.value);
-//                 setActiveTab(m.tab);
-//                 await fetchStateSave({ state: Number(m.value) });
-//                 setModeForm({ state: String(m.value) });
-//                 setFlipped(true);
-//                 await flip?.(); flashSuccess();
-//             } catch (e) {
-//                 flashDanger();
-//             } finally {
-//                 setPendingValue?.(null);
-//             }
-//         }, [fetchStateSave, setModeForm, flashSuccess, flashDanger]);
-//
-//         function onKeyActivate(e, action) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action(); }}
-//
-//         return (
-//             <Card
-//                 variant={variant}
-//                 header={
-//                     <div className="mx-auto-flex mb-8">
-//                         <small className="text-lg fw-600 mb-8 stack-8">Mod</small>
-//                     </div>
-//                 }
-//                 body={
-//                 <>
-//                     <RequestBanner loading={authLoading || loading} errorText={authErr || err} />
-//                     <ClickableList
-//                         items={MODS}
-//                         role="button"
-//                         tabIndex={0}
-//                         itemKey="value"
-//                         className="text-muted"
-//                         selected={selectedItem}
-//                         onItemClick={(m) => handlePickMode(m, setPendingValue)}
-//                         onKeyDown={(e) => onKeyActivate(e, () => handlePickMode(e, setPendingValue))}
-//                         getDisabled={(m) => pendingValue === m.value || loading || authLoading}
-//                         renderItem={(m) => {
-//                             const isActive = Number(currentState) === m.value;
-//                             const te = sensors?.TEMP_MODE;
-//                             const mo = sensors?.SOIL_MOISTURE_MODE;
-//                             return (
-//                                 <div className="tile tile--sm" onClick={() => handlePickMode(m, setPendingValue)}>
-//                                     <div className={`tile__avatar ${(m.name).replace(/\s+/g,'').toLowerCase()}`}>
-//                                         <Icon
-//                                             name={iconName({ name: m.name})}
-//                                             size={24}
-//                                             fill={1}
-//                                             weight={600}
-//                                             className="icon"
-//                                         />
-//                                     </div>
-//
-//                                     <div className="tile tile--free">
-//                                         <div className="tile__title text-muted-500">{m.name}</div>
-//                                         <div className="text-muted-500">
-//                                             <span className="mod-status">
-//                                                   <ModStatus
-//                                                     isActive={isActive}
-//                                                     name={m.name}
-//                                                     temp={te?.temp }
-//                                                     light={te?.light}
-//                                                     moisture={mo?.moisture}
-//                                                 />
-//                                             </span>
-//                                         </div>
-//                                     </div>
-//                                     <i className="tile__chev fa-solid fa-caret-right fa-beat-fade"/>
-//                                 </div>
-//
-//                             );
-//                         }}
-//                         emptyContent="No mods yet"
-//                     />
-//                 </>
-//                 }
-//                 footer=" "
-//             />
-//         );
-//     }
-//
-//     function Temperature({ variant, unflip }) {
-//         const isOpen = activeTab === "temperature" && flipped;
-//         const t  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
-//
-//         const fields = useMemo(() => ([
-//             { name: "temp", label: "Temp", placeholder: t?.temp, disabled:true},
-//             { name: "tempLVL", label: "Temp Level", placeholder: t?.tempLVL, type:"number" },
-//             { name: "minTime", label: "Set Minimum Time", placeholder: t?.minTime, type:"number" },
-//             { name: "maxTime", label: "Set Maximum Time", placeholder: t?.maxTime, type:"number" },
-//             { name: "light", label: "Light", placeholder: t?.light, disabled:true },
-//             { name: "lightThresHold", label: "Set Light Threshold", placeholder: t?.lightThresHold, type:"number" },
-//             { name: "minLight", label: "Set Minimum Light", placeholder: t?.minLight, type:"number" },
-//             { name: "maxLight", label: "Set Maximum Light", placeholder: t?.maxLight, type:"number" },
-//         ]), [t]);
-//
-//         const onSubmit = useCallback((values) => temp(values), [temp]);
-//
-//         return (
-//             <Card variant={variant}
-//                   header={
-//                       <>
-//                           <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
-//                               <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
-//                           </FlashButton>
-//                           <div className="mx-auto-flex" >
-//                               <h5 className="m-0 text-2xl">Temperature</h5>
-//                           </div>
-//                       </>
-//                   }
-//                   body={
-//                       <>
-//                           <RequestBanner loading={authLoading} errorText={authErr} />
-//                           <GenericForm
-//                               className="form--inline form--roomy stack-16"
-//                               labelClassNameAll="label-muted"
-//                               placeholderClassAll="ph-muted ph-lg"
-//                               rowClassNameAll="text-sm fw-600"
-//                               key="temperature"
-//                               fields={fields}
-//                               initialValues={{
-//                                   temp: t?.temp ?? "",
-//                                   tempLVL: t?.tempLVL ?? "",
-//                                   minTime: t?.minTime ?? "",
-//                                   maxTime: t?.maxTime ?? "",
-//                                   light: t?.light ?? "",
-//                                   lightThresHold: t?.lightThresHold ?? "",
-//                                   minLight: t?.minLight ?? "",
-//                                   maxLight: t?.maxLight ?? "",
-//                               }}
-//                               onSubmit={onSubmit}
-//                               submitLabel="Save Temperature Mode"
-//                               customButton={({ onClick, loading }) => (
-//                                   <FlashButton
-//                                       size="sm"
-//                                       className="btn btn--primary btn--block shadow-md"
-//                                       onClickAsync={onClick}
-//                                       loading={loading || authLoading}
-//                                       disabled={authLoading}
-//                                   >Update</FlashButton>
-//                               )}
-//                           />
-//                       </>
-//                   }
-//                   footer={
-//                       <div className="m-0"/>
-//                   }
-//             />
-//         );
-//     }
-//
-//     function Moisture({ variant, unflip }) {
-//         const isOpen = activeTab === "moisture" && flipped;
-//         const m  = useSnapshotOnOpen(sensors?.SOIL_MOISTURE_MODE, isOpen);
-//
-//         const fields = useMemo(() => ([
-//             { name: "moisture", label: "Moisture", placeholder: m?.moisture, type: "number", disabled:true },
-//             { name: "moistureLVL", label: "Moisture Level", placeholder: m?.moistureLVL, type: "number" },
-//             { name: "minMoisture", label: "Min Moisture Threshold", placeholder: m?.minMoisture, type: "number" },
-//             { name: "maxMoisture", label: "Max Moisture Threshold", placeholder: m?.maxMoisture, type: "number" },
-//         ]), [m]);
-//
-//         const onSubmit = useCallback((values) => moist(values), [moist]);
-//
-//         return (
-//             <Card variant={variant}
-//                   header={
-//                       <>
-//                           <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
-//                               <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
-//                           </FlashButton>
-//                           <div className="mx-auto-flex" >
-//                               <h5 className="m-0 text-2xl">Moisture</h5>
-//                           </div>
-//                       </>
-//                   }
-//                   body={
-//                       <>
-//                           <RequestBanner loading={authLoading} errorText={authErr} />
-//                           <GenericForm
-//                               key="moisture"
-//                               fields={fields}
-//                               className="form--inline form--roomy stack-16"
-//                               labelClassNameAll="label-muted"
-//                               placeholderClassAll="ph-muted ph-lg"
-//                               rowClassNameAll="text-sm fw-600"
-//                               initialValues={{
-//                                   moisture: m?.moisture ?? "",
-//                                   moistureLVL: m?.moistureLVL ?? "",
-//                                   minMoisture: m?.minMoisture ?? "",
-//                                   maxMoisture: m?.maxMoisture ?? "",
-//                               }}
-//                               onSubmit={onSubmit}
-//                               submitLabel="Save Moisture Mode"
-//                               customButton={({ onClick, loading }) => (
-//                                   <FlashButton
-//                                       size="sm"
-//                                       className="btn btn--primary btn--block shadow-md"
-//                                       onClickAsync={onClick}
-//                                       loading={loading || authLoading}
-//                                       disabled={authLoading}
-//                                   >Update</FlashButton>
-//                               )}
-//                           />
-//                       </>
-//                   }
-//                   footer={
-//                       <div className="m-0"/>
-//                   }
-//             />
-//         );
-//     }
-//
-//     function Saturday({ variant, unflip }) {
-//         const isOpen = activeTab === "saturday" && flipped;
-//         const s = useSnapshotOnOpen(sensors?.SATURDAY_MODE, isOpen);
-//         const safe = s ?? sensors?.SATURDAY_MODE ?? {};
-//
-//         const fields = useMemo(() => ([
-//             { name: "date", label: "Activation Date", placeholder: s?.dateAct, type: "date", required: true,},
-//             { name: "time", label: "Activation Time", placeholder: s?.timeAct, type: "time", required: true },
-//             { name: "duration", label: "Duration", placeholder: s?.duration, type: "number", required: true, min: 1, step: 1  },
-//         ]), [s]);
-//
-//         const onSubmit = useCallback((values) => saturday(values), [saturday]);
-//
-//         return (
-//             <Card variant={variant}
-//                   header={
-//                       <>
-//                           <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
-//                               <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
-//                           </FlashButton>
-//                           <div className="mx-auto-flex" >
-//                               <h5 className="m-0 text-2xl">Saturday</h5>
-//                           </div>
-//                       </>
-//                   }
-//                   body={
-//                       <>
-//                           <RequestBanner loading={authLoading} errorText={authErr} />
-//                           <GenericForm
-//                               key="Saturday"
-//                               fields={fields}
-//                               className="form--inline form--roomy"
-//                               labelClassNameAll="label-muted "
-//                               placeholderClassAll="ph-muted ph-lg"
-//                               rowClassNameAll="text-sm fw-600"
-//                               initialValues={{
-//                                   date: toInputDate(safe?.dateAct || ""),
-//                                   time: safe?.timeAct || "",
-//                                   duration: safe?.duration != null ? String(safe.duration) : "",
-//
-//                               }}
-//                               onSubmit={onSubmit}
-//                               submitLabel="Save Staurday Mode"
-//                               text={
-//                               <span className="txt">
-//                                   Saturday starts on {sensors?.SATURDAY_MODE?.dateAct ?? "-"}
-//                                   at {sensors?.SATURDAY_MODE?.timeAct ?? "-"}
-//                                   for {sensors?.SATURDAY_MODE?.duration ?? "-"}
-//                               </span>
-//                               }
-//                               customButton={({ onClick, loading }) => (
-//                                   <FlashButton
-//                                       size="sm"
-//                                       className="btn btn--primary btn--block shadow-md"
-//                                       onClickAsync={onClick}
-//                                       loading={loading || authLoading}
-//                                       disabled={authLoading}
-//                                   >Update</FlashButton>
-//                               )}
-//                           />
-//                       </>
-//                   }
-//                   footer={<div className="footer-row" />}
-//             />
-//         );
-//     }
-//
-//     function Manual({ variant, unflip }) {
-//         const isOpen = activeTab === "manual" && flipped;
-//         const mSnap  = useSnapshotOnOpen(sensors?.MANUAL_MODE, isOpen);
-//
-//         const [enabled, setEnabled] = React.useState(Boolean(mSnap?.enabled));
-//
-//         React.useEffect(() => {
-//             const next = Boolean(sensors?.MANUAL_MODE?.enabled);
-//             setEnabled(prev => (prev === next ? prev : next));
-//         }, [sensors?.MANUAL_MODE?.enabled]);
-//
-//         const handleToggle = async (next) => {
-//             setEnabled(next);
-//             setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: next } }));
-//
-//             try {
-//                 const committed = await manual(next);
-//                 setEnabled(committed);
-//                 setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: committed }}));
-//             } catch (e) {
-//                 setEnabled(prev => !prev);
-//                 setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: !next } }));
-//             }
-//         };
-//
-//
-//         return (
-//             <Card
-//                 variant={variant}
-//                 header={
-//                     <>
-//                         <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
-//                             <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
-//                         </FlashButton>
-//                         <div className="mx-auto-flex" >
-//                             <h5 className="m-0 text-2xl">Manual</h5>
-//                         </div>
-//                     </>
-//                 }
-//                 body={
-//                     <>
-//                         <RequestBanner loading={authLoading || loading} errorText={authErr || err} />
-//                         <div className="manual-row">
-//                             <div className="label">Pump enabled</div>
-//                             <div className="push-right ">
-//                                 <ToggleSwitch
-//                                     checked={enabled}
-//                                     onToggle={handleToggle}
-//                                     disabled={authLoading || loading}
-//                                 />
-//                             </div>
-//                         </div>
-//                     </>
-//                 }
-//                 footer={<div className="" />}
-//             />
-//         );
-//     }
-//
-//     const front = ({ flip }) => (
-//         <ModDisplay
-//             flip={() => { if (!flipped) flip(); }}
-//             modeForm={modeForm}
-//             setModeForm={setModeForm}
-//             currentState={currentState}
-//             MODS={MODS}
-//             loading={loading}
-//             authLoading={authLoading}
-//             authErr={authErr}
-//             variant={variant}
-//         />
-//     );
-//
-//     const back = ({ unflip }) => (
-//         (activeTab === "temperature")
-//             ? (<Temperature variant={variant} unflip={() => { if (flipped) unflip(); }} />)
-//             : (activeTab === "moisture") ? (<Moisture   variant={variant} unflip={() => { if (flipped) unflip(); }} />)
-//                 : (activeTab === "saturday") ? (<Saturday  variant={variant} unflip={() => { if (flipped) unflip(); }} />)
-//                 : activeTab === "manual"   ? (<Manual variant={variant} unflip={() => { if (flipped) unflip(); }}/>)
-//                 : null
-//     );
-//
-//     const content = (
-//         <div className="cards-grid">
-//             <FlipCard
-//                 front={front}
-//                 back={back}
-//                 flippable
-//                 isFlipped={flipped}
-//                 onFlip={setFlipped}
-//                 autoHeight
-//             />
-//         </div>
-//     );
-//     return embed ? content : (
-//         <div className="main-container">
-//             {content}
-//             <Outlet />
-//         </div>
-//     );
-// }
-
-
-/* ===== Mod.js (PATCH: extracted inner components + React.memo) ===== */
+/* ===== Mod.js ===== */
 
 import { Outlet } from "react-router-dom";
 import React, { useState, useMemo, useCallback, useEffect } from "react";
@@ -440,6 +10,7 @@ import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 import ClickableList from "../components/ClickableList";
 
+import {useT} from "../../local/useT";
 import { useEsp } from "../hooks/useEsp";
 import { useAuth } from "../hooks/useAuth";
 import Icon,{iconName} from "../components/Icons";
@@ -447,10 +18,6 @@ import ToggleSwitch from "../components/ToggleSwitch";
 import { useSnapshotOnOpen } from "../hooks/useSnapshotOnOpen";
 import { toInputDate } from "../domain/formatters";
 import ModStatus from "../hooks/ModStatus";
-
-/* =========================
-   Extracted child components
-   ========================= */
 
 const ModDisplay = React.memo(function ModDisplay({
                                                       variant,
@@ -462,8 +29,8 @@ const ModDisplay = React.memo(function ModDisplay({
                                                       authErr,
                                                       onPickMode,
                                                   }) {
+    const {t} = useT();
     const [pendingValue, setPendingValue] = useState(null);
-
     const selectedItem = useMemo(
         () => MODS.find(m => m.value === Number(currentState)) ?? null,
         [MODS, currentState]
@@ -476,7 +43,7 @@ const ModDisplay = React.memo(function ModDisplay({
             variant={variant}
             header={
                 <div className="mx-auto-flex mb-8">
-                    <small className="text-lg fw-600 mb-8 stack-8">Mod</small>
+                    <small className="text-lg fw-600 mb-8 stack-8">{t("mod.title")}</small>
                 </div>
             }
             body={
@@ -498,9 +65,9 @@ const ModDisplay = React.memo(function ModDisplay({
                             const mo = sensors?.SOIL_MOISTURE_MODE;
                             return (
                                 <div className="tile tile--sm" onClick={() => onPickMode(m, setPendingValue)}>
-                                    <div className={`tile__avatar ${(m.name).replace(/\s+/g,'').toLowerCase()}`}>
+                                    <div className={`tile__avatar ${m.id}`}>
                                         <Icon
-                                            name={iconName({ name: m.name})}
+                                            name={iconName({ id: m.id})}
                                             size={24}
                                             fill={1}
                                             weight={600}
@@ -509,12 +76,12 @@ const ModDisplay = React.memo(function ModDisplay({
                                     </div>
 
                                     <div className="tile tile--free">
-                                        <div className="tile__title text-muted-500">{m.name}</div>
+                                        <div className="tile__title text-muted-500">{m.label}</div>
                                         <div className="text-muted-500">
                       <span className="mod-status">
                         <ModStatus
                             isActive={isActive}
-                            name={m.name}
+                            name={m.id}
                             temp={te?.temp}
                             light={te?.light}
                             moisture={mo?.moisture}
@@ -540,33 +107,34 @@ const Temperature = React.memo(function Temperature({
                                                         sensors, authLoading, authErr,
                                                         onSubmitTemp,
                                                     }) {
-    const t  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
+    const {t} = useT();
+    const tmp  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
 
     useEffect(() => {
         console.log("[ESP-DBG][Temperature] open?", isOpen, { snapshot: t, current: sensors?.TEMP_MODE });
-    }, [isOpen, t, sensors?.TEMP_MODE]);
+    }, [isOpen, tmp, sensors?.TEMP_MODE]);
 
     const fields = useMemo(() => ([
-        { name: "temp", label: "Temp", placeholder: t?.temp, disabled:true},
-        { name: "tempLVL", label: "Temp Level", placeholder: t?.tempLVL, type:"number" },
-        { name: "minTime", label: "Set Minimum Time", placeholder: t?.minTime, type:"number" },
-        { name: "maxTime", label: "Set Maximum Time", placeholder: t?.maxTime, type:"number" },
-        { name: "light", label: "Light", placeholder: t?.light, disabled:true },
-        { name: "lightThresHold", label: "Set Light Threshold", placeholder: t?.lightThresHold, type:"number" },
-        { name: "minLight", label: "Set Minimum Light", placeholder: t?.minLight, type:"number" },
-        { name: "maxLight", label: "Set Maximum Light", placeholder: t?.maxLight, type:"number" },
-    ]), [t]);
+        { name: "temp", label: `${t("mod.temp_label")}`, placeholder: tmp?.temp, disabled:true},
+        { name: "tempLVL", label: `${t("mod.tempLVL_label")}`, placeholder: tmp?.tempLVL, type:"number" },
+        { name: "minTime", label: `${t("mod.minTime_label")}`, placeholder: tmp?.minTime, type:"number" },
+        { name: "maxTime", label: `${t("mod.maxTime_label")}`, placeholder: tmp?.maxTime, type:"number" },
+        { name: "light", label: `${t("mod.light_label")}`, placeholder: tmp?.light, disabled:true },
+        { name: "lightThresHold", label: `${t("mod.lightThresHold_label")}`, placeholder: tmp?.lightThresHold, type:"number" },
+        { name: "minLight", label: `${t("mod.minLight_label")}`, placeholder: tmp?.minLight, type:"number" },
+        { name: "maxLight", label: `${t("mod.maxLight_label")}`, placeholder: tmp?.maxLight, type:"number" },
+    ]), [t,tmp]);
 
     const initValsTemp = useMemo(() => ({
-        temp: t?.temp ?? "",
-        tempLVL: t?.tempLVL ?? "",
-        minTime: t?.minTime ?? "",
-        maxTime: t?.maxTime ?? "",
-        light: t?.light ?? "",
-        lightThresHold: t?.lightThresHold ?? "",
-        minLight: t?.minLight ?? "",
-        maxLight: t?.maxLight ?? "",
-    }), [t]);
+        temp: tmp?.temp ?? "",
+        tempLVL: tmp?.tempLVL ?? "",
+        minTime: tmp?.minTime ?? "",
+        maxTime: tmp?.maxTime ?? "",
+        light: tmp?.light ?? "",
+        lightThresHold: tmp?.lightThresHold ?? "",
+        minLight: tmp?.minLight ?? "",
+        maxLight: tmp?.maxLight ?? "",
+    }), [tmp]);
 
     const onSubmit = useCallback((values) => {
         console.log("[ESP-DBG][Temperature] submit", values);
@@ -580,7 +148,7 @@ const Temperature = React.memo(function Temperature({
                       <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
                           <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                       </FlashButton>
-                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">Temperature</h5></div>
+                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.temp_title")}</h5></div>
                   </>
               }
               body={
@@ -602,7 +170,7 @@ const Temperature = React.memo(function Temperature({
                                   onClickAsync={() => { console.log("[ESP-DBG][Temperature] click Update"); onClick(); }}
                                   loading={loading || authLoading}
                                   disabled={authLoading}
-                              >Update</FlashButton>
+                              >{t("mod.update")}</FlashButton>
                           )}
                       />
                   </>
@@ -617,6 +185,7 @@ const Moisture = React.memo(function Moisture({
                                                   sensors, authLoading, authErr,
                                                   onSubmitMoist,
                                               }) {
+    const {t} = useT();
     const m  = useSnapshotOnOpen(sensors?.SOIL_MOISTURE_MODE, isOpen);
 
     useEffect(() => {
@@ -624,11 +193,11 @@ const Moisture = React.memo(function Moisture({
     }, [isOpen, m, sensors?.SOIL_MOISTURE_MODE]);
 
     const fields = useMemo(() => ([
-        { name: "moisture", label: "Moisture", placeholder: m?.moisture, type: "number", disabled:true },
-        { name: "moistureLVL", label: "Moisture Level", placeholder: m?.moistureLVL, type: "number" },
-        { name: "minMoisture", label: "Min Moisture Threshold", placeholder: m?.minMoisture, type: "number" },
-        { name: "maxMoisture", label: "Max Moisture Threshold", placeholder: m?.maxMoisture, type: "number" },
-    ]), [m]);
+        { name: "moisture", label: `${t("mod.moisture_label")}`, placeholder: m?.moisture, type: "number", disabled:true },
+        { name: "moistureLVL", label: `${t("mod.moistureLVL_label")}`, placeholder: m?.moistureLVL, type: "number" },
+        { name: "minMoisture", label: `${t("mod.minMoisture_label")}`, placeholder: m?.minMoisture, type: "number" },
+        { name: "maxMoisture", label: `${t("mod.maxMoisture_label")}`, placeholder: m?.maxMoisture, type: "number" },
+    ]), [m,t]);
 
     const initValsMoist = useMemo(() => ({
         moisture: m?.moisture ?? "",
@@ -649,14 +218,14 @@ const Moisture = React.memo(function Moisture({
                       <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
                           <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                       </FlashButton>
-                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">Moisture</h5></div>
+                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.moisture_title")}</h5></div>
                   </>
               }
               body={
                   <>
                       <RequestBanner loading={authLoading} errorText={authErr} />
                       <GenericForm
-                          key="moisture" /* קבוע, לא דינמי */
+                          key="moisture"
                           fields={fields}
                           className="form--inline form--roomy stack-16"
                           labelClassNameAll="label-muted"
@@ -672,7 +241,7 @@ const Moisture = React.memo(function Moisture({
                                   onClickAsync={() => { console.log("[ESP-DBG][Moisture] click Update"); onClick(); }}
                                   loading={loading || authLoading}
                                   disabled={authLoading}
-                              >Update</FlashButton>
+                              >{t("mod.update")}</FlashButton>
                           )}
                       />
                   </>
@@ -687,6 +256,7 @@ const Saturday = React.memo(function Saturday({
                                                   sensors, authLoading, authErr,
                                                   onSubmitSaturday,
                                               }) {
+    const {t} = useT();
     const s = useSnapshotOnOpen(sensors?.SATURDAY_MODE, isOpen);
     const safe = s ?? sensors?.SATURDAY_MODE ?? {};
 
@@ -695,10 +265,11 @@ const Saturday = React.memo(function Saturday({
     }, [isOpen, s, sensors?.SATURDAY_MODE]);
 
     const fields = useMemo(() => ([
-        { name: "date", label: "Activation Date", placeholder: s?.dateAct, type: "date", required: true,},
-        { name: "time", label: "Activation Time", placeholder: s?.timeAct, type: "time", required: true },
-        { name: "duration", label: "Duration", placeholder: s?.duration, type: "number", required: true, min: 1, step: 1  },
-    ]), [s]);
+        { name: "date", label: `${t("mod.date_label")}`, placeholder: s?.dateAct, type: "date", required: true,},
+        { name: "time", label: `${t("mod.time_label")}`, placeholder: s?.timeAct, type: "time", required: true },
+        { name: "duration", label: `${t("mod.duration_label")}`, placeholder: s?.duration,
+            type: "number", required: true, min: 1, step: 1  },
+    ]), [s,t]);
 
     const initValsSat = useMemo(() => ({
         date: toInputDate(safe?.dateAct || ""),
@@ -718,14 +289,14 @@ const Saturday = React.memo(function Saturday({
                       <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
                           <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                       </FlashButton>
-                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">Saturday</h5></div>
+                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.saturday_title")}</h5></div>
                   </>
               }
               body={
                   <>
                       <RequestBanner loading={authLoading} errorText={authErr} />
                       <GenericForm
-                          key="Saturday" /* קבוע */
+                          key="Saturday"
                           fields={fields}
                           className="form--inline form--roomy"
                           labelClassNameAll="label-muted "
@@ -748,7 +319,7 @@ const Saturday = React.memo(function Saturday({
                                   onClickAsync={() => { console.log("[ESP-DBG][Saturday] click Update"); onClick(); }}
                                   loading={loading || authLoading}
                                   disabled={authLoading}
-                              >Update</FlashButton>
+                              >{t("mod.update")}</FlashButton>
                           )}
                       />
                   </>
@@ -764,6 +335,7 @@ const Manual = React.memo(function Manual({
                                               wsLoading,
                                               manualToggle,
                                           }) {
+    const {t} = useT();
     const mSnap  = useSnapshotOnOpen(sensors?.MANUAL_MODE, isOpen);
     const [enabled, setEnabled] = React.useState(Boolean(mSnap?.enabled));
 
@@ -773,7 +345,7 @@ const Manual = React.memo(function Manual({
             console.log("[ESP-DBG][Manual] enabled changed (sensors)", { prev: enabled, next });
         }
         setEnabled(prev => (prev === next ? prev : next));
-    }, [sensors?.MANUAL_MODE?.enabled]); // eslint-disable-line
+    }, [sensors?.MANUAL_MODE?.enabled]);
 
     const handleToggle = async (next) => {
         console.groupCollapsed("[ESP-DBG][Manual] toggle");
@@ -809,7 +381,7 @@ const Manual = React.memo(function Manual({
                         <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                     </FlashButton>
                     <div className="mx-auto-flex" >
-                        <h5 className="m-0 text-2xl">Manual</h5>
+                        <h5 className="m-0 text-2xl">{t("mod.manual_title")}</h5>
                     </div>
                 </>
             }
@@ -817,7 +389,7 @@ const Manual = React.memo(function Manual({
                 <>
                     <RequestBanner loading={wsLoading || authLoading} errorText={err} />
                     <div className="manual-row">
-                        <div className="label">Pump enabled</div>
+                        <div className="label">{t("mod.pump_enabled")}</div>
                         <div className="push-right ">
                             <ToggleSwitch
                                 checked={enabled}
@@ -838,6 +410,7 @@ const Manual = React.memo(function Manual({
    ================ */
 
 export default function Mod({ embed = false }) {
+    const {t} = useT();
     const [flipped, setFlipped] = useState(false);
     const [activeTab, setActiveTab] = useState("mod_display");
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
@@ -846,11 +419,11 @@ export default function Mod({ embed = false }) {
     const {
         temp, moist, saturday, manual,
         sensors, setSensors, currentState,
-        form: modeForm, setForm: setModeForm,
+        setForm: setModeForm,
         refetch, loading, err
     } = useEsp();
 
-    const { fetchEspState, fetchStateSave } = refetch;
+    const { fetchStateSave } = refetch;
 
     useEffect(() => {
         console.log("[ESP-DBG][Mod] render", {
@@ -865,12 +438,12 @@ export default function Mod({ embed = false }) {
         });
     });
 
-    const MODS = useMemo(() => ([
-        { name: "Temperature", value: 61, tab: "temperature" },
-        { name: "Moisture",    value: 62, tab: "moisture" },
-        { name: "Saturday",    value: 63, tab: "saturday" },
-        { name: "Manual",      value: 64, tab: "manual" }
-    ]), []);
+        const MODS = useMemo(() => ([
+                { id: "temp",     label: `${t("mod.temp_title")}`,      value: 61, tab: "temperature" },
+                { id: "moisture", label: `${t("mod.moisture_title")}`,  value: 62, tab: "moisture" },
+                { id: "saturday", label: `${t("mod.saturday_title")}`,  value: 63, tab: "saturday" },
+                { id: "manual",   label: `${t("mod.manual_title")}`,    value: 64, tab: "manual" }
+            ]), [t]);
 
     const onPickMode = useCallback(async (m, setPendingValue) => {
         console.groupCollapsed("[ESP-DBG][ModDisplay] pick mode");
@@ -879,6 +452,7 @@ export default function Mod({ embed = false }) {
             setPendingValue?.(m.value);
             setActiveTab(m.tab);
             console.log("setActiveTab =>", m.tab);
+            setSensors(s => ({ ...s, state: Number(m.value) }));
             await fetchStateSave({ state: Number(m.value) });
             console.log("fetchStateSave done");
             setModeForm({ state: String(m.value) });
@@ -898,7 +472,7 @@ export default function Mod({ embed = false }) {
         <ModDisplay
             variant={variant}
             MODS={MODS}
-            currentState={currentState}
+            currentState={sensors?.state ?? currentState}
             sensors={sensors}
             loading={loading}
             authLoading={authLoading}
@@ -953,7 +527,6 @@ export default function Mod({ embed = false }) {
                 flippable
                 isFlipped={flipped}
                 onFlip={(v) => { console.log("[ESP-DBG][Mod] onFlip", v); setFlipped(v); }}
-                /* autoHeight */  /* חשוב: כבוי כרגע */
             />
         </div>
     );

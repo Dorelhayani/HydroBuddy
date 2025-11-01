@@ -16,7 +16,6 @@ export default function GenericForm({
                                         labelClassNameAll = "",
                                         inputClassNameAll = "",
                                         placeholderClassAll = "",
-
 }) {
     // נרמול ערכי פתיחה
     const normalizeInit = (fs, iv) =>

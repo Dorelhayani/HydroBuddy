@@ -8,10 +8,12 @@ import Card, { useBorderFlash } from "../components/Card";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 
+import {useT} from "../../local/useT";
 import {useAuth} from "../hooks/useAuth";
 import {useAccount} from "../hooks/useAccount";
 
 export default function Account() {
+    const {t} = useT();
     const nav = useNavigate();
     const { variant, flashSuccess, flashWarning, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("account");
@@ -35,19 +37,23 @@ export default function Account() {
             <Card className="account-card card--flow"
                 variant={variant}
                 header={
-                    <h5 className="text-sm fw-600 text-muted-500 lh-1 text-center">Account</h5>
+                    <h5 className="text-sm fw-600 text-muted-500 lh-1 text-center">{t("account.Account")}</h5>
                 }
-                title={<div className="account_card-title text-sm fw-600 text-muted-500 ">{item?.name}</div>}
+                title={<div className="account_card-title text-sm fw-600 text-muted-500 ">{t(`${item?.name}`)}</div>}
                 imgsrc={
                     item && (
-                        <AvatarControl
-                            className="avatar-img"
-                            item={item}
-                            avatarUpload={avatarUpload}
-                            fetchUser={fetchUser}
-                        />
+                        <div className="tooltip">
+                            <span className="tooltiptext fw-600 text-xs">{t("account.Update_IMG")}</span>
+                            <AvatarControl
+                                className="avatar-img"
+                                item={item}
+                                avatarUpload={avatarUpload}
+                                fetchUser={fetchUser}
+                            />
+                        </div>
                     )
                 }
+
                 body={
                 <div className="account-card__body">
                     <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
@@ -62,8 +68,7 @@ export default function Account() {
                         className="drawer" open={drawerOpen} onToggle={(e) => setDrawerOpen(e.currentTarget.open)} >
                         <summary className="drawer__summary u-center">
                             <i className="chev fa-solid fa-sort-up fa-xs" aria-hidden/>
-                            <span className="fw-500 text-xs"> Quick Account Actions </span>
-
+                            <span className="fw-500 text-xs">{t("account.quick_actions")}</span>
                             <FlashButton
                                 className="btn--transparent btn--sm"
                                 title={drawerOpen ? "Collapse" : "Expand"}
@@ -82,7 +87,7 @@ export default function Account() {
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("update_account")}>
-                                            <span className="tooltiptext fw-600 text-xs">Update Account</span>
+                                            <span className="tooltiptext fw-600 text-xs">{t("account.Update_Account")}</span>
                                             <i className="fa-solid fa-user-pen fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
@@ -91,7 +96,7 @@ export default function Account() {
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("change_password")}>
-                                            <span className="tooltiptext fw-600 text-xs">Change Password</span>
+                                            <span className="tooltiptext fw-600 text-xs">{t("account.Change_Password")}</span>
                                             <i className="fa-solid fa-key fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
@@ -100,7 +105,7 @@ export default function Account() {
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={()=> setActiveTab("log_out")}>
-                                            <span className="tooltiptext fw-600 text-xs">Log Out</span>
+                                            <span className="tooltiptext fw-600 text-xs">{t("account.Log_Out")}</span>
                                             <i className="fa-solid fa-right-from-bracket fa-beat fa-lg"/>
                                         </FlashButton>
                                     </div>
@@ -110,7 +115,7 @@ export default function Account() {
                                         <FlashButton
                                             className="btn--transparent"
                                             onClick={() => setActiveTab("delete_account")}>
-                                            <span className="tooltiptext fw-600 text-xs">Delete Account</span>
+                                            <span className="tooltiptext fw-600 text-xs">{t("account.Delete_Account")}</span>
                                             <i className="fa-solid fa-trash-can fa-beat fa-lg"
                                                style={{color:"#ff0000"}}/>
                                         </FlashButton>
@@ -176,14 +181,14 @@ export default function Account() {
      function UpdateAccount({ variant}) {
         if (!item) {
             return (
-                <Card variant={variant} title="Update Account"> <div className="loading">Loading account…</div> </Card>
+                <Card variant={variant} title="Update Account"> <div className="loading">{t("common.loading")}</div> </Card>
             );
         }
 
         const fields = [
-            { name: "name", label:"Name", placeholder: item.name|| "Name", required: true },
+            { name: "name", label:`${t("account.Name")}`, placeholder: item.name|| "Name", required: true },
             {
-                name: "email", value: item.email, label: "Email", placeholder: item.email || "Email", type: "email",
+                name: "email", value: item.email, label: `${t("account.Email")}`, placeholder: item.email || "Email", type: "email",
                 required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null),
             },
         ];
@@ -202,7 +207,7 @@ export default function Account() {
             <Card
                 className="action-card card--flow"
                 variant={variant}
-                header="Update Account"
+                header={t("account.Update_Account")}
                 body={
                 <div className="account_body">
                     <RequestBanner loading={authLoading} errorText={authErr} />
@@ -217,12 +222,10 @@ export default function Account() {
                                 className="btn btn--primary btn--block"
                                 onClickAsync={onClick}
                                 loading={loading || authLoading}
-                                disabled={authLoading}
-                            >Update</FlashButton>
+                                disabled={authLoading}>{t("account.Update")}</FlashButton>
                         )}
                     />
                 </div>
-
                   }
                   footer={
                       <div className="">
@@ -245,11 +248,10 @@ export default function Account() {
             );
         }
         const fields = [
-            { name: "currentPassword", placeholder: "Your current Password", type:"password", required: true },
-            { name: "newPassword", placeholder: "New password", type:"password", required: true },
-            { name: "newPasswordConfirm", placeholder: "Confirm New Password", type:"password", required: true },
+            { name: "currentPassword",label:`${t("account.Your_current_Password")}`, type:"password", required: true },
+            { name: "newPassword", label:`${t("account.New_password")}`, type:"password", required: true },
+            { name: "newPasswordConfirm", label:`${t("account.Confirm_New_Password")}`, type:"password", required: true },
         ]
-
         const OnSubmit = async (val) => {
             try {
                 if(val.newPassword !== val.newPasswordConfirm) { throw new Error("Password not match!")}
@@ -269,7 +271,7 @@ export default function Account() {
             <Card
                 className="action-card card--flow"
                 variant={variant}
-                header="Change Password"
+                header={t("account.Change_Password")}
                 body={
                     <>
                         <RequestBanner loading={authLoading} errorText={authErr} />
@@ -284,7 +286,8 @@ export default function Account() {
                                     onClickAsync={onClick}
                                     loading={loading || authLoading}
                                     disabled={authLoading}
-                                >Change</FlashButton> )}
+                                >{t("account.Update")}</FlashButton>
+                            )}
                         />
                     </>
                 }
@@ -312,10 +315,10 @@ export default function Account() {
         };
         return (
             <div className="u-row">
-                <p className="fw-600 text-xs">Already Leave ?</p>
+                <p className="fw-600 text-xs">{t("account.Already_Leave")}</p>
                 <div className="btn-row">
-                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton className="btn btn--sm" onClickAsync={handleLogOut}>Logout</FlashButton>
+                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>{t("common.cancel")}</FlashButton>
+                    <FlashButton className="btn btn--sm" onClickAsync={handleLogOut}>{t("account.Log_Out")}</FlashButton>
                 </div>
             </div>
             // <Card
@@ -347,11 +350,17 @@ export default function Account() {
             } catch (err) {}
         };
         return (
-            <Card className="action-card card--flow" variant={variant} title="Delete Account">
-                <p className="fw-600 text-xs">This action is permanent. All your plants and data may be removed.</p>
+            <Card
+                className="action-card card--flow"
+                variant={variant}
+                title={t("account.Delete_Account")}
+            >
+
+                <p className="fw-600 text-xs">{t("account.delete_txt")}</p>
                 <div className="btn-row">
-                    <FlashButton className="btn btn--outline btn--sm"  onClick={onCancel}>Cancel</FlashButton>
-                    <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>Delete</FlashButton>
+                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>{t("common.cancel")}</FlashButton>
+                    <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>{t("common.delete")}</FlashButton>
+
                 </div>
             </Card>
         );

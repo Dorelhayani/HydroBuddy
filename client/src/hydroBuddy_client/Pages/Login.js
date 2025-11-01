@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
 
+import {useT} from "../../local/useT";
 import {useReg} from "../hooks/useRegister";
 import {useAuth} from "../hooks/useAuth";
 import GenericForm from "../components/FormGenerate";
@@ -12,6 +13,7 @@ import FlipCard from "../components/FlipCard";
 import RequestBanner from "../components/RequestBanner";
 
 export default function Login({ embed = false }) {
+    const {t} = useT();
     const nav = useNavigate();
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
 
@@ -22,8 +24,8 @@ export default function Login({ embed = false }) {
 
     function Log({flip}) {
         const fields = [
-            { name: "name", label: "Enter Name", placeholder:"Name", type: "text" },
-            { name: "password", label: "Enter Password", placeholder: "Password", type: "password" },
+            { name: "name", label: `${t("login.name_label")}`, placeholder:`${t("login.name")}`, type: "text" },
+            { name: "password", label: `${t("login.password_label")}`, placeholder: `${t("login.password")}`, type: "password" },
         ];
 
         const OnSubmit = async (val) => {
@@ -42,7 +44,7 @@ export default function Login({ embed = false }) {
                 variant={variant}
                 header={
                     <div className="mx-auto-flex mb-8">
-                        <small className="text-lg fw-600 mb-8 stack-8">Login</small>
+                        <small className="text-lg fw-600 mb-8 stack-8">{t("login.login_title")}</small>
                     </div>
                 }
                 body={
@@ -61,16 +63,17 @@ export default function Login({ embed = false }) {
                                 onClickAsync={onClick}
                                 loading={loading || authLoading}
                                 disabled={authLoading}>
-                                Login</FlashButton> )}
+                                {t("login.login_btn")}</FlashButton>
+                        )}
                     />
                 </>
                   }
 
                   footer={
                       <div className="">
-                          <small className="fw-600" >Not Register yet? </small>
+                          <small className="fw-600" >{t("login.register_txt")}</small>
                           <FlashButton className="nudge-r-120" disabled={authLoading} onClickAsync={flip}>
-                              Create account
+                              {t("login.register_btn")}
                           </FlashButton>
                       </div>
                   }
@@ -80,11 +83,17 @@ export default function Login({ embed = false }) {
 
     function Register({unflip}) {
         const fields = [
-            { name: "name",label:"Enter Name", placeholder: "Name", type:"text", required: true },
-            { name: "email",label:"Enter Email",  placeholder: "Email", type: "email", required: true,
-                validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
-            { name: "password",label:"Enter Password",  placeholder: "Password", type: "password", required: true },
-            { name: "passwordConfirm",label:"Confirm Your Password",  placeholder: "Confirm Password", type: "password", required: true },
+            { name: "name",label:`${t("login.name_label")}`, placeholder: `${t("login.name")}`,
+                type:"text", required: true },
+
+            { name: "email",label:`${t("login.email_label")}`,  placeholder: `${t("login.email")}`,
+                type: "email", required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null) },
+
+            { name: "password",label:`${t("login.password_label")}`,  placeholder: `${t("login.password")}`,
+                type: "password", required: true },
+
+            { name: "passwordConfirm",label:`${t("login.confirm_label_password")}`,
+                placeholder: `${t("login.confirm_password")}`, type: "password", required: true },
         ];
 
         const OnSubmit = async (val) => {
@@ -105,7 +114,7 @@ export default function Login({ embed = false }) {
                 variant={variant}
                 header={
                     <div className="mx-auto-flex mb-8">
-                        <small className="text-lg fw-600 mb-8 stack-8">Register</small>
+                        <small className="text-lg fw-600 mb-8 stack-8">{t("login.register_title")}</small>
                     </div>
                 }
                 body={
@@ -124,7 +133,8 @@ export default function Login({ embed = false }) {
                                 onClickAsync={onClick}
                                 loading={loading || authLoading}
                                 disabled={authLoading}
-                            >Create</FlashButton>
+                            >{t("login.register_btn")}
+                            </FlashButton>
                         )}
                     />
                 </>
