@@ -81,6 +81,7 @@
     "moist_ok": "Standard humidity", "wet": "Moisture soil", "dry": "Dry soil",
 
     "running": "Running", "scheduled": "Scheduled to: ", "idle": "Idle",
+    "set_to": "Set to ", "at": "at", "for": "for", "minutes": "minutes",
 
     "on": "ON", "off": "OFF"
   }

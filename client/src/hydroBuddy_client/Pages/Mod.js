@@ -9,6 +9,7 @@ import FlipCard from "../components/FlipCard";
 import GenericForm from "../components/FormGenerate";
 import RequestBanner from "../components/RequestBanner";
 import ClickableList from "../components/ClickableList";
+import { useRequestStatus } from "../hooks/RequestStatus";
 
 import {useT} from "../../local/useT";
 import { useEsp } from "../hooks/useEsp";
@@ -88,7 +89,9 @@ const ModDisplay = React.memo(function ModDisplay({
                                     ? { moisture: { low: Number(mo.min), high: Number(mo.max) } } : {};
 
                             } else if (modeId === "saturday") {
-                                txt = `Set to: ${sa?.dateAct} at ${sa?.timeAct} for ${sa?.duration} minutes`;
+                                // txt = `Set to: ${sa?.dateAct} at ${sa?.timeAct} for ${sa?.duration} minutes`;
+                                txt = `${t("mod_status.set_to")} ${sa?.dateAct} ${t("mod_status.at")} ${sa?.timeAct} 
+                                ${t("mod_status.for")} ${sa?.duration} ${t("mod_status.minutes")}`;
                             } else { thresholds = {}; }
 
                             const flags = {
@@ -144,11 +147,10 @@ const ModDisplay = React.memo(function ModDisplay({
 const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, sensors, authLoading, authErr,
                                                         onSubmitTemp }) {
     const {t} = useT();
+    const stts = useRequestStatus();
     const tmp  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
 
-    useEffect(() => {
-        console.log("[ESP-DBG][Temperature] open?", isOpen, { snapshot: t, current: sensors?.TEMP_MODE });
-    }, [isOpen, tmp, sensors?.TEMP_MODE]);
+    useEffect(() => {}, [isOpen, tmp, sensors?.TEMP_MODE]);
 
     const fields = useMemo(() => ([
         { name: "temp", label: `${t("mod.temp_label")}`, placeholder: tmp?.temp, disabled:true},
@@ -173,9 +175,13 @@ const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, s
     }), [tmp]);
 
     const onSubmit = useCallback((values) => {
-        console.log("[ESP-DBG][Temperature] submit", values);
-        return onSubmitTemp(values);
-    }, [onSubmitTemp]);
+        return stts.run(async () => {
+            await onSubmitTemp(values);
+        }, {
+            successMessage: t("mod.temp_saved_success") || "Temperature mode saved",
+            errorMessage:   t("mod.temp_saved_error")   || "Failed to save temperature mode",
+        });
+    }, [stts, onSubmitTemp, t]);
 
     return (
         <Card variant={variant}
@@ -189,7 +195,7 @@ const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, s
               }
               body={
                   <>
-                      <RequestBanner loading={authLoading} errorText={authErr} />
+                      <RequestBanner loading={authLoading || stts.loading} errorText={authErr || stts.error} />
                       <GenericForm
                           className="form--inline form--roomy stack-16"
                           labelClassNameAll="label-muted"
@@ -223,6 +229,7 @@ const Moisture = React.memo(function Moisture({
                                                   onSubmitMoist,
                                               }) {
     const {t} = useT();
+    const stts = useRequestStatus();
     const m  = useSnapshotOnOpen(sensors?.SOIL_MOISTURE_MODE, isOpen);
 
     useEffect(() => {
@@ -243,10 +250,16 @@ const Moisture = React.memo(function Moisture({
         maxMoisture: m?.maxMoisture ?? "",
     }), [m]);
 
+
     const onSubmit = useCallback((values) => {
-        console.log("[ESP-DBG][Moisture] submit", values);
-        return onSubmitMoist(values);
-    }, [onSubmitMoist]);
+        return stts.run(async () => {
+            await onSubmitMoist(values);
+        }, {
+            successMessage: t("mod.moisture_saved_success") || "Moisture mode saved",
+            errorMessage:   t("mod.moisture_saved_error")   || "Failed to save Moisture mode",
+        });
+    }, [stts, onSubmitMoist, t]);
+
 
     return (
         <Card variant={variant}
@@ -260,7 +273,7 @@ const Moisture = React.memo(function Moisture({
               }
               body={
                   <>
-                      <RequestBanner loading={authLoading} errorText={authErr} />
+                      <RequestBanner loading={authLoading || stts.loading} errorText={authErr || stts.error} />
                       <GenericForm
                           key="moisture"
                           fields={fields}
@@ -294,6 +307,7 @@ const Saturday = React.memo(function Saturday({
                                                   onSubmitSaturday,
                                               }) {
     const {t} = useT();
+    const stts = useRequestStatus();
     const s = useSnapshotOnOpen(sensors?.SATURDAY_MODE, isOpen);
     const safe = s ?? sensors?.SATURDAY_MODE ?? {};
 
@@ -315,9 +329,13 @@ const Saturday = React.memo(function Saturday({
     }), [safe?.dateAct, safe?.timeAct, safe?.duration]);
 
     const onSubmit = useCallback((values) => {
-        console.log("[ESP-DBG][Saturday] submit", values);
-        return onSubmitSaturday(values);
-    }, [onSubmitSaturday]);
+        return stts.run(async () => {
+            await onSubmitSaturday(values);
+        }, {
+            successMessage: t("mod.saturday_saved_success") || "Saturday mode saved",
+            errorMessage:   t("mod.saturday_saved_error")   || "Failed to save Saturday mode",
+        });
+    }, [stts, onSubmitSaturday, t]);
 
     return (
         <Card variant={variant}
@@ -331,7 +349,7 @@ const Saturday = React.memo(function Saturday({
               }
               body={
                   <>
-                      <RequestBanner loading={authLoading} errorText={authErr} />
+                      <RequestBanner loading={authLoading || stts.loading} errorText={authErr || stts.error} />
                       <GenericForm
                           key="Saturday"
                           fields={fields}
@@ -368,11 +386,12 @@ const Saturday = React.memo(function Saturday({
 
 const Manual = React.memo(function Manual({
                                               variant, unflip, isOpen,
-                                              sensors, setSensors, authLoading, err,
+                                              sensors, setSensors, authLoading, authErr,
                                               wsLoading,
                                               manualToggle,
                                           }) {
     const {t} = useT();
+    const stts = useRequestStatus();
     const mSnap  = useSnapshotOnOpen(sensors?.MANUAL_MODE, isOpen);
     const [enabled, setEnabled] = React.useState(Boolean(mSnap?.enabled));
 
@@ -424,7 +443,7 @@ const Manual = React.memo(function Manual({
             }
             body={
                 <>
-                    <RequestBanner loading={wsLoading || authLoading} errorText={err} />
+                    <RequestBanner loading={authLoading || stts.loading} errorText={authErr || stts.error} />
                     <div className="manual-row">
                         <div className="label">{t("mod.pump_enabled")}</div>
                         <div className="push-right ">

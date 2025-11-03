@@ -21,9 +21,9 @@ export function usePlants() {
 
     useEffect(() => { fetchPlants(); }, [fetchPlants]);
 
-    const add_plant = async (payload)  => status.run(async () => { await plants.add(payload);   await fetchPlants(); });
-    const update_plant = async (id, p)   => status.run(async () => { await plants.edit(id, p);    await fetchPlants(); });
-    const remove_plant = async (id)    => status.run(async () => { await plants.delete(id);     await fetchPlants(); });
+    const add_plant = async (payload)  => status.run(async () => { await plants.add(payload); await fetchPlants(); });
+    const update_plant = async (id, p)   => status.run(async () => { await plants.edit(id, p); await fetchPlants(); });
+    const remove_plant = async (id)    => status.run(async () => { await plants.delete(id); await fetchPlants(); });
 
     return{
         plantList: plant, setPlantList: setPlant,selectedPlant,setSelectedPlant,

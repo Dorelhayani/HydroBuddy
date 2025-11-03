@@ -58,7 +58,7 @@ export function useEsp() {
             await esp.setState({ state: state })
             setForm({ state: String(state) });
             return state;
-        }, { successMessage: "" });
+        }, { successMessage: "state saved", errorMessage: "failed to save state." });
     }, [mutate]);
 
     useEffect(() => {
