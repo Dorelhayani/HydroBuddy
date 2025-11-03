@@ -1,4 +1,4 @@
-// SensorGraph.js
+// Graph.js
 
 // import React from "react";
 //

@@ -26,34 +26,25 @@ export default function Account() {
 
         useEffect(() => {
             (async () => {
-                try {
-                    const [usr] = await fetchUser();
-                    setItems(usr);
-                } catch (e) { }
+                try { const [usr] = await fetchUser(); setItems(usr);}
+                catch (e) {}
             })();
         }, []);
 
         return (
-            <Card className="account-card card--flow"
+            <Card
+                className="account-card card--flow"
                 variant={variant}
-                header={
-                    <h5 className="text-sm fw-600 text-muted-500 lh-1 text-center">{t("account.Account")}</h5>
-                }
+                header={ <h5 className="text-sm fw-600 text-muted-500 lh-1 text-center">{t("account.Account")}</h5> }
                 title={<div className="account_card-title text-sm fw-600 text-muted-500 ">{t(`${item?.name}`)}</div>}
                 imgsrc={
                     item && (
                         <div className="tooltip">
                             <span className="tooltiptext fw-600 text-xs">{t("account.Update_IMG")}</span>
-                            <AvatarControl
-                                className="avatar-img"
-                                item={item}
-                                avatarUpload={avatarUpload}
-                                fetchUser={fetchUser}
-                            />
+                            <AvatarControl className="avatar-img" item={item} avatarUpload={avatarUpload}
+                                           fetchUser={fetchUser}/>
                         </div>
-                    )
-                }
-
+                    )}
                 body={
                 <div className="account-card__body">
                     <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
@@ -69,14 +60,8 @@ export default function Account() {
                         <summary className="drawer__summary u-center">
                             <i className="chev fa-solid fa-sort-up fa-xs" aria-hidden/>
                             <span className="fw-500 text-xs">{t("account.quick_actions")}</span>
-                            <FlashButton
-                                className="btn--transparent btn--sm"
-                                title={drawerOpen ? "Collapse" : "Expand"}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setDrawerOpen((o) => !o);
-                                }}/>
+                            <FlashButton className="btn--transparent btn--sm" title={drawerOpen ? "Collapse" : "Expand"}
+                                onClick={(e) => {e.preventDefault(); e.stopPropagation(); setDrawerOpen((o) => !o);}}/>
                         </summary>
 
                         <div className="drawer__content">
@@ -110,7 +95,6 @@ export default function Account() {
                                         </FlashButton>
                                     </div>
 
-                                        {/* delete account */}
                                     <div className="tooltip btn--transparent delete--tooltip">
                                         <FlashButton
                                             className="btn--transparent"
@@ -181,15 +165,16 @@ export default function Account() {
      function UpdateAccount({ variant}) {
         if (!item) {
             return (
-                <Card variant={variant} title="Update Account"> <div className="loading">{t("common.loading")}</div> </Card>
+                <Card variant={variant} title="Update Account">
+                    <div className="loading">{t("common.loading")}</div>
+                </Card>
             );
         }
-
         const fields = [
             { name: "name", label:`${t("account.Name")}`, placeholder: item.name|| "Name", required: true },
             {
-                name: "email", value: item.email, label: `${t("account.Email")}`, placeholder: item.email || "Email", type: "email",
-                required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null),
+                name: "email", value: item.email, label: `${t("account.Email")}`, placeholder: item.email || "Email",
+                type: "email", required: true, validate: (v) => (!v.includes("@") ? "Invalid email" : null),
             },
         ];
         const OnSubmit = async (val) => {
@@ -305,7 +290,7 @@ export default function Account() {
     }
 
     /* ===== Log out ===== */
-    function Log_out({ variant, onCancel }) {
+    function Log_out({ onCancel }) {
         const handleLogOut = async () => {
             try {
                 flashWarning();
@@ -321,24 +306,11 @@ export default function Account() {
                     <FlashButton className="btn btn--sm" onClickAsync={handleLogOut}>{t("account.Log_Out")}</FlashButton>
                 </div>
             </div>
-            // <Card
-            //     className="action-card card--flow"
-            //     variant={variant}
-            //     body={
-            //         <>
-            //             <p className="fw-600 text-xs">Already Leave ?</p>
-            //             <div className="btn-row">
-            //                 <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>Cancel</FlashButton>
-            //                 <FlashButton className="btn btn--sm" onClickAsync={handleLogOut}>Log Out</FlashButton>
-            //             </div>
-            //         </>
-            //     }
-            // />
         );
     }
 
     /* ===== Delete Account ===== */
-     function DeleteAccount({ variant, item, onCancel }) {
+     function DeleteAccount({ item, onCancel }) {
         const nav = useNavigate();
 
         const handleDelete = async () => {
@@ -350,19 +322,13 @@ export default function Account() {
             } catch (err) {}
         };
         return (
-            <Card
-                className="action-card card--flow"
-                variant={variant}
-                title={t("account.Delete_Account")}
-            >
-
-                <p className="fw-600 text-xs">{t("account.delete_txt")}</p>
-                <div className="btn-row">
-                    <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>{t("common.cancel")}</FlashButton>
-                    <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>{t("common.delete")}</FlashButton>
-
-                </div>
-            </Card>
+            <div className="">
+            <small className="fw-600 text-xs">{t("account.delete_txt")}</small>
+         <div className="btn-row">
+             <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>{t("common.cancel")}</FlashButton>
+             <FlashButton className="btn btn--danger btn--sm" onClickAsync={handleDelete}>{t("common.delete")}</FlashButton>
+         </div>
+            </div>
         );
     }
 

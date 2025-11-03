@@ -13,11 +13,11 @@ import ClickableList from "../components/ClickableList";
 import {useT} from "../../local/useT";
 import { useEsp } from "../hooks/useEsp";
 import { useAuth } from "../hooks/useAuth";
-import Icon,{iconName} from "../components/Icons";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { useSnapshotOnOpen } from "../hooks/useSnapshotOnOpen";
 import { toInputDate } from "../domain/formatters";
-import ModStatus from "../hooks/ModStatus";
+import ModIcon from "../components/mod/ModIcon";
+import ModStatus from "../components/mod/ModStatus";
 
 const ModDisplay = React.memo(function ModDisplay({
                                                       variant,
@@ -29,7 +29,7 @@ const ModDisplay = React.memo(function ModDisplay({
                                                       authErr,
                                                       onPickMode,
                                                   }) {
-    const {t} = useT();
+    const { t, dir } = useT();
     const [pendingValue, setPendingValue] = useState(null);
     const selectedItem = useMemo(
         () => MODS.find(m => m.value === Number(currentState)) ?? null,
@@ -63,33 +63,72 @@ const ModDisplay = React.memo(function ModDisplay({
                             const isActive = Number(currentState) === m.value;
                             const te = sensors?.TEMP_MODE;
                             const mo = sensors?.SOIL_MOISTURE_MODE;
+                            const sa = sensors?.SATURDAY_MODE;
+                            const ma = sensors?.MANUAL_MODE;
+                            const modeId = m.id;
+
+                            const readings =
+                                modeId === "temp" ? { temp: te?.temp, light: te?.light } :
+                                    modeId === "moisture" ? { moisture: mo?.moisture } :
+                                        modeId === "saturday" ? { enabled: !!sa?.enabled, dateAct: sa?.dateAct,
+                                                timeAct: sa?.timeAct, duration: sa?.duration,
+                                                isRunningNow: !!sa?.isRunningNow, window: sa?.window } :
+                                            modeId === "manual" ? { enabled: !!ma?.enabled, pump: sensors?.pump }
+                                                : {};
+                            let thresholds = {};
+                            let txt = "";
+                            if (modeId === "temp") {
+                                const tempLVL = Number(te?.tempLVL);
+                                const H = Number.isFinite(tempLVL) ? 1 : 0;
+                                thresholds = Number.isFinite(tempLVL)
+                                    ? { temp: { low: tempLVL - H, high: tempLVL + H, hysteresis: H } }  : {};
+
+                            } else if (modeId === "moisture") {
+                                thresholds = mo?.min !== undefined && mo?.max !== undefined
+                                    ? { moisture: { low: Number(mo.min), high: Number(mo.max) } } : {};
+
+                            } else if (modeId === "saturday") {
+                                txt = `Set to: ${sa?.dateAct} at ${sa?.timeAct} for ${sa?.duration} minutes`;
+                            } else { thresholds = {}; }
+
+                            const flags = {
+                                isActive,
+                                loading: !!(authLoading || loading),
+                                pending: pendingValue === m.value,
+                                disabled: false,
+                            };
+
+                            const meta = { updatedAt: sensors?.updatedAt || te?.updatedAt ||
+                                    mo?.updatedAt || sa?.txt || ma?.updatedAt };
+
                             return (
                                 <div className="tile tile--sm" onClick={() => onPickMode(m, setPendingValue)}>
-                                    <div className={`tile__avatar ${m.id}`}>
-                                        <Icon
-                                            name={iconName({ id: m.id})}
-                                            size={24}
-                                            fill={1}
-                                            weight={600}
-                                            className="icon"
-                                        />
+                                    <div className={`mod__avatar ${m.id}`}>
+                                        <ModIcon modeId={modeId} readings={readings} thresholds={thresholds} txt={txt}
+                                                 flags={flags} meta={meta}  className="mod-icon" />
                                     </div>
 
                                     <div className="tile tile--free">
-                                        <div className="tile__title text-muted-500">{m.label}</div>
+                                        <div className="tile__title title text-muted-500">{m.label}</div>
                                         <div className="text-muted-500">
-                      <span className="mod-status">
-                        <ModStatus
-                            isActive={isActive}
-                            name={m.id}
-                            temp={te?.temp}
-                            light={te?.light}
-                            moisture={mo?.moisture}
-                        />
-                      </span>
+          <span className="mod-status">
+              <ModStatus
+                  isActive={isActive}
+                  modeId={modeId}
+                  readings={readings}
+                  thresholds={thresholds}
+                  flags={flags}
+                  txt={txt}
+                  meta={meta}
+                  name={m.id}
+                  temp={te?.temp}
+                  light={te?.light}
+                  moisture={mo?.moisture} />
+          </span>
                                         </div>
                                     </div>
-                                    <i className="tile__chev fa-solid fa-caret-right fa-beat-fade"/>
+                                    <i className={`tile__chev fa-solid 
+                                    ${dir === "rtl" ? "fa-caret-left" : "fa-caret-right"} fa-beat-fade`} />
                                 </div>
                             );
                         }}
@@ -102,11 +141,8 @@ const ModDisplay = React.memo(function ModDisplay({
     );
 });
 
-const Temperature = React.memo(function Temperature({
-                                                        variant, unflip, isOpen,
-                                                        sensors, authLoading, authErr,
-                                                        onSubmitTemp,
-                                                    }) {
+const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, sensors, authLoading, authErr,
+                                                        onSubmitTemp }) {
     const {t} = useT();
     const tmp  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
 
@@ -167,7 +203,8 @@ const Temperature = React.memo(function Temperature({
                               <FlashButton
                                   size="sm"
                                   className="btn btn--primary btn--block shadow-md"
-                                  onClickAsync={() => { console.log("[ESP-DBG][Temperature] click Update"); onClick(); }}
+                                  // onClickAsync={() => { console.log("[ESP-DBG][Temperature] click Update"); onClick(); }}
+                                  onClickAsync={() => { unflip(); onClick(); }}
                                   loading={loading || authLoading}
                                   disabled={authLoading}
                               >{t("mod.update")}</FlashButton>
@@ -420,8 +457,7 @@ export default function Mod({ embed = false }) {
         temp, moist, saturday, manual,
         sensors, setSensors, currentState,
         setForm: setModeForm,
-        refetch, loading, err
-    } = useEsp();
+        refetch, loading, err } = useEsp();
 
     const { fetchStateSave } = refetch;
 
@@ -438,12 +474,12 @@ export default function Mod({ embed = false }) {
         });
     });
 
-        const MODS = useMemo(() => ([
-                { id: "temp",     label: `${t("mod.temp_title")}`,      value: 61, tab: "temperature" },
-                { id: "moisture", label: `${t("mod.moisture_title")}`,  value: 62, tab: "moisture" },
-                { id: "saturday", label: `${t("mod.saturday_title")}`,  value: 63, tab: "saturday" },
-                { id: "manual",   label: `${t("mod.manual_title")}`,    value: 64, tab: "manual" }
-            ]), [t]);
+    const MODS = useMemo(() => ([
+        { id: "temp", label: `${t("mod.temp_title")}`, value: 61, tab: "temperature" },
+        { id: "moisture", label: `${t("mod.moisture_title")}`, value: 62, tab: "moisture" },
+        { id: "saturday", label: `${t("mod.saturday_title")}`, value: 63, tab: "saturday" },
+        { id: "manual", label: `${t("mod.manual_title")}`, value: 64, tab: "manual" }
+    ]), [t]);
 
     const onPickMode = useCallback(async (m, setPendingValue) => {
         console.groupCollapsed("[ESP-DBG][ModDisplay] pick mode");

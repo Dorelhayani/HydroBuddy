@@ -11,7 +11,6 @@ const fmt = (d) =>
         hour: "2-digit", minute: "2-digit", second: "2-digit",
     }).format(d ?? new Date());
 
-
 export default function PumpStatus() {
     const {t} = useT();
     const { sensors, loading: espLoading, pollErr: wsError } = useEsp();
@@ -20,7 +19,6 @@ export default function PumpStatus() {
 
     const prevOnRef = useRef(pump.on);
     const [events, setEvents] = useState([]);
-
 
     useEffect(() => {
         const prev = prevOnRef.current;
@@ -35,20 +33,18 @@ export default function PumpStatus() {
         } else { prevOnRef.current = curr; }
     }, [pump.on, pump.updatedAt]);
 
-    const statusText = wsError ? `WS Error: ${wsError}` : `${t("plants.pump")}: ${pump.on ? `${t("plants.on")}` : `${t("plants.off")}` }`;
+    const statusText = wsError ? `WS Error: ${wsError}` : `${t("plants.pump")}: 
+    ${pump.on ? `${t("plants.on")}` : `${t("plants.off")}` }`;
 
     return (
         <div className="pump-status " aria-busy={loading}>
             <span className={`pump-status__badge ${pump.on ? "is-on" : "is-off"}`}>
-                <span className="pump-status__dot" />
-                {statusText}
+                <span className="pump-status__dot" /> {statusText}
             </span>
 
             {events.length > 0 && (
                 <ul className="pump-status__events text-truncate text-xs">
-                    {events.map((e, i) => (
-                        <li key={i}> {e.text} {fmt(new Date(e.at))}</li>
-                    ))}
+                    {events.map((e, i) => ( <li key={i}> {e.text} {fmt(new Date(e.at))}</li> ))}
                 </ul>
             )}
         </div>

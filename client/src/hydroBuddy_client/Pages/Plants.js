@@ -16,7 +16,7 @@ import Icon, {iconName} from "../components/Icons";
 import ClickableList from "../components/ClickableList";
 
 export default function Plants({ embed = false }) {
-    const {t} = useT();
+    const {t, dir} = useT();
     const [flipped, setFlipped] = useState(false);
     const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const [activeTab, setActiveTab] = useState("plant_info");
@@ -29,12 +29,10 @@ export default function Plants({ embed = false }) {
 
     const {loading: authLoading, err: authErr} = useAuth();
 
-    // Plant Information card
     function PlantInfo({flip, onItemClick}){
 
         return (
-            // <Card className= "card-body scroll-area"
-            <Card
+            <Card className= "card-body scroll-area"
                 variant={variant}
                 header={
                         <div className="mx-auto-flex" >
@@ -64,12 +62,12 @@ export default function Plants({ embed = false }) {
                                     </div>
 
                                     <div className="tile tile--free">
-                                        <div className="tile__title text-muted-500">{p.planttype_name}</div>
+                                        <div className="tile__title title text-muted-500">{p.planttype_name}</div>
                                         <div className="text-muted-500">
                                             <span className="state-status"><PumpStatus/></span>
                                         </div>
                                     </div>
-                                    <i className="tile__chev fa-solid fa-caret-right fa-beat-fade"></i>
+                                    <i className={`tile__chev fa-solid ${dir === "rtl" ? "fa-caret-left" : "fa-caret-right"} fa-beat-fade`} />
                                 </div>
                             )}
                             emptyContent="No plants yet"
@@ -222,20 +220,20 @@ export default function Plants({ embed = false }) {
 
         const OnSubmit = async () => {
             try{
-                if (!window.confirm(`Are you sure you want to delete ${selectedPlant.planttype_name} ? This cannot be undone.`)) return;
+                if (!window.confirm()) return;
                 await remove_plant(selectedPlant.PlantTypeID);
             } catch (err) {}
         };
 
         return (
             <Card variant={variant}>
-                <small className="txt u-center fw-600"> Are you sure you want to delete {selectedPlant.planttype_name}</small>
+                <small className="txt u-center fw-600"> {t("plants.delete_txt")} {selectedPlant.planttype_name}</small>
                 <div className="btn-row">
                     <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>
                         {t("common.cancel")}</FlashButton>
 
                     <FlashButton className="btn btn--danger nudge-r-120 btn--sm" onClickAsync={OnSubmit}>
-                        {t("plants.delete_plant_btn")}</FlashButton>
+                        {t("plants.delete_btn")}</FlashButton>
                 </div>
             </Card>
         );

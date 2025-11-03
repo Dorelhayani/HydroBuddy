@@ -1,14 +1,32 @@
 /* ===== Mod tile ===== */
 
+:root{
+    --status-hot:#fc7474;
+    --status-cold:#74C0FC;
+    --status-ok: #4CAF50;
+    --status-neutral:#1E3050;
+    --status-dry: #FFD43B;
+    --status-wet:#63E6BE;
+    --mod-icon__badge:#eaeaea;
+}
+
+.mod__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #333;
+}
+
 .mod-status__badge{
     position: absolute;
     display: inline-flex;
     align-items: center;
     top: 40px;
-    /*right: -30px;*/
-    inset-inline-end: -30px;
-    gap: 15px;
-    width: 250px;
+    inset-inline-end: 20px;
+    gap: 10px;
+    width: 200px;
     border-radius: 999px;
     background: #2a2a2a;
     border: 1px solid #373737;
@@ -29,7 +47,6 @@
     text-align: start;
     position: absolute;
     display: inline-flex;
-    /*left: 280px;*/
     gap: 4px;
     line-height: 1.2;
 }
@@ -39,7 +56,6 @@
     text-align: start;
     position: absolute;
     list-style: none;
-    /*left: 70px;*/
     top: 10px;
     margin: 4px 0 0;
     padding: 0;
@@ -52,6 +68,42 @@
 .mod-status__events { position: absolute; }
 
 .mod-status__events li{ margin-top: 2px; }
-.mod-status__badge.is-on .mod-status__dot { background: #2ecc71; }
-.mod-status__badge.is-off .mod-status__dot { background: #777 ; }
+.mod-status__badge.on .mod-status__dot { background: #2ecc71; }
+.mod-status__badge.off .mod-status__dot { background: #777 ; }
 .mod-body-canvas{ position: relative; width: 100%; height: 100%; }
+
+
+/* ===== Mod ICON ===== */
+.mod-icon { display:inline-flex; align-items:center; justify-content:center; }
+.mod-icon.is-active   {}
+.mod-icon.is-loading  {}
+.mod-icon.is-disabled {}
+.mod-icon.is-pending  {}
+
+.mod-icon__glyph { font-size: 1.25rem; line-height: 1; }
+
+.status--hot     { color: var(--status-hot); }
+.status--cold    { color: var(--status-cold); }
+.status--ok      { color: var(--status-ok); }
+.status--neutral { color: var(--status-neutral); }
+.status--wet     { color: var(--status-wet); }
+.status--dry     { color: var(--status-dry); }
+
+.mod-icon.is-active { filter: brightness(1.1); }
+.mod-icon { display:inline-flex; align-items:center; justify-content:center; }
+.mod-icon__glyph { font-size: 1.25rem; line-height: 1; }
+
+.mod-icon__badge {
+    position: absolute;
+    display: inline-flex;
+    /*align-items: center;*/
+    top: 25px;
+    inset-inline-end: 115px;
+    /*gap: 10px;*/
+    width: 105px;
+    /*border-radius: 999px;*/
+    /*background: #2a2a2a;*/
+    /*border: 1px solid #373737;*/
+    font-size: 10px;
+    white-space: nowrap;
+}

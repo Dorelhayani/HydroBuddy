@@ -2,24 +2,6 @@
 
 import React from "react";
 
-/** ---- MAPS ---- */
-
-export const MODE_ICON_MAP = {
-    // HydroBuddy
-    "temperature mod": "device_thermostat",
-    "moisture mod":    "opacity",
-    "saturday mod":    "event",
-    "manual mod":      "hand_gesture",
-
-    // לפי tab
-    temperature: "device_thermostat",
-    moisture:    "opacity",
-    saturday:    "event",
-    manual:      "hand_gesture",
-
-    _default: "toggle_on",
-};
-
 export const PLANT_ICON_MAP = {
     tomato: "local_florist",
     basil: "spa",
@@ -43,22 +25,10 @@ export const PLANT_ICON_MAP = {
 
 const norm = (s="") => String(s).trim().toLowerCase();
 
-export function iconName({ name="", tab="", kind } = {}) {
+export function iconName({ name="", tab="" } = {}) {
     const k1 = norm(name);
     const k2 = norm(tab);
-
-    if (kind === "mode") {
-        return MODE_ICON_MAP[k1] || MODE_ICON_MAP[k2] || MODE_ICON_MAP._default;
-    }
-    if (kind === "plant") {
-        return PLANT_ICON_MAP[k1] || PLANT_ICON_MAP[k2] || PLANT_ICON_MAP._default;
-    }
-
-    return (
-        PLANT_ICON_MAP[k1] || PLANT_ICON_MAP[k2] ||
-        MODE_ICON_MAP[k1]  || MODE_ICON_MAP[k2]  ||
-        PLANT_ICON_MAP._default || MODE_ICON_MAP._default || "help"
-    );
+    return ( PLANT_ICON_MAP[k1] || PLANT_ICON_MAP[k2] || PLANT_ICON_MAP._default || "help" );
 }
 
 export default function Icon({

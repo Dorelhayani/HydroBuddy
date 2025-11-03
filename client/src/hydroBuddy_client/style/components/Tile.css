@@ -88,33 +88,27 @@
 /* === RTL overrides for Tiles === */
 html[dir="rtl"] .tile__title {
     left: auto;
-    right: 60px;           /* מה שהיה left:60px */
+    right: 60px;
     text-align: right;
 }
 
 html[dir="rtl"] .state-status {
     left: auto;
-    right: 100px;          /* מה שהיה left:100px */
+    right: 100px;
     text-align: right;
 }
 
 html[dir="rtl"] .tile__chev {
     right: auto;
-    left: 5%;              /* מעבירים לצד השני */
-    transform: scaleX(-1); /* הופך את החץ (אם זה caret-right) */
+    left: 5%;
+    transform: scaleX(-1);
 }
 
-/* tile--free ממוקם ע"י top+left. ב-RTL נעדיף לעגון מימין */
 html[dir="rtl"] .tile--free {
     left: auto;
-    right: var(--tile-left, 0); /* משתמש באותה משתנה לטובה */
-    /* אם יש לך הזחות ע"י --tile-x, נהפוך את הכיוון האופקי */
+    right: var(--tile-left, 0);
     transform: translate(calc(var(--tile-x, 0) * -1), var(--tile-y, 0));
 }
-
-/* אם יש עיגון אבסולוטי כללי של טקסטים/תגיות נוספות, אפשר להפוך גם אותן:
-html[dir="rtl"] .some-abs-pos { left:auto; right:Xpx; text-align:right; }
-*/
 
 
 .nudge-l-8  { --tile-x: -8px; }

@@ -47,6 +47,7 @@
     "update_title": "עדכון צמח", "update_label": "עדכן/ני צמח", "update_btn": "עדכן/י",
 
     "delete_plant": "מחיקת צמח", "delete_btn": "מחק",
+    "delete_txt": "האם את/ה בטוח שאת/ה רוצה למחוק את",
 
     "pump": "משאבה", "on": "דולקת", "off": "כבויה"
   },
@@ -55,16 +56,28 @@
     "title": "משאבה ומצבים",
     "update": "עדכן",
 
-    "temp_title": "מצב טמפרטורה", "temp_label": "טמפרטורה", "tempLVL_label": "סף טמפרטורה", "minTime_label":"קבע/י זמן מינימלי",
+    "temp_title": "טמפרטורה", "temp_label": "טמפרטורה", "tempLVL_label": "סף טמפרטורה", "minTime_label":"קבע/י זמן מינימלי",
     "maxTime_label": "קבע/י זמן מקסימלי", "light_label":"אור", "lightThresHold_label": "הגדר/י את סף האור",
     "minLight_label":"קבע/י סף-אור מינימלי", "maxLight_label":"קבע/י סף-אור מקסימלי",
 
-    "moisture_title": "מצב לחות", "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
+    "moisture_title": "לחות", "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
     "minMoisture_label": "קבע/י סף-לחות מינימלי", "maxMoisture_label":"קבע/י סף-לחות מקסימלי",
 
-    "saturday_title": "מצב שבת", "date_label": "תאריך הפעלה", "time_label":"זמן הפעלה", "duration_label": "משך (בדקות)",
+    "saturday_title": "שבת", "date_label": "תאריך הפעלה", "time_label":"זמן הפעלה", "duration_label": "משך (בדקות)",
 
-    "manual_title": "מצב ידני", "pump_enabled": "הפעלת משאבה", "enabled": "מופעל", "disabled": "כבוי",
+    "manual_title": "ידני", "pump_enabled": "הפעלת משאבה", "enabled": "מופעל", "disabled": "כבוי",
     "saved": "נשמר בהצלחה", "active": "פעיל", "inactive": "לא פעיל"
+  },
+
+  "mod_status": {
+    "loading": "טוען...", "disabled": "מושבת !", "pending": "מצב בהמתנה", "missing": "מצב חסר",
+
+    "temp_ok": "טמפרטורה בתקן", "hot": "מזג-אויר חם", "cold": "מזג-אויר קר",
+
+    "moist_ok": "לחות בתקן", "wet": "אדמה לחה", "dry": "אדמה יבשה",
+
+    "running": "בריצה", "scheduled": "מתוזמן ל: ", "idle": "סרק",
+
+    "on": "פועל", "off": "כבוי"
   }
 }

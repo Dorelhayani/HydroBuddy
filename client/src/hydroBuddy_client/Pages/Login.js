@@ -15,12 +15,11 @@ import RequestBanner from "../components/RequestBanner";
 export default function Login({ embed = false }) {
     const {t} = useT();
     const nav = useNavigate();
-    const { variant, flashSuccess, flashDanger } = useBorderFlash();
+    const [flipped, setFlipped] = useState(false);
 
     const {register} = useReg();
+    const { variant, flashSuccess, flashDanger } = useBorderFlash();
     const { login, loading: authLoading, err: authErr } = useAuth();
-    const [flipped, setFlipped] = useState(false);
-    const [activeTab, setActiveTab] = useState("register");
 
     function Log({flip}) {
         const fields = [
@@ -102,7 +101,7 @@ export default function Login({ embed = false }) {
                 await register({ name: val.name.trim(), email: String(val.email),
                     password: String(val.password), passwordConfirm: String(val.passwordConfirm) });
                 flashSuccess(1400);
-                setTimeout(() => setActiveTab("/"), 600);
+                setTimeout(() => nav("/"), 600);
             } catch (err) {
                 flashDanger(2000);
                 throw new Error(err.message || "Register failed");
@@ -150,12 +149,8 @@ export default function Login({ embed = false }) {
         );
     }
 
-    const front = ({ flip }) => ( <> <Log flip={() => {setActiveTab("login");  if (!flipped) flip(); }} /> </>);
-    const back = ({ unflip }) => ( <Register
-        variant={variant} unflip={() => {
-            setActiveTab("register");
-            if (flipped) unflip(); }}/> )
-
+    const front = ({ flip }) => ( <> <Log flip={() => {if (!flipped) flip();}} /> </>);
+    const back = ({ unflip }) => ( <Register variant={variant} unflip={() => { if (flipped) unflip(); }}/> )
     const content =
         <div>
             <FlipCard
@@ -164,13 +159,8 @@ export default function Login({ embed = false }) {
                 flippable
                 isFlipped={flipped}
                 onFlip={setFlipped}
-                autoHeight
             />
         </div>
 
-    return embed ? content : (
-        <div>
-            {content}
-        </div>
-    );
+    return embed ? content : ( <div> {content} </div> );
 }

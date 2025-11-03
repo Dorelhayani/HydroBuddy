@@ -9,14 +9,11 @@ import Login from "../Pages/Login";
 import Account from "../Pages/Account";
 import FlashButton from "../components/ButtonGenerate";
 
-import {useT} from "../../local/useT";
 import {LocaleProvider } from "../../local/LocaleProvider";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function Layout() {
-    // const {t} = useT();
     const location = useLocation();
-
     const isLoginPage = location.pathname === "/";
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -25,22 +22,20 @@ function Layout() {
         <div className="app-root layout-wrapper">
             <header className="site-header">
                 <div className="header-inner">
-                    {/*<LanguageSwitcher compact />*/}
                     {!isLoginPage && (
                         <div className="header-actions">
                             <FlashButton
                                 className="btn--transparent btn--sm"
                                 onClick={() => setSidebarCollapsed((s) => !s)}
                                 title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
-                                { sidebarCollapsed ? <i className="fa-solid fa-left-long fa-beat fa-lg"/> :
-                                    <i className="fa-solid fa-right-long fa-beat fa-lg"/> }
+                                { sidebarCollapsed ? <i className="fa-solid fa-right-long fa-beat fa-lg"/> :
+                                    <i className="fa-solid fa-left-long fa-beat fa-lg"/> }
                             </FlashButton>
                         </div>
                     )}
                     <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}/>
                     <div className="brand">HydroBuddy</div>
-                    <LanguageSwitcher compact />
-
+                    <LanguageSwitcher compact/>
                 </div>
             </header>
 

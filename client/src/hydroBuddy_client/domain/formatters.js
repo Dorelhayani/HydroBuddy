@@ -8,6 +8,7 @@ export function validateClient(p) {
     return dateOk && timeOk && durOk;
 }
 
+// saturday mod
 export function toInputDate(ddmmyyyy) {
     if (!ddmmyyyy) return "";
     const [d, m, y] = ddmmyyyy.split("/");
@@ -22,7 +23,7 @@ export function toServerDate(yyyy_mm_dd) {
     return `${d.padStart(2,"0")}/${m.padStart(2,"0")}/${y}`;
 }
 
-
+// account - joined at
 export function formatDateDDMMYYYY(value) {
     if (!value) return "";
     const d = new Date(value);

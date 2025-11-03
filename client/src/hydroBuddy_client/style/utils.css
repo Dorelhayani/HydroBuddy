@@ -185,10 +185,6 @@
 .me-auto { margin-inline-end:   auto; }  /* דוחף שמאלה (LTR) / ימינה (RTL) */
 .mx-auto-flex { margin-inline: auto; }   /* מרכז בתוך Flex row */
 
-/*.btn--left   { display:block; margin-inline-end:  auto; }*/
-/*.btn--right  { display:block; margin-inline-start:auto; }*/
-/*.btn--center { display:block; margin-inline:      auto; }*/
-
 .btn--left  { right: 300%; }
 .btn--right { left: 300%; }
 .btn--center { left: auto; right: auto ; }
@@ -205,6 +201,7 @@
 .nudge-r-120 { margin-inline-start: 120px; }
 .nudge-r-150 { margin-inline-start: 150px; }
 .nudge-r-230 { margin-inline-start: 230px; }
+.nudge-r-800 { margin-inline-start: 800px; }
 
 /* small adjustment */
 .nudge-l-8  { margin-inline-end: 8px;  }

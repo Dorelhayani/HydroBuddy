@@ -33,7 +33,7 @@
     "Change_Password": "Change Password", "Your_current_Password": "Your current Password", "New_password": "New password",
     "Confirm_New_Password":"Confirm New Password",
 
-    "Log_Out": "Log Out", "Already_Leave":"Already Leave",
+    "Log_Out": "Logout", "Already_Leave":"Already Leave ?",
 
     "Delete_Account": "Delete Account", "delete_txt": "This action is permanent. All your plants and data may be removed."
   },
@@ -46,6 +46,7 @@
     "update_title": "Update Plant", "update_label": "Update Your Plant", "update_btn": "Update",
 
     "delete_plant": "Delete Plant", "delete_btn": "Delete",
+    "delete_txt": "Are you sure you want to delete",
 
     "pump": "Pump", "on": "ON", "off": "OFF"
   },
@@ -67,5 +68,20 @@
     "manual_title": "Manual", "pump_enabled": "Pump enabled", "enabled": "Enabled", "disabled": "Disabled",
 
     "saved": "Saved successfully", "active": "Active", "inactive": "Inactive"
+
+
+  },
+
+  "mod_status": {
+    "loading": "Loading...", "disabled": "Disabled !",
+    "pending": "Status pending", "missing": "Status missing",
+
+    "temp_ok": "Standard Temperature", "hot": "Hot temperature", "cold": "Cold temperature",
+
+    "moist_ok": "Standard humidity", "wet": "Moisture soil", "dry": "Dry soil",
+
+    "running": "Running", "scheduled": "Scheduled to: ", "idle": "Idle",
+
+    "on": "ON", "off": "OFF"
   }
 }
