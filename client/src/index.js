@@ -1,6 +1,8 @@
+import './hydroBuddy_client/shared/styles/index.css'
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './hydroBuddy_client/style/index.css'
+
 import Root from "./root";
 // import reportWebVitals from './reportWebVitals';
 

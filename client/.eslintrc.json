@@ -1,0 +1,56 @@
+{
+  "root": true,
+  "env": { "browser": true, "es2022": true, "node": true },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": { "jsx": true }
+  },
+  "settings": { "react": { "version": "detect" } },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "prettier"
+  ],
+  "plugins": ["react", "react-hooks", "import", "simple-import-sort"],
+  "rules": {
+    /* imports */
+    "no-duplicate-imports": "error",
+    "import/no-duplicates": "error",
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+
+    /* React 17+/19: אין צורך ב-React scope */
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-uses-react": "off",
+
+    /* PropTypes – מכבים כדי לא לחייב הגדרות בכל רכיב */
+    "react/prop-types": "off",
+
+    /* Hooks – נשאיר כללים חשובים, נרכך את הרועשים */
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+
+    /* כללי React Compiler רועשים – נוריד כרגע */
+    "react-hooks/static-components": "off",
+    "react-hooks/set-state-in-effect": "warn",
+    "react-hooks/preserve-manual-memoization": "warn",
+
+    /* כללי רעש כלליים */
+    "no-empty": ["warn", { "allowEmptyCatch": true }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "ignoreRestSiblings": true }],
+
+    /* למנוע false-positives על חבילות חיצוניות */
+    "import/named": "off",
+    "import/default": "off",
+    "import/namespace": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.js", "**/*.spec.js"],
+      "env": { "jest": true }
+    }
+  ]
+}
