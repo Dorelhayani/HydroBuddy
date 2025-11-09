@@ -81,28 +81,18 @@ class EspData {
         const docStr = JSON.stringify(merged || {});
         const pumpOn = !!(merged?.pump?.on);
 
-        info('ESP', '_persistStateToDb: about to write', {
-            deviceId: idValue, pumpOn, docLen: docStr.length
-        });
+        info('ESP', '_persistStateToDb: about to write', { deviceId: idValue, pumpOn, docLen: docStr.length });
 
         try {
             const [upd] = await this.DB.execute(
-                `UPDATE esp_device_state
-         SET doc = ?, pump_status = ?, pump_status_updatedAt = NOW()
-       WHERE device_id = ?`,
-                [docStr, pumpOn ? 1 : 0, idValue]
-            );
-            info('ESP', '_persistStateToDb: update result', {
-                deviceId: idValue, affectedRows: upd.affectedRows
-            });
+                `UPDATE esp_device_state SET doc = ?, pump_status = ?, pump_status_updatedAt = NOW()
+                WHERE device_id = ?`, [docStr, pumpOn ? 1 : 0, idValue] );
+            info('ESP', '_persistStateToDb: update result', { deviceId: idValue, affectedRows: upd.affectedRows });
 
             if (!upd.affectedRows) {
                 const [ins] = await this.DB.execute(
-                    `INSERT INTO esp_device_state
-           (device_id, doc, pump_status, pump_status_updatedAt, updated_at)
-         VALUES (?, ?, ?, NOW(), NOW())`,
-                    [idValue, docStr, pumpOn ? 1 : 0]
-                );
+                    `INSERT INTO esp_device_state (device_id, doc, pump_status, pump_status_updatedAt, updated_at)
+                    VALUES (?, ?, ?, NOW(), NOW())`, [idValue, docStr, pumpOn ? 1 : 0] );
                 info('ESP', '_persistStateToDb: insert result', {
                     deviceId: idValue, insertId: ins.insertId, affectedRows: ins.affectedRows
                 });

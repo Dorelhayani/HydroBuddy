@@ -11,23 +11,16 @@ class DeviceStore {
     async read({ deviceId }) {
         if (!deviceId) return null;
         const [rows] = await this.DB.execute(
-            `SELECT doc
-       FROM esp_device_state
-      WHERE device_id = ?
-      ORDER BY updated_at DESC
-      LIMIT 1`,
-            [deviceId]
-        );
+            `SELECT doc FROM esp_device_state WHERE device_id = ? ORDER BY updated_at DESC LIMIT 1`, [deviceId] );
         if (!rows.length) return null;
 
         let doc = rows[0].doc;
 
-        // דרייברים שונים → טיפוסים שונים
         try {
             if (typeof doc === 'string') return JSON.parse(doc);
             if (Buffer.isBuffer(doc))   return JSON.parse(doc.toString('utf8'));
-            if (doc && typeof doc === 'object') return doc; // כבר אובייקט JS תקין
-            return null; // מקרה קצה
+            if (doc && typeof doc === 'object') return doc;
+            return null;
         } catch {
             return null;
         }
@@ -37,18 +30,11 @@ class DeviceStore {
         if (!deviceId) throw new Error('Missing deviceId');
         const json = JSON.stringify(obj ?? {});
         await this.DB.execute(
-            `INSERT INTO esp_device_state (device_id, doc)
-     VALUES (?, CAST(? AS JSON))
-     ON DUPLICATE KEY UPDATE
-       doc = VALUES(doc),
-       updated_at = CURRENT_TIMESTAMP`,
-            [deviceId, json]
-        );
+            `INSERT INTO esp_device_state (device_id, doc) VALUES (?, CAST(? AS JSON)) ON DUPLICATE KEY UPDATE
+       doc = VALUES(doc), updated_at = CURRENT_TIMESTAMP`, [deviceId, json] );
         return true;
     }
 }
-
-
 
 class DeviceModel {
     constructor(db, options = {}) {
@@ -67,9 +53,7 @@ class DeviceModel {
         try {
             const [res] = await this.DB.execute(
                 `INSERT INTO devices (device_uid, device_key, name, user_id, created_at)
-         VALUES (?, ?, ?, ?, NOW())`,
-                [device_uid, hash, name || null, user_id]
-            );
+         VALUES (?, ?, ?, ?, NOW())`, [device_uid, hash, name || null, user_id] );
             return { id: res.insertId, device_uid, user_id };
         } catch (e) {
             if (e && e.code === 'ER_DUP_ENTRY') {
@@ -91,13 +75,8 @@ class DeviceModel {
 
     async getDeviceByUserId(user_id) {
         const [rows] = await this.DB.execute(
-            `SELECT id, device_uid, device_key, name, user_id
-       FROM devices
-       WHERE user_id = ?
-       ORDER BY id DESC
-       LIMIT 1`,
-            [user_id]
-        );
+            `SELECT id, device_uid, device_key, name, user_id FROM devices WHERE user_id = ? ORDER BY id DESC
+       LIMIT 1`, [user_id] );
         return rows?.[0] || null;
     }
 
@@ -117,9 +96,7 @@ class DeviceModel {
 
     async assignDeviceToUser(device_uid, user_id) {
         const [res] = await this.DB.execute(
-            `UPDATE devices SET user_id = ? WHERE device_uid = ?`,
-            [user_id, device_uid]
-        );
+            `UPDATE devices SET user_id = ? WHERE device_uid = ?`, [user_id, device_uid] );
         if (!res.affectedRows) {
             const e = new Error('Device not found');
             e.code = 404;

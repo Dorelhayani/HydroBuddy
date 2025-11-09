@@ -77,6 +77,8 @@ router.patch('/moisture', espPerUser, async (req, res) => {
 router.patch('/saturday', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.SaturdayMode(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
@@ -85,17 +87,22 @@ router.patch('/saturday', espPerUser, async (req, res) => {
 router.patch('/manual', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.ManualMode(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
+
 
 router.patch('/pump-stts', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.PumpState(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
+
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
-
 
 router.patch('/temp-config', espPerUser, async (req, res) => {
     try {

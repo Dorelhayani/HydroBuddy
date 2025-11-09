@@ -1,7 +1,7 @@
 /* ===== deviceOrUserAuth.js ===== */
 
 const bcrypt = require('bcryptjs');
-const { info, warn, error } = require('../utils/logger');
+const { info, warn } = require('../utils/logger');
 
 module.exports = function deviceOrUserAuthFactory({ db, auth }) {
     return async function deviceOrUserAuth(req, res, next) {
@@ -19,7 +19,6 @@ module.exports = function deviceOrUserAuthFactory({ db, auth }) {
                     if (rows && rows.length) {
                         const dev = rows[0];
                         const ok = await bcrypt.compare(devKey, dev.device_key);
-                        // if (!ok) return res.status(401).json({ error: 'Invalid device credentials' });
 
                         if (!ok) { warn('AUTH','bad device key',{ devId }, req.reqId);  }
                         else { info('AUTH','fall back to user cookie', {}, req.reqId); }
@@ -46,7 +45,6 @@ module.exports = function deviceOrUserAuthFactory({ db, auth }) {
                 }
             }
 
-            // אחרת — ענף משתמש (Cookie)
             req.authType = 'user';
             return auth.isLogged(req, res, next);
         } catch (err) {
