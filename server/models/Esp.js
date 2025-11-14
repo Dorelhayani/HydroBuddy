@@ -17,8 +17,8 @@ class EspData {
         warn('ESP', '_readJson(): no doc, creating default', { ids: this.ids });
         const init = {
             state: 61,
-            TEMP_MODE: { temp: 0, tempLVL: 0, minTime: 0, maxTime: 0, light: 0, lightThresHold: 0, minLight: 0, maxLight: 0 },
-            SOIL_MOISTURE_MODE: { minMoisture: 0, maxMoisture: 0, moistureLVL: 0, moisture: 0 },
+            TEMP_MODE: { temp: 0, light: 0, tempTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0, daylightOnly: false, lightGate: 0 },
+            SOIL_MOISTURE_MODE: { moisture: 0, light: 0, moistureTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0, daylightOnly: false, lightGate: 0 },
             SATURDAY_MODE: { dateAct: "", timeAct: "", duration: 0 },
             MANUAL_MODE: { enabled: false },
             pump: { on: false, updatedAt: null },
@@ -113,7 +113,6 @@ class EspData {
     }
 
     // --- שליטה כללית ---
-
     async getState() {
         const data = await this._readJson();
         if (!data.pump) data.pump = { on: false, updatedAt: null }
@@ -124,7 +123,6 @@ class EspData {
                 const [rows] = await this.DB.execute(`SELECT pump_status, pump_status_updatedAt FROM esp_device_state
                 WHERE device_id = ? LIMIT 1`, [idValue]);
                 if (rows?.length) {
-                    const r = rows[0];
                     data.pump = {
                         on: rows[0].pump_status === 1,
                         updatedAt: rows[0].pump_status_updatedAt || data.pump.updatedAt || null,
@@ -163,55 +161,124 @@ class EspData {
 
     // --- מצבי הפעלה ---
     async TemperatureMode(payload) {
-        const tempLVL        = this._ensureFiniteNumber(payload?.tempLVL, 'tempLVL');
-        const minTime        = this._ensureFiniteNumber(payload?.minTime, 'minTime');
-        const maxTime        = this._ensureFiniteNumber(payload?.maxTime, 'maxTime');
-        const lightThresHold = this._ensureFiniteNumber(payload?.lightThresHold, 'lightThresHold');
-        const minLight       = this._ensureFiniteNumber(payload?.minLight, 'minLight');
-        const maxLight       = this._ensureFiniteNumber(payload?.maxLight, 'maxLight');
-
-        if (![minTime, maxTime, lightThresHold, minLight, maxLight].every(Number.isInteger)) {
-            warn('VALIDATION', 'Temperature mode numeric values must be integers', {
-                minTime, maxTime, lightThresHold, minLight, maxLight
-            });
-            const err = new Error('Temperature mode numeric values must be integers');
-            err.code = 400;
-            throw err;
-        }
-
         const data = await this._readJson();
+        const prev = data.TEMP_MODE || {};
+
+        const tempTarget = payload?.tempTarget ?? prev.tempTarget   ?? 26.0;
+        const hysteresis = payload?.hysteresis ?? prev.hysteresis   ?? 1.0;
+        const runMin = payload?.runMin ?? prev.runMin       ?? 3;
+        const cooldown = payload?.cooldown ?? prev.cooldown     ?? 15;
+        const daylightOnly = payload?.daylightOnly ?? prev.daylightOnly ?? false;
+        const lightGate = payload?.lightGate ?? prev.lightGate    ?? 30;
+
+        if (!Number.isFinite(Number(tempTarget))) { const e = new Error('Invalid tempTarget'); e.code=400; throw e; }
+        if (!Number.isFinite(Number(hysteresis))) { const e = new Error('Invalid hysteresis'); e.code=400; throw e; }
+
+        const runMinInt = Number.parseInt(runMin, 10);
+        const cooldownInt = Number.parseInt(cooldown, 10);
+        const lightGateInt = Number.parseInt(lightGate, 10);
+
+        if (!Number.isInteger(runMinInt) || runMinInt < 0)
+        { const e=new Error('Invalid runMin');   e.code=400; throw e; }
+
+        if (!Number.isInteger(cooldownInt) || cooldownInt < 0)
+        { const e=new Error('Invalid cooldown'); e.code=400; throw e; }
+
+        if (!Number.isInteger(lightGateInt)|| lightGateInt<0 || lightGateInt>100)
+        { const e=new Error('Invalid lightGate'); e.code=400; throw e; }
+
+        const daylightBool =
+            (daylightOnly === true || daylightOnly === 'true' || daylightOnly === 1 || daylightOnly === '1') ? true
+                : (daylightOnly === false || daylightOnly === 'false' || daylightOnly === 0 || daylightOnly === '0')
+                    ? false : (()=>{ const e=new Error('Invalid daylightOnly'); e.code=400; throw e; })();
+
         data.TEMP_MODE = {
-            ...(data.TEMP_MODE || {}),
-            tempLVL, minTime, maxTime, lightThresHold, minLight, maxLight
+            temp:  Number(prev.temp ?? 0),
+            light: Number(prev.light ?? 0),
+            tempTarget: Number(tempTarget),
+            hysteresis: Number(hysteresis),
+            runMin: runMinInt,
+            cooldown: cooldownInt,
+            daylightOnly: daylightBool,
+            lightGate: lightGateInt
         };
         await this._writeJson({ TEMP_MODE: data.TEMP_MODE });
         info('ESP', 'TEMP_MODE config updated', { deviceId: this.ids.deviceId });
         return { TEMP_MODE: data.TEMP_MODE };
     }
 
+
+    // async MoistureMode(payload) {
+    //     const moistureLVL = this._ensureFiniteNumber(payload?.moistureLVL, 'moistureLVL');
+    //     const minMoisture = this._ensureFiniteNumber(payload?.minMoisture, 'minMoisture');
+    //     const maxMoisture = this._ensureFiniteNumber(payload?.maxMoisture, 'maxMoisture');
+    //
+    //     if (![moistureLVL, minMoisture, maxMoisture].every(Number.isInteger)) {
+    //         warn('VALIDATION', 'Moisture mode numeric values must be integers', {
+    //             moistureLVL, minMoisture, maxMoisture
+    //         });
+    //         const err = new Error('Moisture mode numeric values must be integers');
+    //         err.code = 400;
+    //         throw err;
+    //     }
+    //
+    //     const data = await this._readJson();
+    //     data.SOIL_MOISTURE_MODE = {
+    //         ...(data.SOIL_MOISTURE_MODE || {}),
+    //         moistureLVL, minMoisture, maxMoisture
+    //     };
+    //     await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
+    //     info('ESP', 'SOIL_MOISTURE_MODE config updated', { deviceId: this.ids.deviceId });
+    //     return { SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
+    // }
+
     async MoistureMode(payload) {
-        const moistureLVL = this._ensureFiniteNumber(payload?.moistureLVL, 'moistureLVL');
-        const minMoisture = this._ensureFiniteNumber(payload?.minMoisture, 'minMoisture');
-        const maxMoisture = this._ensureFiniteNumber(payload?.maxMoisture, 'maxMoisture');
-
-        if (![moistureLVL, minMoisture, maxMoisture].every(Number.isInteger)) {
-            warn('VALIDATION', 'Moisture mode numeric values must be integers', {
-                moistureLVL, minMoisture, maxMoisture
-            });
-            const err = new Error('Moisture mode numeric values must be integers');
-            err.code = 400;
-            throw err;
-        }
-
         const data = await this._readJson();
+        const prev = data.SOIL_MOISTURE_MODE || {};
+
+        const moistureTarget = payload?.moistureTarget ?? prev.moistureTarget   ?? 26.0;
+        const hysteresis = payload?.hysteresis ?? prev.hysteresis   ?? 1.0;
+        const runMin = payload?.runMin ?? prev.runMin       ?? 3;
+        const cooldown = payload?.cooldown ?? prev.cooldown     ?? 15;
+        const daylightOnly = payload?.daylightOnly ?? prev.daylightOnly ?? false;
+        const lightGate = payload?.lightGate ?? prev.lightGate    ?? 30;
+
+        if (!Number.isFinite(Number(moistureTarget))) { const e = new Error('Invalid moistureTarget'); e.code=400; throw e; }
+        if (!Number.isFinite(Number(hysteresis))) { const e = new Error('Invalid hysteresis'); e.code=400; throw e; }
+
+        const runMinInt = Number.parseInt(runMin, 10);
+        const cooldownInt = Number.parseInt(cooldown, 10);
+        const lightGateInt = Number.parseInt(lightGate, 10);
+
+        if (!Number.isInteger(runMinInt) || runMinInt < 0)
+        { const e=new Error('Invalid runMin');   e.code=400; throw e; }
+
+        if (!Number.isInteger(cooldownInt) || cooldownInt < 0)
+        { const e=new Error('Invalid cooldown'); e.code=400; throw e; }
+
+        if (!Number.isInteger(lightGateInt)|| lightGateInt<0 || lightGateInt>100)
+        { const e=new Error('Invalid lightGate'); e.code=400; throw e; }
+
+        const daylightBool =
+            (daylightOnly === true || daylightOnly === 'true' || daylightOnly === 1 || daylightOnly === '1') ? true
+                : (daylightOnly === false || daylightOnly === 'false' || daylightOnly === 0 || daylightOnly === '0')
+                    ? false : (()=>{ const e=new Error('Invalid daylightOnly'); e.code=400; throw e; })();
+
         data.SOIL_MOISTURE_MODE = {
-            ...(data.SOIL_MOISTURE_MODE || {}),
-            moistureLVL, minMoisture, maxMoisture
+            moisture:  Number(prev.moisture ?? 0),
+            light: Number(prev.light ?? 0),
+            moistureTarget: Number(moistureTarget),
+            hysteresis: Number(hysteresis),
+            runMin: runMinInt,
+            cooldown: cooldownInt,
+            daylightOnly: daylightBool,
+            lightGate: lightGateInt
         };
         await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
         info('ESP', 'SOIL_MOISTURE_MODE config updated', { deviceId: this.ids.deviceId });
         return { SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
     }
+
 
     async SaturdayMode(payload) {
         const duration = this._ensureFiniteNumber(payload?.duration, 'duration');
@@ -259,7 +326,6 @@ class EspData {
         const merged = await this._writeJson(patch);
 
         info('ESP','pump status updated (int)', { incoming: payload, st, on, deviceId: this.ids.deviceId });
-
         return { pump: merged.pump };
     }
 

@@ -53,9 +53,12 @@ router.patch('/state', espPerUser, async (req, res) => {
 router.patch('/pump', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.setPumpStatus(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
+
 
 // קונפיג טמפ׳/אור
 router.patch('/temp', espPerUser, async (req, res) => {
@@ -65,10 +68,26 @@ router.patch('/temp', espPerUser, async (req, res) => {
     } catch (err) { return handleError(res, err); }
 });
 
+// router.patch('/temp', espPerUser, async (req, res) => {
+//     const result = await req.esp.TemperatureMode(req.body);
+//     const currentState = await req.esp.getState();
+//     broadcastSensorUpdate(currentState);
+//     return res.status(200).json(result);
+// });
+
 // קונפיג לחות
+// router.patch('/moisture', espPerUser, async (req, res) => {
+//     try {
+//         const result = await req.esp.MoistureMode(req.body);
+//         return res.status(200).json(result);
+//     } catch (err) { return handleError(res, err); }
+// });
+
 router.patch('/moisture', espPerUser, async (req, res) => {
     try {
         const result = await req.esp.MoistureMode(req.body);
+        const currentState = await req.esp.getState();
+        broadcastSensorUpdate(currentState);
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });

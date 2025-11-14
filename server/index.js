@@ -85,9 +85,7 @@ app.use('/devices', deviceRouter);
 
 // טיפול במקרה קצה
 app.use((req, _res, next) => {
-    if (typeof req.body === 'string') {
-        try { req.body = JSON.parse(req.body); } catch (_) {}
-    }
+    if (typeof req.body === 'string') { try { req.body = JSON.parse(req.body); } catch (_) {} }
     next();
 });
 
