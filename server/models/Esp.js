@@ -207,41 +207,16 @@ class EspData {
         return { TEMP_MODE: data.TEMP_MODE };
     }
 
-
-    // async MoistureMode(payload) {
-    //     const moistureLVL = this._ensureFiniteNumber(payload?.moistureLVL, 'moistureLVL');
-    //     const minMoisture = this._ensureFiniteNumber(payload?.minMoisture, 'minMoisture');
-    //     const maxMoisture = this._ensureFiniteNumber(payload?.maxMoisture, 'maxMoisture');
-    //
-    //     if (![moistureLVL, minMoisture, maxMoisture].every(Number.isInteger)) {
-    //         warn('VALIDATION', 'Moisture mode numeric values must be integers', {
-    //             moistureLVL, minMoisture, maxMoisture
-    //         });
-    //         const err = new Error('Moisture mode numeric values must be integers');
-    //         err.code = 400;
-    //         throw err;
-    //     }
-    //
-    //     const data = await this._readJson();
-    //     data.SOIL_MOISTURE_MODE = {
-    //         ...(data.SOIL_MOISTURE_MODE || {}),
-    //         moistureLVL, minMoisture, maxMoisture
-    //     };
-    //     await this._writeJson({ SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE });
-    //     info('ESP', 'SOIL_MOISTURE_MODE config updated', { deviceId: this.ids.deviceId });
-    //     return { SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
-    // }
-
     async MoistureMode(payload) {
         const data = await this._readJson();
         const prev = data.SOIL_MOISTURE_MODE || {};
 
-        const moistureTarget = payload?.moistureTarget ?? prev.moistureTarget   ?? 26.0;
-        const hysteresis = payload?.hysteresis ?? prev.hysteresis   ?? 1.0;
-        const runMin = payload?.runMin ?? prev.runMin       ?? 3;
-        const cooldown = payload?.cooldown ?? prev.cooldown     ?? 15;
+        const moistureTarget = payload?.moistureTarget ?? prev.moistureTarget ?? 26.0;
+        const hysteresis = payload?.hysteresis ?? prev.hysteresis ?? 1.0;
+        const runMin = payload?.runMin ?? prev.runMin ?? 3;
+        const cooldown = payload?.cooldown ?? prev.cooldown ?? 15;
         const daylightOnly = payload?.daylightOnly ?? prev.daylightOnly ?? false;
-        const lightGate = payload?.lightGate ?? prev.lightGate    ?? 30;
+        const lightGate = payload?.lightGate ?? prev.lightGate ?? 30;
 
         if (!Number.isFinite(Number(moistureTarget))) { const e = new Error('Invalid moistureTarget'); e.code=400; throw e; }
         if (!Number.isFinite(Number(hysteresis))) { const e = new Error('Invalid hysteresis'); e.code=400; throw e; }
@@ -251,7 +226,7 @@ class EspData {
         const lightGateInt = Number.parseInt(lightGate, 10);
 
         if (!Number.isInteger(runMinInt) || runMinInt < 0)
-        { const e=new Error('Invalid runMin');   e.code=400; throw e; }
+        { const e=new Error('Invalid runMin'); e.code=400; throw e; }
 
         if (!Number.isInteger(cooldownInt) || cooldownInt < 0)
         { const e=new Error('Invalid cooldown'); e.code=400; throw e; }
@@ -265,7 +240,7 @@ class EspData {
                     ? false : (()=>{ const e=new Error('Invalid daylightOnly'); e.code=400; throw e; })();
 
         data.SOIL_MOISTURE_MODE = {
-            moisture:  Number(prev.moisture ?? 0),
+            moisture: Number(prev.moisture ?? 0),
             light: Number(prev.light ?? 0),
             moistureTarget: Number(moistureTarget),
             hysteresis: Number(hysteresis),
@@ -278,7 +253,6 @@ class EspData {
         info('ESP', 'SOIL_MOISTURE_MODE config updated', { deviceId: this.ids.deviceId });
         return { SOIL_MOISTURE_MODE: data.SOIL_MOISTURE_MODE };
     }
-
 
     async SaturdayMode(payload) {
         const duration = this._ensureFiniteNumber(payload?.duration, 'duration');

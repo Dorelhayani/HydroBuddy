@@ -39,23 +39,21 @@ router.get("/plantList", async (req, res) => {
     }
 });
 
-
 router.post('/StoreToDatasensors', async (req, res) => {
     try {
         const userId = req.user_id || req.device?.user_id;
         if (!userId) return res.status(401).json({ error: 'Not authenticated' });
 
-        const { temp, light, moisture, isPumpON } = req.body;
+        const { temp, light, moisture } = req.body;
         const t = Number(temp);
         const l = Number(light);
         const m = Number(moisture);
-        const running = isPumpON ? 1 : 0;
 
         if (![t, l, m].every(Number.isFinite)) {
             return res.status(400).json({ error: 'Invalid sensor values' });
         }
 
-        const result = await Plants.storeESPData(userId, t, l, m, running);
+        const result = await Plants.storeESPData(userId, t, l, m);
         return res.status(200).json(result);
     } catch (err) {
         return handleError(res, err);
