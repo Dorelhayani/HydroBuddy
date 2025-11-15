@@ -1,11 +1,22 @@
 /* ===== ModStatus.js ===== */
 
-import {useT} from "../../../../local/useT";
+import { useT } from "../../../../local/useT";
 import decideModeState from "./ModeState";
 
-export default function ModStatus({meta, modeId, readings, thresholds, flags, isActive,
-                                      txt, temp, light, moist, className = ""  }) {
-    const {t} = useT();
+export default function ModStatus({
+                                      meta,
+                                      modeId,
+                                      readings,
+                                      thresholds,
+                                      flags,
+                                      isActive,
+                                      txt,
+                                      temp,
+                                      light,
+                                      moisture,
+                                      className = "",
+                                  }) {
+    const { t } = useT();
     const loading = false;
     const desc = decideModeState(modeId, readings, thresholds, flags);
 
@@ -15,7 +26,7 @@ export default function ModStatus({meta, modeId, readings, thresholds, flags, is
             cold: `${t("mod_status.cold")}`,
             ok: `${t("mod_status.temp_ok")}`,
             loading: `${t("mod_status.loading")}`,
-            disabled:`${t("mod_status.disabled")}` ,
+            disabled: `${t("mod_status.disabled")}`,
             pending: `${t("mod_status.pending")}`,
             missing: `${t("mod_status.missing")}`,
         },
@@ -46,25 +57,37 @@ export default function ModStatus({meta, modeId, readings, thresholds, flags, is
             missing: `${t("mod_status.missing")}`,
         },
     };
+
     const key = KEY?.[modeId]?.[desc.state] || "mod.status.na";
-    const displayText = modeId === "saturday" && typeof txt === "string" && txt.trim().length
-        ? txt : t(key, typeof desc.delta === "number" ? { delta: desc.delta } : undefined);
+    const hasCustomTxt = typeof txt === "string" && txt.trim().length > 0;
+
+    const displayText = hasCustomTxt
+      ? txt : t( key, typeof desc.delta === "number" ? { delta: desc.delta }
+          : undefined );
+
     return (
-        <>
-            <span className={`mod-status__badge mod-status__${className} ${isActive ? "on" : "off"}`}
-                aria-busy={loading}>
+      <>
+            <span
+              className={`mod-status__badge mod-status__${className} ${
+                isActive ? "on" : "off"
+              }`}
+              aria-busy={loading}
+            >
                 <span className="mod-status__dot" />
-                <span> {t("mod.temp_label")}: {temp ?? '-'}</span>
-                <span> {t("mod.light_label")}: {light ?? '-'} </span>
-                <span> {t("mod.moisture_label")}: {moist ?? '-'}</span>
+                <span> {t("mod.temp_label")}: {temp ?? "-"}</span>
+                <span> {t("mod.light_label")}: {light ?? "-"} </span>
+                <span> {t("mod.moisture_label")}: {moisture ?? "-"}</span>
             </span>
 
-            <div className="mod-icon__badge">
-                <span className="txt">{displayText}</span>
-            {meta?.updatedAt ? (
-                <small className="meta"> · {new Date(meta.updatedAt).toLocaleString()}</small>
-            ) : null}
-            </div>
-        </>
+          <div className="mod-icon__badge">
+              <span className="txt">{displayText}</span>
+              {meta?.updatedAt ? (
+                <small className="meta">
+                    {" "}
+                    · {new Date(meta.updatedAt).toLocaleString()}
+                </small>
+              ) : null}
+          </div>
+      </>
     );
 }

@@ -20,7 +20,7 @@
 
     "login_title": "Login", "login_btn": "Login",
 
-    "register_title": "Register", "register_txt": "Not Register yet?", "register_btn":"Create Account"
+    "register_title": "Register", "register_txt": "Don't have an account? Register", "register_btn":"Create Account"
   },
 
   "account": {
@@ -54,13 +54,15 @@
   "mod": {
     "title": "Pump & Modes",
     "update": "Update",
+    "runMin":"Activation Time (minutes)",
+    "cooldown": "Cool down","cooldown_lbl": "Time for the pump cooling down (minutes)",
+    "light_label":"Light", "daylightOnly" : "Day Light Activation", "lightGate":"Light Threshold",
 
-    "temp_title": "Temperature", "temp_label": "Temp", "tempLVL_label": "Temp Level", "minTime_label":"Set Minimum Time",
-    "maxTime_label": "Set Maximum Time", "light_label":"Light", "lightThresHold_label": "Set Light Threshold",
-    "minLight_label":"Set Minimum Light", "maxLight_label":"Set Maximum Light",
+    "temp_label": "Temperature", "tempTarget": "Temperature Level",
+    "temp_hysteresis": "Temperature margin","temp_hysteresis_lbl": "Extra degrees before it turns on or off",
 
-    "moisture_title": "Moisture", "moisture_label": "moisture", "moistureLVL_label":"moisture LeveL",
-    "minMoisture_label": "Min Moisture Threshold", "maxMoisture_label":"Max Moisture Threshold",
+    "moisture_label": "Moisture", "moistureTarget":"Moisture Level",
+    "moisture_hysteresis": "Moisture margin","moisture_hysteresis_lbl": "Extra moisture before it turns on or off",
 
     "saturday_title": "Saturday", "date_label": "Activation Date", "time_label":"Activation Time",
     "duration_label": "Duration",
@@ -68,8 +70,6 @@
     "manual_title": "Manual", "pump_enabled": "Pump enabled", "enabled": "Enabled", "disabled": "Disabled",
 
     "saved": "Saved successfully", "active": "Active", "inactive": "Inactive"
-
-
   },
 
   "mod_status": {
@@ -77,8 +77,10 @@
     "pending": "Status pending", "missing": "Status missing",
 
     "temp_ok": "Standard Temperature", "hot": "Hot temperature", "cold": "Cold temperature",
+    "Temperature_target": "Temperature target: ", "Light_set": "Light target: ",
 
     "moist_ok": "Standard humidity", "wet": "Moisture soil", "dry": "Dry soil",
+    "Moisture_target": "Moisture target: ",
 
     "running": "Running", "scheduled": "Scheduled to: ", "idle": "Idle",
     "set_to": "Set to ", "at": "at", "for": "for", "minutes": "minutes",

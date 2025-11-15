@@ -19,23 +19,11 @@ import ModIcon from "../components/ModIcon";
 import ModStatus from "../components/ModStatus";
 import { useEsp } from "../hooks/useEsp";
 
-
-const ModDisplay = React.memo(function ModDisplay({
-                                                      variant,
-                                                      MODS,
-                                                      currentState,
-                                                      sensors,
-                                                      loading,
-                                                      authLoading,
-                                                      authErr,
-                                                      onPickMode,
-                                                  }) {
+const ModDisplay = React.memo(function ModDisplay({ variant,MODS,currentState,sensors,
+                                                    loading,authLoading,authErr,onPickMode }) {
     const { t, dir } = useT();
     const [pendingValue, setPendingValue] = useState(null);
-    const selectedItem = useMemo(
-        () => MODS.find(m => m.value === Number(currentState)) ?? null,
-        [MODS, currentState]
-    );
+    const selectedItem = useMemo(() => MODS.find(m => m.value === Number(currentState)) ?? null, [MODS, currentState]);
 
     function onKeyActivate(e, action) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action(); } }
 
@@ -51,8 +39,7 @@ const ModDisplay = React.memo(function ModDisplay({
                 <>
                     <RequestBanner loading={authLoading || loading} errorText={authErr} />
                     <ClickableList
-                        items={MODS}
-                        role="button"
+                        items={MODS} role="button"
                         tabIndex={0}
                         itemKey="value"
                         className="text-muted"
@@ -78,18 +65,26 @@ const ModDisplay = React.memo(function ModDisplay({
                                                 : {};
                             let thresholds = {};
                             let txt = "";
-                            if (modeId === "temp") {
-                                const tempLVL = Number(te?.tempLVL);
-                                const H = Number.isFinite(tempLVL) ? 1 : 0;
-                                thresholds = Number.isFinite(tempLVL)
-                                    ? { temp: { low: tempLVL - H, high: tempLVL + H, hysteresis: H } }  : {};
+                            // if (modeId === "temp") {
+                            //   const target = Number(te?.tempTarget);
+                            //   const H = Number(te?.hysteresis);
+                            //   thresholds = (Number.isFinite(target) && Number.isFinite(H))?
+                            //     { temp: { low: target - H, high: target + H, hysteresis: H } }: {}; }
+                            // else if (modeId === "moisture") {
+                            //     thresholds = mo?.min !== undefined && mo?.max !== undefined
+                            //         ? { moisture: { low: Number(mo.min), high: Number(mo.max) } } : {}; }
 
-                            } else if (modeId === "moisture") {
-                                thresholds = mo?.min !== undefined && mo?.max !== undefined
-                                    ? { moisture: { low: Number(mo.min), high: Number(mo.max) } } : {};
+                          if (modeId === "temp") {
+                            txt = `${t("mod_status.Temperature_target")} ${te?.tempTarget}
+                             ${t("mod_status.Light_set")} ${te?.lightGate}`;
+                          }
 
-                            } else if (modeId === "saturday") {
-                                // txt = `Set to: ${sa?.dateAct} at ${sa?.timeAct} for ${sa?.duration} minutes`;
+                          else if (modeId === "moisture") {
+                            txt = `${t("mod_status.Moisture_target")} ${mo?.moistureTarget}
+                             ${t("mod_status.Light_set")} ${mo?.lightGate}`;
+                          }
+
+                            else if (modeId === "saturday") {
                                 txt = `${t("mod_status.set_to")} ${sa?.dateAct} ${t("mod_status.at")} ${sa?.timeAct} 
                                 ${t("mod_status.for")} ${sa?.duration} ${t("mod_status.minutes")}`;
                             } else { thresholds = {}; }
@@ -144,44 +139,54 @@ const ModDisplay = React.memo(function ModDisplay({
     );
 });
 
-const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, sensors, authLoading, authErr,
-                                                        onSubmitTemp }) {
-    const {t} = useT();
-    const stts = useRequestStatus();
-    const tmp  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
+const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, sensors, authLoading, authErr, Submit }) {
+  const {t} = useT();
+  const stts = useRequestStatus();
+  const tmp  = useSnapshotOnOpen(sensors?.TEMP_MODE, isOpen);
 
-    useEffect(() => {}, [isOpen, tmp, sensors?.TEMP_MODE]);
+  useEffect(() => {}, [isOpen, tmp, sensors?.TEMP_MODE]);
 
-    const fields = useMemo(() => ([
-        { name: "temp", label: `${t("mod.temp_label")}`, placeholder: tmp?.temp, disabled:true},
-        { name: "tempLVL", label: `${t("mod.tempLVL_label")}`, placeholder: tmp?.tempLVL, type:"number" },
-        { name: "minTime", label: `${t("mod.minTime_label")}`, placeholder: tmp?.minTime, type:"number" },
-        { name: "maxTime", label: `${t("mod.maxTime_label")}`, placeholder: tmp?.maxTime, type:"number" },
-        { name: "light", label: `${t("mod.light_label")}`, placeholder: tmp?.light, disabled:true },
-        { name: "lightThresHold", label: `${t("mod.lightThresHold_label")}`, placeholder: tmp?.lightThresHold, type:"number" },
-        { name: "minLight", label: `${t("mod.minLight_label")}`, placeholder: tmp?.minLight, type:"number" },
-        { name: "maxLight", label: `${t("mod.maxLight_label")}`, placeholder: tmp?.maxLight, type:"number" },
-    ]), [t,tmp]);
+  const fields = useMemo(() => ([
+    { name: "tempTarget", label: `${t("mod.tempTarget")}`, placeholder: tmp?.tempTarget, type:"number", step:"0.1" },
+    { name: "hysteresis",
+     label:
+      <div className="tooltip">
+        {`${t('mod.temp_hysteresis')}`}
+        <span className="tooltiptext fw-600 text-xs">{t("mod.temp_hysteresis_lbl")}</span>
+      </div>,
+      placeholder: tmp?.hysteresis, type:"number", step:"0.1" },
+    { name: "runMin", label: `${t("mod.runMin")}`, placeholder: tmp?.runMin, type:"number", min:0  },
+    { name: "cooldown",
+      label:
+        <div className="tooltip">
+          {`${t('mod.cooldown')}`}
+          <span className="tooltiptext fw-600 text-xs">{t("mod.cooldown_lbl")}</span>
+        </div>,
+      placeholder: tmp?.cooldown, type:"number", min:0  },
+    { name: "daylightOnly", label: `${t("mod.daylightOnly")}`, type:"toggle" },
+    { name: "lightGate", label: `${t("mod.lightGate")}`, placeholder: tmp?.lightGate, type:"number",min:0, max:100  },
+  ]), [t,tmp]);
 
-    const initValsTemp = useMemo(() => ({
-        temp: tmp?.temp ?? "",
-        tempLVL: tmp?.tempLVL ?? "",
-        minTime: tmp?.minTime ?? "",
-        maxTime: tmp?.maxTime ?? "",
-        light: tmp?.light ?? "",
-        lightThresHold: tmp?.lightThresHold ?? "",
-        minLight: tmp?.minLight ?? "",
-        maxLight: tmp?.maxLight ?? "",
-    }), [tmp]);
+  const initValsTemp = useMemo(() => ({
+    temp: tmp?.temp ?? "",
+    light: tmp?.light ?? "",
+    tempTarget: tmp?.tempTarget ?? "",
+    hysteresis: tmp?.hysteresis ?? "",
+    runMin: tmp?.runMin ?? "",
+    cooldown: tmp?.cooldown ?? "",
+    daylightOnly: !!tmp?.daylightOnly,
+    lightGate: tmp?.lightGate ?? "",
+  }), [tmp]);
 
-    const onSubmit = useCallback((values) => {
-        return stts.run(async () => {
-            await onSubmitTemp(values);
-        }, {
-            successMessage: t("mod.temp_saved_success") || "Temperature mode saved",
-            errorMessage:   t("mod.temp_saved_error")   || "Failed to save temperature mode",
-        });
-    }, [stts, onSubmitTemp, t]);
+  const onSubmit = useCallback((values) => {
+    return stts.run(async () => {
+      await Submit(values);
+    }, {
+      successMessage: t("mod.temp_saved_success") || "Temperature mode saved",
+      errorMessage:   t("mod.temp_saved_error")   || "Failed to save temperature mode",
+    });
+  }, [stts, Submit, t]);
+
 
     return (
         <Card variant={variant}
@@ -190,7 +195,7 @@ const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, s
                       <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
                           <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                       </FlashButton>
-                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.temp_title")}</h5></div>
+                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.temp_label")}</h5></div>
                   </>
               }
               body={
@@ -225,7 +230,7 @@ const Temperature = React.memo(function Temperature({ variant, unflip, isOpen, s
 const Moisture = React.memo(function Moisture({
                                                   variant, unflip, isOpen,
                                                   sensors, authLoading, authErr,
-                                                  onSubmitMoist,
+                                                  Submit,
                                               }) {
     const {t} = useT();
     const stts = useRequestStatus();
@@ -235,29 +240,47 @@ const Moisture = React.memo(function Moisture({
         console.log("[ESP-DBG][Moisture] open?", isOpen, { snapshot: m, current: sensors?.SOIL_MOISTURE_MODE });
     }, [isOpen, m, sensors?.SOIL_MOISTURE_MODE]);
 
-    const fields = useMemo(() => ([
-        { name: "moisture", label: `${t("mod.moisture_label")}`, placeholder: m?.moisture, type: "number", disabled:true },
-        { name: "moistureLVL", label: `${t("mod.moistureLVL_label")}`, placeholder: m?.moistureLVL, type: "number" },
-        { name: "minMoisture", label: `${t("mod.minMoisture_label")}`, placeholder: m?.minMoisture, type: "number" },
-        { name: "maxMoisture", label: `${t("mod.maxMoisture_label")}`, placeholder: m?.maxMoisture, type: "number" },
-    ]), [m,t]);
+  const fields = useMemo(() => ([
+    { name: "moistureTarget", label: `${t("mod.moistureTarget")}`, placeholder: m?.moistureTarget, type:"number", step:"0.1" },
+    { name: "hysteresis",
+      label:
+    <div className="tooltip">
+      {`${t("mod.moisture_hysteresis")}`}
+      <span className="tooltiptext fw-600 text-xs">{t("mod.moisture_hysteresis_lbl")}</span>
+    </div>,
+
+      placeholder: m?.hysteresis, type:"number", step:"0.1" },
+    { name: "runMin", label: `${t("mod.runMin")}`, placeholder: m?.runMin, type:"number", min:0  },
+    { name: "cooldown",
+      label:
+        <div className="tooltip">
+          {`${t('mod.cooldown')}`}
+          <span className="tooltiptext fw-600 text-xs">{t("mod.cooldown_lbl")}</span>
+        </div>,
+      placeholder: m?.cooldown, type:"number", min:0  },
+    { name: "daylightOnly", label: `${t("mod.daylightOnly")}`, placeholder: m?.daylightOnly , type:"toggle" },
+    { name: "lightGate", label: `${t("mod.lightGate")}`, placeholder: m?.lightGate, type:"number",min:0, max:100  },
+  ]), [m,t]);
 
     const initValsMoist = useMemo(() => ({
-        moisture: m?.moisture ?? "",
-        moistureLVL: m?.moistureLVL ?? "",
-        minMoisture: m?.minMoisture ?? "",
-        maxMoisture: m?.maxMoisture ?? "",
+      moisture: m?.moisture ?? "",
+      moistureTarget: m?.moistureTarget ?? "",
+      hysteresis: m?.hysteresis ?? "",
+      runMin: m?.runMin ?? "",
+      cooldown: m?.cooldown ?? "",
+      daylightOnly: !!m?.daylightOnly,
+      lightGate: m?.lightGate ?? "",
     }), [m]);
 
 
     const onSubmit = useCallback((values) => {
         return stts.run(async () => {
-            await onSubmitMoist(values);
+            await Submit(values);
         }, {
             successMessage: t("mod.moisture_saved_success") || "Moisture mode saved",
             errorMessage:   t("mod.moisture_saved_error")   || "Failed to save Moisture mode",
         });
-    }, [stts, onSubmitMoist, t]);
+    }, [stts, Submit, t]);
 
 
     return (
@@ -267,7 +290,7 @@ const Moisture = React.memo(function Moisture({
                       <FlashButton className="btn--transparent btn--sm" onClick={unflip}>
                           <i className="fa-solid fa-arrow-left fa-fade fa-lg"/>
                       </FlashButton>
-                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.moisture_title")}</h5></div>
+                      <div className="mx-auto-flex"><h5 className="m-0 text-2xl">{t("mod.moisture_label")}</h5></div>
                   </>
               }
               body={
@@ -300,11 +323,7 @@ const Moisture = React.memo(function Moisture({
     );
 });
 
-const Saturday = React.memo(function Saturday({
-                                                  variant, unflip, isOpen,
-                                                  sensors, authLoading, authErr,
-                                                  onSubmitSaturday,
-                                              }) {
+const Saturday = React.memo(function Saturday({variant, unflip, isOpen, sensors, authLoading, authErr, Submit}) {
     const {t} = useT();
     const stts = useRequestStatus();
     const s = useSnapshotOnOpen(sensors?.SATURDAY_MODE, isOpen);
@@ -318,8 +337,7 @@ const Saturday = React.memo(function Saturday({
         { name: "date", label: `${t("mod.date_label")}`, placeholder: s?.dateAct, type: "date", required: true,},
         { name: "time", label: `${t("mod.time_label")}`, placeholder: s?.timeAct, type: "time", required: true },
         { name: "duration", label: `${t("mod.duration_label")}`, placeholder: s?.duration,
-            type: "number", required: true, min: 1, step: 1  },
-    ]), [s,t]);
+            type: "number", required: true, min: 1, step: 1  }, ]), [s,t]);
 
     const initValsSat = useMemo(() => ({
         date: toInputDate(safe?.dateAct || ""),
@@ -329,12 +347,12 @@ const Saturday = React.memo(function Saturday({
 
     const onSubmit = useCallback((values) => {
         return stts.run(async () => {
-            await onSubmitSaturday(values);
+            await Submit(values);
         }, {
             successMessage: t("mod.saturday_saved_success") || "Saturday mode saved",
             errorMessage:   t("mod.saturday_saved_error")   || "Failed to save Saturday mode",
         });
-    }, [stts, onSubmitSaturday, t]);
+    }, [stts, Submit, t]);
 
     return (
         <Card variant={variant}
@@ -383,49 +401,18 @@ const Saturday = React.memo(function Saturday({
     );
 });
 
-const Manual = React.memo(function Manual({
-                                              variant, unflip, isOpen,
-                                              sensors, setSensors, authLoading, authErr,
-                                              wsLoading,
-                                              manualToggle,
-                                          }) {
+const Manual = React.memo(function Manual({ variant, unflip,
+                                            sensors, authLoading, authErr,
+                                            wsLoading, Toggle
+}) {
     const {t} = useT();
     const stts = useRequestStatus();
-    const mSnap  = useSnapshotOnOpen(sensors?.MANUAL_MODE, isOpen);
-    const [enabled, setEnabled] = React.useState(Boolean(mSnap?.enabled));
+    const enabled = Boolean(sensors?.MANUAL_MODE?.enabled);
 
-    React.useEffect(() => {
-        const next = Boolean(sensors?.MANUAL_MODE?.enabled);
-        if (enabled !== next) {
-            console.log("[ESP-DBG][Manual] enabled changed (sensors)", { prev: enabled, next });
-        }
-        setEnabled(prev => (prev === next ? prev : next));
-    }, [enabled]);
-
-    const handleToggle = async (next) => {
-        console.groupCollapsed("[ESP-DBG][Manual] toggle");
-        console.log("click next:", next);
-        setEnabled(next);
-        setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: next } }));
-        console.log("optimistic setSensors enabled:", next);
-
-        try {
-            const committed = await manualToggle(next);
-            console.log("committed from server:", committed);
-            setEnabled(committed);
-            setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: committed }}));
-        } catch (e) {
-            console.log("toggle failed, revert:", e);
-            setEnabled(prev => !prev);
-            setSensors(s => ({ ...s, MANUAL_MODE: { ...(s?.MANUAL_MODE || {}), enabled: !next } }));
-        } finally {
-            console.groupEnd();
-        }
-    };
-
-    useEffect(() => {
-        console.log("[ESP-DBG][Manual] open?", isOpen, { snapshot: mSnap, current: sensors?.MANUAL_MODE });
-    }, [isOpen, mSnap, sensors?.MANUAL_MODE]);
+  const handleToggle = async (next) => {
+    try { await Toggle(next); }
+    catch (e) { console.error("Failed to toggle manual mode", e); }
+  };
 
     return (
         <Card
@@ -493,8 +480,8 @@ export default function Mod({ embed = false }) {
     });
 
     const MODS = useMemo(() => ([
-        { id: "temp", label: `${t("mod.temp_title")}`, value: 61, tab: "temperature" },
-        { id: "moisture", label: `${t("mod.moisture_title")}`, value: 62, tab: "moisture" },
+        { id: "temp", label: `${t("mod.temp_label")}`, value: 61, tab: "temperature" },
+        { id: "moisture", label: `${t("mod.moisture_label")}`, value: 62, tab: "moisture" },
         { id: "saturday", label: `${t("mod.saturday_title")}`, value: 63, tab: "saturday" },
         { id: "manual", label: `${t("mod.manual_title")}`, value: 64, tab: "manual" }
     ]), [t]);
@@ -540,35 +527,35 @@ export default function Mod({ embed = false }) {
 
     const isTempOpen = activeTab === "temperature" && flipped;
     const isMoistOpen = activeTab === "moisture" && flipped;
-    const isSatOpen   = activeTab === "saturday" && flipped;
-    const isManOpen   = activeTab === "manual" && flipped;
+    const isSatOpen = activeTab === "saturday" && flipped;
+    const isManOpen = activeTab === "manual" && flipped;
 
     const back = ({ unflip }) => (
         activeTab === "temperature" ? (
             <Temperature
                 variant={variant}
-                unflip={() => { if (flipped) { console.log("[ESP-DBG][Mod] back.unflip()"); unflip(); } }}
-                isOpen={isTempOpen} sensors={sensors} authLoading={authLoading} authErr={authErr} onSubmitTemp={temp}
+                unflip={() => { if (flipped) { unflip(); } }}
+                isOpen={isTempOpen} sensors={sensors} authLoading={authLoading} authErr={authErr} Submit={temp}
             />
         ) : activeTab === "moisture" ? (
             <Moisture
                 variant={variant}
-                unflip={() => { if (flipped) { console.log("[ESP-DBG][Mod] back.unflip()"); unflip(); } }}
-                isOpen={isMoistOpen} sensors={sensors} authLoading={authLoading} authErr={authErr} onSubmitMoist={moist}
+                unflip={() => { if (flipped) { unflip(); } }}
+                isOpen={isMoistOpen} sensors={sensors} authLoading={authLoading} authErr={authErr} Submit={moist}
             />
         ) : activeTab === "saturday" ? (
             <Saturday
                 variant={variant}
-                unflip={() => { if (flipped) { console.log("[ESP-DBG][Mod] back.unflip()"); unflip(); } }}
+                unflip={() => { if (flipped) { unflip(); } }}
                 isOpen={isSatOpen} sensors={sensors} authLoading={authLoading} authErr={authErr}
-                onSubmitSaturday={saturday}
+                Submit={saturday}
             />
         ) : activeTab === "manual" ? (
             <Manual
                 variant={variant}
-                unflip={() => { if (flipped) { console.log("[ESP-DBG][Mod] back.unflip()"); unflip(); } }}
+                unflip={() => { if (flipped) { unflip(); } }}
                 isOpen={isManOpen} sensors={sensors} setSensors={setSensors} authLoading={authLoading}
-                err={authErr || err} wsLoading={loading} manualToggle={manual}
+                err={authErr || err} wsLoading={loading} Toggle={manual}
             />
         ) : null
     );
@@ -580,7 +567,7 @@ export default function Mod({ embed = false }) {
                 back={back}
                 flippable
                 isFlipped={flipped}
-                onFlip={(v) => { console.log("[ESP-DBG][Mod] onFlip", v); setFlipped(v); }}
+                onFlip={(val) => { setFlipped(val); }}
             />
         </div>
     );

@@ -27,13 +27,13 @@ function Layout() {
                                 className="btn--transparent btn--sm"
                                 onClick={() => setSidebarCollapsed((s) => !s)}
                                 title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
-                                { sidebarCollapsed ? <i className="fa-solid fa-circle-chevron-right fa-beat fa-lg"/> :
-                                    <i className="fa-solid fa-circle-chevron-left fa-beat fa-xl"/>}
+                                { sidebarCollapsed ? <i className="fa-solid fa-bars fa-beat"/> :
+                                    <i className="fa-solid fa-bars fa-beat fa-lg"/>}
                             </FlashButton>
                         </div>
                     )}
                     <i className="fa-solid fa-seedling fa-bounce fa-2xl" style={{color: "#63E6BE"}}/>
-                    <div className="brand">HydroBuddy</div>
+                    <div className="brand text-2xl">HydroBuddy</div>
                     <LanguageSwitcher compact/>
                 </div>
             </header>

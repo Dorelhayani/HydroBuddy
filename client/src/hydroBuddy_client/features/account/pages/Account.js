@@ -239,7 +239,7 @@ export default function Account() {
         ]
         const OnSubmit = async (val) => {
             try {
-                if(val.newPassword !== val.newPasswordConfirm) { throw new Error("Password not match!")}
+                if(val.newPassword !== val.newPasswordConfirm) { new Error("Password not match!")}
                 await changePassword({
                     currentPassword: val.currentPassword,
                     newPassword: val.newPassword,

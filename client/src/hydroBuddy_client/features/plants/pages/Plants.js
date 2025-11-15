@@ -12,7 +12,7 @@ import GenericForm from "../../../ui/FormGenerate";
 import Icon, {iconName} from "../../../ui/Icons";
 import RequestBanner from "../../../ui/RequestBanner";
 import {useAuth} from "../../auth/hooks/useAuth";
-import PumpStatus from "../hooks/plantStatus";
+import PumpStatus from "../hooks/PumpStatus";
 import {usePlants} from "../hooks/usePlants";
 
 export default function Plants({ embed = false }) {
@@ -45,12 +45,13 @@ export default function Plants({ embed = false }) {
                             itemKey="ID"
                             className="text-muted"
                             onItemClick={(p) => {
+                                flip?.();
                                 setSelectedPlant(p);
                                 onItemClick && onItemClick(p);
                                 setActiveTab("update_plant");
                             }}
                             renderItem={(p) => (
-                                <div className="tile tile--sm" onClick={() => setActiveTab("update_plant")}>
+                                <div className="tile tile--sm">
                                     <div className="tile__avatar">
                                         <Icon
                                             name={iconName({name: p.planttype_name, kind: "plant"})}
@@ -64,10 +65,13 @@ export default function Plants({ embed = false }) {
                                     <div className="tile tile--free">
                                         <div className="tile__title title text-muted-500">{p.planttype_name}</div>
                                         <div className="text-muted-500">
-                                            <span className="state-status"><PumpStatus/></span>
+                                            <span className="state-status">
+                                              <PumpStatus />
+                                            </span>
                                         </div>
                                     </div>
-                                    <i className={`tile__chev fa-solid ${dir === "rtl" ? "fa-caret-left" : "fa-caret-right"} fa-beat-fade`} />
+                                    <i className={`tile__chev fa-solid ${dir === "rtl" ? "fa-caret-left" :
+                                      "fa-caret-right"} fa-beat-fade`} />
                                 </div>
                             )}
                             emptyContent="No plants yet"
@@ -78,7 +82,7 @@ export default function Plants({ embed = false }) {
                     <div className="tooltip">
                         <FlashButton
                             className="btn--right btn--sm btn--transparent"
-                            onClickAsync={flip}>
+                            onClickAsync={() => {setActiveTab('add_plant'); flip();}}>
                             <span className="tooltiptext fw-600 text-xs">{t("plants.add_title")}</span>
                             <i className="fa-solid fa-plus fa-bounce fa-lg"></i>
                         </FlashButton>
@@ -120,7 +124,7 @@ export default function Plants({ embed = false }) {
                             customButton={({ onClick, loading }) => (
                                 <FlashButton
                                     className="btn btn__icon"
-                                    onClickAsync={onClick}
+                                    onClickAsync={() => { unflip(); onClick(); }}
                                     loading={loading || authLoading}
                                     disabled={authLoading}
                                 ><span className="text-subtle">+</span></FlashButton>
@@ -131,7 +135,9 @@ export default function Plants({ embed = false }) {
                 }
                 footer={
                     <div className="">
-                        <FlashButton className="btn--left btn--transparent btn--sm" onClick= {unflip}>
+                        <FlashButton
+                          className="btn--left btn--transparent btn--sm"
+                          onClick= {()=> { setActiveTab('plant_info'); unflip(); }}>
                             <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
                         </FlashButton>
                     </div>
@@ -140,7 +146,7 @@ export default function Plants({ embed = false }) {
         );
     }
 
-    function UpdatePlant({ variant }){
+    function UpdatePlant({ variant, unflip }){
         if (!selectedPlant) {
             return (
                 <Card
@@ -186,7 +192,7 @@ export default function Plants({ embed = false }) {
                               customButton={({ onClick, loading }) => (
                                   <FlashButton
                                       className="btn btn--primary btn--block shadow-md"
-                                      onClickAsync={onClick}
+                                      onClickAsync={()=> {onClick(); unflip();}}
                                       loading={loading || authLoading}
                                       disabled={authLoading}
                                   >{t("plants.update_btn")}</FlashButton>
@@ -201,10 +207,9 @@ export default function Plants({ embed = false }) {
                     <div className="">
                         <FlashButton
                             className="btn--transparent btn--sm"
-                            onClick={() => setActiveTab("plant_info")}>
+                            onClick={() => { setActiveTab('plant_info'); unflip(); }}>
                             <i className="fa-solid fa-arrow-left fa-fade fa-lg"></i>
                         </FlashButton>
-
 
                         <FlashButton
                             className="btn btn--danger btn--sm nudge-r-230 shadow-sm"
@@ -239,24 +244,25 @@ export default function Plants({ embed = false }) {
         );
     }
 
-    const front = ({flip})=> ( activeTab === "plant_info" && (<PlantInfo flip={() => { if (!flipped) flip(); }}/>) );
-    const back = ({unflip})=> ( <AddPlant variant={variant}  plnt={plant} unflip={() => { if (flipped) unflip(); }}/> );
+    const front = ({flip})=> ( activeTab === "plant_info" && (<PlantInfo flip={() => { if (!flipped) flip?.(); }}/>) );
+    const back = ({unflip})=> (
+      activeTab === "add_plant" ?
+        (<AddPlant variant={variant}  plnt={plant} unflip={() => { if (flipped) unflip(); }}/> ) :
+        activeTab === "update_plant" ?
+          (<UpdatePlant variant={variant} unflip={() => { if (flipped) unflip();}} />) :
+          activeTab === "delete_plant" ?
+            (<DeletePlant variant={variant} onCancel={() => setActiveTab("update_plant")} />) : null
+    );
+
     const content = (
         <div className="cards-grid">
-            {activeTab === "update_plant" ? (
-                    <UpdatePlant variant={variant} />
-            ) : activeTab === "delete_plant" ? (
-                    <DeletePlant variant={variant} onCancel={() => setActiveTab("update_plant")} />
-            ) : (
                 <FlipCard
                     front={front}
                     back={back}
                     flippable
                     isFlipped={flipped}
                     onFlip={setFlipped}
-                    autoHeight
                 />
-            )}
         </div>
     );
     return embed ? content : (
@@ -265,5 +271,4 @@ export default function Plants({ embed = false }) {
                   <Outlet />
                 </div>
           );
-
 }

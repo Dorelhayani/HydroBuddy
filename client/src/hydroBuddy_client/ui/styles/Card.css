@@ -1,4 +1,5 @@
-/*!* ===== Card.css ===== *!*/
+/* ===== Card.css ===== */
+
 :root{
     --card-w: 420px;
     --card-h: 560px;
@@ -34,7 +35,7 @@
     top: var(--card-header-h);
     bottom: var(--card-footer-h);
     padding: 12px 14px;
-    overflow:auto;
+    overflow:visible;
     z-index:1;
 }
 
@@ -51,16 +52,10 @@
     z-index:2;
 }
 
-.card--flow{
-    display: flex;
-    flex-direction: column;
-}
+.card--flow{ display: flex; flex-direction: column; }
 
 .card--flow > .card-header,
 .card--flow > .card-body,
-.card--flow > .card-footer{
-    position: static; inset: auto;
-    height: auto;
-}
+.card--flow > .card-footer{ inset: auto; height: auto; position: static; }
 
 .card--flow > .card-body{ flex: 1 1 auto; }

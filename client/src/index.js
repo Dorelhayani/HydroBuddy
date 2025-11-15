@@ -1,10 +1,8 @@
 import './hydroBuddy_client/shared/styles/index.css'
 
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import Root from "./root";
-// import reportWebVitals from './reportWebVitals';
 
 ReactDOM.createRoot(document.getElementById('root')).render( <Root/> );
 

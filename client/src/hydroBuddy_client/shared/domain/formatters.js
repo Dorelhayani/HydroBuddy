@@ -1,4 +1,4 @@
-// formatters.js
+/* ===== formatters.js ===== */
 
 export function validateClient(p) {
     const dateOk = /^\d{2}\/\d{2}\/\d{4}$/.test(p.dateAct);
@@ -34,6 +34,15 @@ export function formatDateDDMMYYYY(value) {
     return `${day}/${month}/${year}`;
 }
 
+export function formatDateTime(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return new Intl.DateTimeFormat("he-IL", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+    }).format(d);
+}
 
 
 

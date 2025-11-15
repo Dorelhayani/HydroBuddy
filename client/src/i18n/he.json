@@ -21,7 +21,7 @@
 
     "login_title": "התחברות", "login_btn": "התחבר",
 
-    "register_title": "רישום משתמש חדש", "register_txt": "אין לך חשבון ?", "register_btn":"צור משתמש/ת"
+    "register_title": "רישום משתמש חדש", "register_txt": "אין לך חשבון? הירשם", "register_btn":"צור משתמש/ת"
   },
 
   "account": {
@@ -55,13 +55,16 @@
   "mod": {
     "title": "משאבה ומצבים",
     "update": "עדכן",
+    "temp_label": "טמפרטורה", "tempTarget": "סף טמפרטורה",
+    "temp_hysteresis": "קבע/י מרווח טמפרטורה","temp_hysteresis_lbl": "כמה מעלות מסביב לערך המטרה עד שהמשאבה פועלת",
 
-    "temp_title": "טמפרטורה", "temp_label": "טמפרטורה", "tempLVL_label": "סף טמפרטורה", "minTime_label":"קבע/י זמן מינימלי",
-    "maxTime_label": "קבע/י זמן מקסימלי", "light_label":"אור", "lightThresHold_label": "הגדר/י את סף האור",
-    "minLight_label":"קבע/י סף-אור מינימלי", "maxLight_label":"קבע/י סף-אור מקסימלי",
+    "runMin":"קבע/י זמן מינימל",
+    "cooldown": "קבע/י זמן צינון", "cooldown_lbl": "זמן שבו המשאבה כבויה (דקות)",
+    "light_label":"אור", "daylightOnly" : "הפעלה בזמן יום", "lightGate":"קסע/י סף אור",
 
-    "moisture_title": "לחות", "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
-    "minMoisture_label": "קבע/י סף-לחות מינימלי", "maxMoisture_label":"קבע/י סף-לחות מקסימלי",
+
+    "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
+    "moisture_hysteresis": "קבע/י מרווח לחות","moisture_hysteresis_lbl": "כמה מעלות מסביב לערך המטרה עד שהמשאבה פועלת",
 
     "saturday_title": "שבת", "date_label": "תאריך הפעלה", "time_label":"זמן הפעלה", "duration_label": "משך (בדקות)",
 
@@ -73,8 +76,10 @@
     "loading": "טוען...", "disabled": "מושבת !", "pending": "מצב בהמתנה", "missing": "מצב חסר",
 
     "temp_ok": "טמפרטורה בתקן", "hot": "מזג-אויר חם", "cold": "מזג-אויר קר",
+    "Temperature_target": "יעד טמפרטורה : ", "Light_set": "יעד אור : ",
 
     "moist_ok": "לחות בתקן", "wet": "אדמה לחה", "dry": "אדמה יבשה",
+    "Moisture_target": "יעד לחות : ",
 
     "running": "בריצה", "scheduled": "מתוזמן ל: ", "idle": "סרק",
     "set_to": "נקבע ל ", "at": "בשעה ", "for": "למשך ", "minutes": "דקות",

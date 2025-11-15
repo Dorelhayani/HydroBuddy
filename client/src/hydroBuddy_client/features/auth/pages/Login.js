@@ -1,7 +1,7 @@
 /* ===== Login.js ===== */
 
 import { useState } from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate,Link} from "react-router-dom";
 
 import {useT} from "../../../../local/useT";
 import FlashButton from "../../../ui/ButtonGenerate";
@@ -67,13 +67,9 @@ export default function Login({ embed = false }) {
                     />
                 </>
                   }
-
                   footer={
-                      <div className="">
-                          <small className="fw-600" >{t("login.register_txt")}</small>
-                          <FlashButton className="nudge-r-120" disabled={authLoading} onClickAsync={flip}>
-                              {t("login.register_btn")}
-                          </FlashButton>
+                      <div  className="text-muted-500" onClick={flip}>
+                          {t("login.register_txt")}
                       </div>
                   }
             />

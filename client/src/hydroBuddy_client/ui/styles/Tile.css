@@ -31,7 +31,7 @@
     align-items: center;
     opacity: .6;
     right: 5%;
-    bottom: 15px;
+    bottom: 20px;
 }
 
 .tile--sm {
@@ -40,11 +40,19 @@
 }
 
 .state-status{
+    /*position: absolute;*/
+    /*display: inline-flex;*/
+    /*left: 100px;*/
+    /*gap: 40px;*/
+    /*line-height: 1.2;*/
+
+    inset-inline-start: 100px;
+    text-align: start;
     position: absolute;
     display: inline-flex;
-    left: 100px;
-    gap: 40px;
+    gap: 4px;
     line-height: 1.2;
+
 }
 
 .tile--sm .tile__avatar { width: 40px; height: 40px; }
