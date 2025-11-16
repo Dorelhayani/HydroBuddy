@@ -62,8 +62,7 @@
     "cooldown": "קבע/י זמן צינון", "cooldown_lbl": "זמן שבו המשאבה כבויה (דקות)",
     "light_label":"אור", "daylightOnly" : "הפעלה בזמן יום", "lightGate":"קסע/י סף אור",
 
-
-    "moisture_label": "לחות", "moistureLVL_label":"סף לחות",
+    "moisture_label": "לחות", "moistureTarget":"סף לחות",
     "moisture_hysteresis": "קבע/י מרווח לחות","moisture_hysteresis_lbl": "כמה מעלות מסביב לערך המטרה עד שהמשאבה פועלת",
 
     "saturday_title": "שבת", "date_label": "תאריך הפעלה", "time_label":"זמן הפעלה", "duration_label": "משך (בדקות)",

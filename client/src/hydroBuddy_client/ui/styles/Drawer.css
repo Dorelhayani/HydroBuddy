@@ -10,24 +10,18 @@
     color:var(--text); font-weight:600;
 }
 
-.account-card__footer details.drawer {
-    position: static;
-    width: 100%;
-}
-
 .account-card__footer details.drawer .drawer__viewport {
     position: absolute;
-    top: 80%;
-    left: 0;
-    right: 0;
+    top: 75%;
+    left: -0.06rem;
+    right: -0.06rem;
     width:auto;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-top: none;
-    border-radius: 0 0 var(--card-radius) var(--card-radius); /* פינות מעוגלות תחתונות */
-
+    border-radius: 0 0 var(--radius) var(--radius); /* פינות מעוגלות תחתונות */
     max-height: 0;
-    transition: max-height 820ms ease;
+    transition: max-height 320ms ease;
 }
 
 .drawer .chev {

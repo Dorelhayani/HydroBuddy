@@ -1,6 +1,7 @@
 /* ===== Account Card ===== */
 
 .account-card{
+    position: relative;
     --card-w: 220px;
     --card-h: 560px;
 }
@@ -26,6 +27,7 @@
 .account-card.card--flow > .card-footer{
     min-height: 56px;
     position: relative;
+    width: 100%;
     display:flex;
     align-items:center;
     justify-content:flex-end;
@@ -33,7 +35,6 @@
     border-top: 1px solid rgba(255,255,255,.06);
 }
 
-.action-card{ --card-w: 220px; --card-h: 360px; }
 .account-card .avatar-img{ width:150px; height:150px; object-fit:cover; border-radius:8px; display:block; }
 .account_card-title{position: absolute; top: 50%; left: 50%; transform: translateX(-50%); }
 .account_card-email{ position: absolute; top: 60%; left: 50%; transform: translateX(-50%); }
