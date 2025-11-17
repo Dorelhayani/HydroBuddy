@@ -18,6 +18,87 @@ function handleError(res, err) {
     return res.status(status).json({ error: err.message || 'Internal server error' });
 }
 
+// --- Analytics: today summary for current user ---
+router.get('/analytics/today', async (req, res) => {
+    try {
+        const userId = req.user_id;
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        const [sensorRows] = await db.execute(
+            `SELECT
+                 AVG(ds.temp)      AS avgTemp,
+                 AVG(ds.moisture)  AS avgMoisture,
+                 AVG(ds.light)     AS avgLight
+             FROM datasensors ds
+                      JOIN plant p       ON ds.PlantID = p.ID
+                      JOIN planttype pt  ON p.PlantTypeID = pt.ID
+             WHERE pt.user_id = ?
+               AND ds.Date = CURDATE()
+               AND ds.pump_cycle_id IS NULL`,
+            [userId]
+        );
+
+        const sensorsRow = sensorRows && sensorRows[0] ? sensorRows[0] : {};
+        const sensors = {
+            avgTemp:      sensorsRow.avgTemp      != null ? Number(sensorsRow.avgTemp)      : null,
+            avgMoisture:  sensorsRow.avgMoisture  != null ? Number(sensorsRow.avgMoisture)  : null,
+            avgLight:     sensorsRow.avgLight     != null ? Number(sensorsRow.avgLight)     : null,
+        };
+
+        const [pumpRows] = await db.execute(
+            `SELECT
+                 COALESCE(SUM(ds.pump_duration_sec), 0)        AS totalOnSec,
+                 COUNT(DISTINCT ds.pump_cycle_id)              AS cycles
+             FROM datasensors ds
+                      JOIN plant p       ON ds.PlantID = p.ID
+                      JOIN planttype pt  ON p.PlantTypeID = pt.ID
+             WHERE pt.user_id = ?
+               AND ds.Date = CURDATE()
+               AND ds.pump_cycle_id IS NOT NULL`,
+            [userId]
+        );
+
+        const pumpRow = pumpRows && pumpRows[0] ? pumpRows[0] : {};
+        const pumpTotalOnSec = pumpRow.totalOnSec != null ? Number(pumpRow.totalOnSec) : 0;
+        const pumpCycles     = pumpRow.cycles     != null ? Number(pumpRow.cycles)     : 0;
+
+        const [modeRows] = await db.execute(
+            `SELECT
+                 ds.pump_mode                      AS mode,
+                 COALESCE(SUM(ds.pump_duration_sec), 0) AS totalOnSec
+             FROM datasensors ds
+                      JOIN plant p       ON ds.PlantID = p.ID
+                      JOIN planttype pt  ON p.PlantTypeID = pt.ID
+             WHERE pt.user_id = ?
+               AND ds.Date = CURDATE()
+               AND ds.pump_cycle_id IS NOT NULL
+               AND ds.pump_mode IS NOT NULL
+             GROUP BY ds.pump_mode`,
+            [userId]
+        );
+
+        const byMode = (modeRows || []).map(r => ({
+            mode: r.mode,
+            totalOnSec: Number(r.totalOnSec || 0),
+        }));
+
+        return res.status(200).json({
+            date: new Date().toISOString().slice(0, 10),
+            pump: {
+                totalOnSec: pumpTotalOnSec,
+                cycles: pumpCycles,
+                byMode,
+            },
+            sensors,
+        });
+    } catch (err) {
+        return handleError(res, err);
+    }
+});
+
+
 router.post('/StoreToDatasensors', espPerUser, async (req, res) => {
     try {
         const userId = req.user_id || req.device?.user_id;
