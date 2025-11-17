@@ -24,9 +24,9 @@
     display: inline-flex;
     align-items: center;
     top: 40px;
-    inset-inline-end: 20px;
+    inset-inline-end: -.5rem;
     gap: 10px;
-    width: 200px;
+    width: 230px;
     border-radius: 999px;
     background: #2a2a2a;
     border: 1px solid #373737;
