@@ -49,8 +49,8 @@ router.get('/analytics/today', async (req, res) => {
 
         const [pumpRows] = await db.execute(
             `SELECT
-                 COALESCE(SUM(ds.pump_duration_sec), 0)        AS totalOnSec,
-                 COUNT(DISTINCT ds.pump_cycle_id)              AS cycles
+                 COALESCE(SUM(ds.pump_duration_sec), 0) AS totalOnSec,
+                 COUNT(DISTINCT ds.pump_cycle_id) AS cycles
              FROM datasensors ds
                       JOIN plant p       ON ds.PlantID = p.ID
                       JOIN planttype pt  ON p.PlantTypeID = pt.ID
