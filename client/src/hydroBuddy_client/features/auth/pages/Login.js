@@ -68,9 +68,9 @@ export default function Login({ embed = false }) {
                 </>
                   }
                   footer={
-                      <div  className="text-muted-500" onClick={flip}>
+                      <FlashButton className="btn--transparent text-muted-500" onClick={flip}>
                           {t("login.register_txt")}
-                      </div>
+                      </FlashButton>
                   }
             />
         );

@@ -105,7 +105,7 @@
 .lh-14  { line-height: 1.4; }
 .lh-16  { line-height: 1.6; }
 
-/* ===== Text color helpers ===== */
+ /*===== Text color helpers ===== */
 .text-muted    { color: var(--muted); }
 .text-muted-100{ color: var(--muted-100); }
 .text-muted-200{ color: var(--muted-200); }
