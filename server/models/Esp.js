@@ -17,8 +17,12 @@ class EspData {
         warn('ESP', '_readJson(): no doc, creating default', { ids: this.ids });
         const init = {
             state: 61,
-            TEMP_MODE: { temp: 0, light: 0, tempTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0, daylightOnly: false, lightGate: 0 },
-            SOIL_MOISTURE_MODE: { moisture: 0, light: 0, moistureTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0, daylightOnly: false, lightGate: 0 },
+            TEMP_MODE: { temp: 0, light: 0, tempTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0, daylightOnly: false,
+                lightGate: 0 },
+
+            SOIL_MOISTURE_MODE: { moisture: 0, light: 0, moistureTarget: 0, hysteresis: 0, runMin: 0, cooldown: 0,
+                daylightOnly: false, lightGate: 0 },
+
             SATURDAY_MODE: { dateAct: "", timeAct: "", duration: 0 },
             MANUAL_MODE: { enabled: false },
             pump: { on: false, updatedAt: null },

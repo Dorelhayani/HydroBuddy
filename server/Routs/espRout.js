@@ -7,13 +7,47 @@ const db = require('../models/database');
 const EspData = require('../models/Esp');
 const { EspPerUser } = require('../models/DeviceHandler');
 const { broadcastSensorUpdate } = require('../utils/webSocketUtils');
+const SensorLog = require('../models/SensorLog');
+
 const espPerUser = EspPerUser(db, EspData);
+const sensorLog = new SensorLog(db);
 
 // שיטת עזרה לשגיאות
 function handleError(res, err) {
     const status = typeof err.code === 'number' ? err.code : 500;
     return res.status(status).json({ error: err.message || 'Internal server error' });
 }
+
+router.post('/StoreToDatasensors', espPerUser, async (req, res) => {
+    try {
+        const userId = req.user_id || req.device?.user_id;
+        if (!userId) { return res.status(401).json({ error: 'Not authenticated' }); }
+
+        const deviceId = req.device?.id ?? null;
+
+        const { temp, light, moisture } = req.body;
+        const t = Number(temp);
+        const l = Number(light);
+        const m = Number(moisture);
+
+        if (![t, l, m].every(Number.isFinite)) { return res.status(400).json({ error: 'Invalid sensor values' }); }
+
+        const state = await req.esp.getState().catch(() => null);
+        const pumpOn = state?.pump ? (state.pump.on ? 1 : 0) : null;
+        const pumpMode = state ? sensorLog.ModeFromState(state) : null;
+
+        const pumpCycleId = null;
+        const pumpDurationSec = null;
+        const note = null;
+
+        const result = await sensorLog.storeESPData({userId, deviceId, temp: t, light: l, moisture: m, pumpOn, pumpMode,
+            pumpCycleId, pumpDurationSec, note});
+
+        return res.status(200).json(result);
+    } catch (err) {
+        return handleError(res, err);
+    }
+});
 
 // Root
 router.get('/', (req, res) => res.send('ESP root route reached.'));
@@ -52,13 +86,36 @@ router.patch('/state', espPerUser, async (req, res) => {
 
 router.patch('/pump', espPerUser, async (req, res) => {
     try {
+        const userId = req.user_id || req.device?.user_id || null;
+        const deviceId = req.device?.id ?? null;
+
+        const prevState = await req.esp.getState();
+        const prevOn = !!prevState?.pump?.on;
+
         const result = await req.esp.setPumpStatus(req.body);
-        const currentState = await req.esp.getState();
-        broadcastSensorUpdate(currentState);
+        const newState = await req.esp.getState();
+        const nowOn = !!newState?.pump?.on;
+        broadcastSensorUpdate(newState);
+
+        if (userId && deviceId) {
+            const pumpMode = sensorLog.ModeFromState(newState);
+
+            if (!prevOn && nowOn) { sensorLog.beginPumpCycle({ deviceId, userId, pumpMode }); }
+
+            if (prevOn && !nowOn) {
+                const temp = Number(newState?.TEMP_MODE?.temp ?? NaN);
+                const light = Number(newState?.TEMP_MODE?.light ?? NaN);
+                const moisture = Number(newState?.SOIL_MOISTURE_MODE?.moisture ?? NaN);
+
+                if ([temp, light, moisture].every(Number.isFinite)) {
+                    await sensorLog.endPumpCycle({ deviceId, temp, light, moisture });
+                }
+            }
+        }
+
         return res.status(200).json(result);
     } catch (err) { return handleError(res, err); }
 });
-
 
 // קונפיג טמפ׳/אור
 router.patch('/temp', espPerUser, async (req, res) => {

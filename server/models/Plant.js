@@ -5,32 +5,6 @@ class PlantData {
         this.DB = db;
     }
 
-    async storeESPData(userId, temp, light, moisture) {
-        if (!userId) throw new Error('Missing user id');
-
-        // find latest plant id for user
-        const [rows] = await this.DB.execute(
-            `SELECT p.ID as plantId
-       FROM plant p
-       JOIN planttype pt ON pt.ID = p.PlantTypeID
-       WHERE pt.user_id = ?
-       ORDER BY p.ID DESC
-       LIMIT 1`,
-            [userId]
-        );
-
-        if (!rows || rows.length === 0) throw new Error('No plant found for user');
-
-        const plantId = rows[0].plantId;
-        await this.DB.execute(
-            `INSERT INTO datasensors (PlantID, temp, light, moisture, Date)
-       VALUES (?, ?, ?, ?, CURDATE())`,
-            [plantId, temp, light, moisture]
-        );
-
-        return { message: 'Sensor data stored', plantId };
-    }
-
     // Create a plant: ensure planttype exists for this user, then insert plant row
     async Create(plantName, userId) {
         if (!userId) throw new Error('Missing user id');
