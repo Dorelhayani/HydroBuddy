@@ -86,5 +86,36 @@
     "set_to": "Set to ", "at": "at", "for": "for", "minutes": "minutes",
 
     "on": "ON", "off": "OFF"
+  },
+
+  "analytics": {
+    "title": "Analytics Panel",
+    "loading": "Loading analytics...",
+    "error": "Failed to load analytics.",
+    "retry": "Retry",
+    "pumpSummary": {
+      "title": "Pump summary",
+      "totalOn": "Total ON time",
+      "cycles": "Cycles"
+    },
+    "byMode": {
+      "title": "By mode",
+      "empty": "No pump cycles logged today."
+    },
+    "sensors": {
+      "title": "Average sensors",
+      "temp": "Temperature",
+      "moisture": "Soil moisture",
+      "light": "Light"
+    },
+    "mode": {
+      "temp": "Temperature",
+      "moisture": "Moisture",
+      "saturday": "Saturday",
+      "manual": "Manual",
+      "idle": "Idle",
+      "unknown": "Unknown"
+    }
   }
+
 }

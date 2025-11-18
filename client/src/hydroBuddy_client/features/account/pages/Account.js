@@ -48,6 +48,16 @@ export default function Account() {
                 body={
                 <div className="account-card__body">
                     <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
+
+                    <div className="tooltip btn--transparent">
+                        <FlashButton className="btn--transparent btn--sm">
+                            <span className="tooltiptext fw-600 text-xs">{t('Analytics.title')}</span>
+                            <i className="fa-solid fa-chart-pie fa-2xl" style={{ color: '#74C0FC'}} />
+                            {/*<i className="fa-solid fa-chart-line" styles={{ color: "#74C0FC" }}/>*/}
+                            {/*AnalyticsPanel*/}
+                        </FlashButton>
+                    </div>
+
                     <div className="account_card-joined text-sm fw-600 text-muted-500 lh-1 text-center">
                         {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}
                     </div>
