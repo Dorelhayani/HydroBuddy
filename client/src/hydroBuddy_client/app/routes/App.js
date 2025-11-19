@@ -10,6 +10,7 @@ import Dashboard from "../../features/dashboard/pages/Dashboard";
 import FlashButton from "../../ui/ButtonGenerate";
 import LanguageSwitcher from "../../ui/LanguageSwitcher";
 import { AuthProvider } from "../providers/AuthProvider";
+import AnalyticsPanel from '../../features/analytics/pages/Analytics';
 
 function Layout() {
     const location = useLocation();
@@ -81,6 +82,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Login /> },
             { path: "dashboard", element: <Dashboard /> },
+            {path: "analytics", element: <AnalyticsPanel /> },
         ],
     },
 ]);

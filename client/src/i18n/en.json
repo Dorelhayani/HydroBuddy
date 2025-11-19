@@ -93,6 +93,7 @@
     "loading": "Loading analytics...",
     "error": "Failed to load analytics.",
     "retry": "Retry",
+    "back": "Back to Dashboard",
     "pumpSummary": {
       "title": "Pump summary",
       "totalOn": "Total ON time",

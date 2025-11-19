@@ -49,12 +49,10 @@ export default function Account() {
                 <div className="account-card__body">
                     <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
 
-                    <div className="tooltip btn--transparent">
-                        <FlashButton className="btn--transparent btn--sm">
-                            <span className="tooltiptext fw-600 text-xs">{t('Analytics.title')}</span>
+                    <div className="tooltip">
+                        <FlashButton className="btn--transparent btn--sm" onClick={() => nav("analytics")} >
+                            <span className="tooltiptext fw-600 text-xs">{t('analytics.title')}</span>
                             <i className="fa-solid fa-chart-pie fa-2xl" style={{ color: '#74C0FC'}} />
-                            {/*<i className="fa-solid fa-chart-line" styles={{ color: "#74C0FC" }}/>*/}
-                            {/*AnalyticsPanel*/}
                         </FlashButton>
                     </div>
 
@@ -332,7 +330,7 @@ export default function Account() {
             } catch (err) {}
         };
         return (
-            <div className="">
+            <div>
             <small className="fw-600 text-xs">{t("account.delete_txt")}</small>
          <div className="btn-row">
              <FlashButton className="btn btn--outline btn--sm" onClick={onCancel}>{t("common.cancel")}</FlashButton>

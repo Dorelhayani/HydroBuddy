@@ -1,19 +1,14 @@
 /* ===== AnalyticsPanel.js ===== */
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-import { useAnalytics } from "../hooks/useAnalytics";
-import Card, { useBorderFlash } from "../../../ui/Card";
 import {useT} from "../../../../local/useT";
-
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-} from "recharts";
+import Card from "../../../ui/Card";
+import { useAnalytics } from "../hooks/useAnalytics";
+import FlashButton from "../../../ui/ButtonGenerate";
+import { formatDateTime } from "../../../shared/domain/formatters";
 
 function secondsToMin(sec) {
   if (!sec || sec <= 0) return "0 min";
@@ -44,6 +39,7 @@ function modeLabel(mode, t) {
 const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" }) {
   const { data, loading, error, refetch } = useAnalytics();
   const { t } = useT();
+  const nav = useNavigate();
 
   const title = t("analytics.title", "Today analytics");
 
@@ -74,7 +70,8 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
     );
   }
 
-  const date = data?.date ?? "";
+  // const date = data?.date ?? "";
+  const date = formatDateTime(data?.date);
   const pumpTotalOnSec = data?.pump?.totalOnSec ?? 0;
   const pumpCycles = data?.pump?.cycles ?? 0;
   const byMode = data?.pump?.byMode ?? [];
@@ -83,10 +80,9 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
   const avgMoisture = sensors.avgMoisture;
   const avgLight = sensors.avgLight;
 
-  // נתוני הפאי – דקות ולא שניות, יותר אינטואיטיבי למשתמש
   const pieData = byMode.map((m) => ({
     name: modeLabel(m.mode, t),
-    value: m.totalOnSec / 60, // דקות
+    value: m.totalOnSec / 60,
   })).filter(d => d.value > 0);
 
   const hasPie = pieData.length > 0;
@@ -96,9 +92,8 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
       variant={variant}
       header={
         <div className="mx-auto-flex mb-8">
-          <small className="text-lg fw-600 mb-8 stack-8">
-            {title} {date && `· ${date}`}
-          </small>
+          <small className="text-lg fw-600 mb-8 stack-8">{title}</small>
+          <small className="text-xs text-muted-500 btn-row mid">{`${date}`}</small>
         </div>
       }
       body={
@@ -153,8 +148,7 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value) =>
-                        `${Number(value).toFixed(1)} min`
+                      formatter={(value) => `${Number(value).toFixed(1)} min`
                       }
                     />
                     <Legend />
@@ -188,6 +182,16 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
               </strong>
             </div>
           </div>
+        </div>
+      }
+      footer={
+        <div className="tooltip">
+          <FlashButton
+            className="btn--transparent"
+            onClick={() => nav('/dashboard')}>
+            <span className="tooltiptext fw-600 text-xs">{t('analytics.back')}</span>
+            <i className="fa-regular fa-house fa-2xl" style={{ color: '#74C0FC' }} />
+          </FlashButton>
         </div>
       }
     />
