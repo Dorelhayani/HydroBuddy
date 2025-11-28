@@ -29,7 +29,7 @@ export function useEsp() {
         Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null));
 
     const mutate = useRequestStatus();
-    const toFiniteInt   = (v) => Number.isFinite(+v) ? parseInt(v,10) : undefined;
+    const toFiniteInt = (v) => Number.isFinite(+v) ? parseInt(v,10) : undefined;
     const toFiniteFloat = (v) => Number.isFinite(+v) ? parseFloat(v) : undefined;
 
     const fetchState = useCallback(async () => {

@@ -21,6 +21,8 @@ export default function Account() {
     const { setItems, update_account, remove_account } = useAccount();
     const { item, fetchUser, avatarUpload, changePassword, logout, loading: authLoading, err: authErr} = useAuth();
 
+    const isDashboard = location.pathname === "/dashboard";
+
     function AccountInfo(){
         const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -49,12 +51,22 @@ export default function Account() {
                 <div className="account-card__body">
                     <div className="account_card-email text-sm fw-600 text-muted-500 lh-1 text-center">{item?.email}</div>
 
-                    <div className="tooltip">
-                        <FlashButton className="btn--transparent btn--sm" onClick={() => nav("analytics")} >
-                            <span className="tooltiptext fw-600 text-xs">{t('analytics.title')}</span>
-                            <i className="fa-solid fa-chart-pie fa-2xl" style={{ color: '#74C0FC'}} />
-                        </FlashButton>
-                    </div>
+                    { isDashboard ? (
+                      <div className="tooltip">
+                          <FlashButton className="btn--transparent btn--sm" onClick={() => nav("analytics")} >
+                              <span className="tooltiptext fw-600 text-xs">{t('analytics.title')}</span>
+                              <i className="fa-solid fa-chart-pie fa-2xl" style={{ color: '#74C0FC'}} />
+                          </FlashButton>
+                      </div> ) :
+                      <div className="tooltip">
+                          <FlashButton
+                            className="btn--transparent"
+                            onClick={() => nav('/dashboard')}>
+                              <span className="tooltiptext fw-600 text-xs">{t('analytics.back')}</span>
+                              <i className="fa-regular fa-house fa-2xl" style={{ color: '#74C0FC' }} />
+                          </FlashButton>
+                      </div>
+                    }
 
                     <div className="account_card-joined text-sm fw-600 text-muted-500 lh-1 text-center">
                         {item ? `Joined: ${formatDateDDMMYYYY(item.created_at)}` : "Loading..."}

@@ -247,7 +247,7 @@ export default function Plants({ embed = false }) {
     const front = ({flip})=> ( activeTab === "plant_info" && (<PlantInfo flip={() => { if (!flipped) flip?.(); }}/>) );
     const back = ({unflip})=> (
       activeTab === "add_plant" ?
-        (<AddPlant variant={variant}  plnt={plant} unflip={() => { if (flipped) unflip(); }}/> ) :
+        (<AddPlant variant={variant} plnt={plant} unflip={() => { if (flipped) unflip(); }}/> ) :
         activeTab === "update_plant" ?
           (<UpdatePlant variant={variant} unflip={() => { if (flipped) unflip();}} />) :
           activeTab === "delete_plant" ?

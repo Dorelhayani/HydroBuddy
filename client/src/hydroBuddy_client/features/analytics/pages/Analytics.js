@@ -1,14 +1,12 @@
 /* ===== AnalyticsPanel.js ===== */
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import {useT} from "../../../../local/useT";
+import { formatDateTime } from "../../../shared/domain/formatters";
 import Card from "../../../ui/Card";
 import { useAnalytics } from "../hooks/useAnalytics";
-import FlashButton from "../../../ui/ButtonGenerate";
-import { formatDateTime } from "../../../shared/domain/formatters";
 
 function secondsToMin(sec) {
   if (!sec || sec <= 0) return "0 min";
@@ -36,88 +34,62 @@ function modeLabel(mode, t) {
   }
 }
 
-const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" }) {
-  const { data, loading, error, refetch } = useAnalytics();
+const Pumpsummary = React.memo(function Pumpsummary({ variant = "default" }) {
   const { t } = useT();
-  const nav = useNavigate();
-
-  const title = t("analytics.title", "Today analytics");
-
-  if (loading && !data) {
-    return (
-      <Card
-        variant={variant}
-        header={<span className="text-sm fw-600">{title}</span>}
-        body={<p className="loading">{t("analytics.loading", "Loading analytics...")}</p>}
-      />
-    );
-  }
-
-  if (error && !data) {
-    return (
-      <Card
-        variant={variant}
-        header={<span className="text-sm fw-600">{title}</span>}
-        body={
-          <div>
-            <p className="msg">{t("analytics.error", "Failed to load analytics.")}</p>
-            <button className="btn" onClick={refetch}>
-              {t("analytics.retry", "Retry")}
-            </button>
-          </div>
-        }
-      />
-    );
-  }
-
-  // const date = data?.date ?? "";
-  const date = formatDateTime(data?.date);
+  const { data } = useAnalytics();
   const pumpTotalOnSec = data?.pump?.totalOnSec ?? 0;
   const pumpCycles = data?.pump?.cycles ?? 0;
-  const byMode = data?.pump?.byMode ?? [];
-  const sensors = data?.sensors ?? {};
-  const avgTemp = sensors.avgTemp;
-  const avgMoisture = sensors.avgMoisture;
-  const avgLight = sensors.avgLight;
+  const pumpTitle = t("analytics.pumpSummary.title", "Pump summary");
 
+  return(
+    <Card
+      className="analytics-section"
+      variant = {variant}
+      header={
+        <div className="mx-auto-flex mb-8">
+          <small className="text-lg fw-600 mb-8 stack-8">{pumpTitle}</small>
+        </div>
+      }
+      body={
+        <>
+          <div className="txt">
+            {t("analytics.pumpSummary.totalOn", "Total ON time")}:{" "}
+            <strong>{secondsToMin(pumpTotalOnSec)}</strong>
+          </div>
+          <div className="txt">
+            {t("analytics.pumpSummary.cycles", "Cycles")}:{" "}
+            <strong>{pumpCycles}</strong>
+          </div>
+        </>
+      }
+      footer={" "}
+    />
+  );
+});
+
+const PiChart = React.memo(function PiChart({ variant = "default" }) {
+  const { t } = useT();
+  const { data } = useAnalytics();
+  const piCartTitle = t("analytics.byMode.title", "By mode");
+
+  const byMode = data?.pump?.byMode ?? [];
   const pieData = byMode.map((m) => ({
     name: modeLabel(m.mode, t),
-    value: m.totalOnSec / 60,
-  })).filter(d => d.value > 0);
+    value: m.totalOnSec / 60, })).filter(d => d.value > 0);
 
   const hasPie = pieData.length > 0;
 
   return (
     <Card
-      variant={variant}
+      className="analytics-section"
+      variant = {variant}
       header={
         <div className="mx-auto-flex mb-8">
-          <small className="text-lg fw-600 mb-8 stack-8">{title}</small>
-          <small className="text-xs text-muted-500 btn-row mid">{`${date}`}</small>
+          <small className="text-lg fw-600 mb-8 stack-8">{piCartTitle}</small>
         </div>
       }
       body={
-        <div className="analytics-grid">
-          {/* סיכום המשאבה */}
-          <div className="analytics-section">
-            <div className="sub-title">
-              {t("analytics.pumpSummary.title", "Pump summary")}
-            </div>
-            <div className="txt">
-              {t("analytics.pumpSummary.totalOn", "Total ON time")}:{" "}
-              <strong>{secondsToMin(pumpTotalOnSec)}</strong>
-            </div>
-            <div className="txt">
-              {t("analytics.pumpSummary.cycles", "Cycles")}:{" "}
-              <strong>{pumpCycles}</strong>
-            </div>
-          </div>
-
-          {/* גרף פאי – חלוקה לפי מצב */}
-          <div className="analytics-section analytics-chart">
-            <div className="sub-title">
-              {t("analytics.byMode.title", "By mode")}
-            </div>
+          <div className="analytics-chart">
             {!hasPie && (
               <div className="txt">
                 {t("analytics.byMode.empty", "No pump cycles logged today.")}
@@ -156,13 +128,34 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
                 </ResponsiveContainer>
               </div>
             )}
-          </div>
+        </div>
+      }
+      footer={" "}
+    />
+  );
+});
 
-          {/* ממוצעי חיישנים */}
-          <div className="analytics-section">
-            <div className="sub-title">
-              {t("analytics.sensors.title", "Average sensors")}
-            </div>
+const SensorsAVG = React.memo(function SensorsAVG({ variant = "default" }) {
+  const { t } = useT();
+  const { data } = useAnalytics();
+
+  const SensorsAVGTitle = t("analytics.sensors.title", "Average sensors");
+  const sensors = data?.sensors ?? {};
+  const avgTemp = sensors.avgTemp;
+  const avgMoisture = sensors.avgMoisture;
+  const avgLight = sensors.avgLight;
+
+  return(
+    <Card
+      className="analytics-section"
+      variant = {variant}
+      header={
+        <div className="mx-auto-flex mb-8">
+          <small className="text-lg fw-600 mb-8 stack-8">{SensorsAVGTitle}</small>
+        </div>
+      }
+      body={
+          <>
             <div className="txt">
               {t("analytics.sensors.temp", "Temperature")}:{" "}
               <strong>
@@ -181,21 +174,69 @@ const AnalyticsPanel = React.memo(function AnalyticsPanel({ variant = "default" 
                 {avgLight != null ? `${avgLight.toFixed(1)} %` : "—"}
               </strong>
             </div>
-          </div>
-        </div>
+          </>
       }
-      footer={
-        <div className="tooltip">
-          <FlashButton
-            className="btn--transparent"
-            onClick={() => nav('/dashboard')}>
-            <span className="tooltiptext fw-600 text-xs">{t('analytics.back')}</span>
-            <i className="fa-regular fa-house fa-2xl" style={{ color: '#74C0FC' }} />
-          </FlashButton>
-        </div>
-      }
+      footer={" "}
     />
   );
 });
 
-export default AnalyticsPanel;
+export default function Analytics({variant, embed = false}) {
+  const { data, loading, error, refetch } = useAnalytics();
+  const { t } = useT();
+  const date = formatDateTime(data?.date);
+  const title = t("analytics.title", "Today analytics");
+
+  if (loading && !data) {
+    return (
+      <Card
+        variant={variant}
+        header={<span className="text-sm fw-600">{title}</span>}
+        body={<p className="loading">{t("analytics.loading", "Loading analytics...")}</p>}
+      />
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <Card
+        variant={variant}
+        header={<span className="text-sm fw-600">{title}</span>}
+        body={
+          <div>
+            <p className="msg">{t("analytics.error", "Failed to load analytics.")}</p>
+            <button className="btn" onClick={refetch}>
+              {t("analytics.retry", "Retry")}
+            </button>
+          </div>
+        }
+      />
+    );
+  }
+  const content = (
+    <Card
+      className="analytics-main"
+      variant={variant}
+      header={
+        <div className="mx-auto-flex mb-8">
+          <small className="text-lg fw-600 mb-8 stack-8">{title}</small>
+          <small className="text-xs text-muted-500 btn-row mid">{`${date}`}</small>
+        </div>
+      }
+      body={
+        <section className="analytics-main">
+          <Pumpsummary/>
+          <PiChart/>
+          <SensorsAVG/>
+        </section>
+      }
+      footer={ <div/> }
+    />
+  );
+
+  return embed ? content : (
+    <>
+      {content}
+    </>
+  );
+}

@@ -6,6 +6,20 @@ import { useRequestStatus } from "../../../shared/hooks/RequestStatus";
 import { plants } from "../services/plants";
 
 
+// export function usePlants() {
+//     const status = useRequestStatus();
+//     const [plant, setPlant] = useState([]);
+//     const [selectedPlant, setSelectedPlant] = useState(null);
+//
+//     const fetchPlants = useCallback( async () => {
+//         await status.run(async () => {
+//             const rows = await plants.myPlants();
+//             setPlant(rows);
+//             return rows;
+//         });
+//
+//     }, []);
+
 export function usePlants() {
     const status = useRequestStatus();
     const [plant, setPlant] = useState([]);
