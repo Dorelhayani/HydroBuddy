@@ -1,7 +1,6 @@
-// /* ===== LocaleProvider.js ===== */
+/* ===== LocaleProvider.js ===== */
 
 import React from "react";
-
 import { createTranslator, DEFAULT_LANG, isRTL, supportedLangs } from "../i18n/i18n";
 
 const LocaleContext = React.createContext(null);
