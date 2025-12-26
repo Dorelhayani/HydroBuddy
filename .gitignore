@@ -7,3 +7,7 @@
 /db/
 /Server Draft/
 /react.txt
+
+# external folders (outside client scope)
+../server/
+../esp_arduino/
